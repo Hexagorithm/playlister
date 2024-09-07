@@ -1,1 +1,15 @@
 #!/bin/bash
+
+# Hardcoded defaults
+#	Immutable
+main_directory="~/.playlister/"
+config_file="${main_directory}playlister.conf"
+config_file_bak="${config_file}.bak"
+database="${main_directory}playlister.db"
+database_bak="${database}.bak"
+helpfile="${main_directory}playlister.help"
+#	Mutable
+playlist_directory="${main_directory}playlists/"
+mp3_directory="/mp3s"
+mp3_ext=".mp3"
+playlist_ext=".plst"
