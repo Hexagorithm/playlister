@@ -16,23 +16,28 @@ playlist_ext=".plst"
 
 function main () {
 	if [[ "$#" -eq 0 ]]; then
-		>&2 echo "$0: invalid argument count (must be > 0)!"
+		user-output "$0: invalid argument count (must be > 0)!"
 		exit 1
 	fi
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in 
 			config)
 				shift
-				>&2 echo "$0: config handling not configured yet!"
+				user-output "$0: config handling not configured yet!"
 				exit 1
 				;;
 			*)
-				>&2 echo "$0: unrecognised option!"
+				user-output "$0: unrecognised option!"
 				shift
 				exit 1
 				;;
 		esac
 	done
+}
+
+function user-output () {
+	local output="$1"
+	>&2 echo "$1"
 }
 
 main "$@"
