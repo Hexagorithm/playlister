@@ -23,7 +23,7 @@ function main () {
 		case $1 in 
 			config)
 				shift
-				user-output "$0: config handling not configured yet!"
+				config "$@"
 				exit 1
 				;;
 			*)
@@ -38,6 +38,24 @@ function main () {
 function user-output () {
 	local output="$1"
 	>&2 echo "$1"
+}
+
+function config () {
+	if [[ "$#" -eq 0 ]]; then
+		user-output "$0: invalid config argument count (must be >0)!"
+		exit 1
+	fi
+	while [[ "$#" -gt 0 ]]; do
+		case $1 in
+			configure)
+				user-output "$0: config configure options not implemented yet!"
+				exit 1
+				;;
+			*)
+				user-output "$0: unrecognised config option!"
+				exit 1
+		esac
+	done
 }
 
 main "$@"
