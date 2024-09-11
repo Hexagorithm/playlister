@@ -2,7 +2,7 @@
 
 # Hardcoded defaults
 #	Immutable
-main_directory="~/.playlister/"
+main_directory="$HOME/.playlister/"
 config_file="${main_directory}playlister.conf"
 config_file_bak="${config_file}.bak"
 database="${main_directory}playlister.db"
@@ -48,7 +48,7 @@ function config () {
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
 			configure)
-				user-output "config configure options not implemented yet!"
+				config-configure
 				exit 1
 				;;
 			*)
@@ -57,5 +57,17 @@ function config () {
 		esac
 	done
 }
-
+function config-configure () {
+	if [[ -d $main_directory ]]; then
+		user-output "$main_directory already there."
+	else
+		mkdir $main_directory
+		if [[ $? -ne 0 ]]; then
+			user-output "failed to make $main_directory !"
+			exit 1
+		else
+			user-output "made $main_directory"
+		fi
+	fi
+}
 main "$@"
