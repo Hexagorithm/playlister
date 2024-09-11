@@ -16,7 +16,7 @@ playlist_ext=".plst"
 
 function main () {
 	if [[ "$#" -eq 0 ]]; then
-		user-output "$0: invalid argument count (must be > 0)!"
+		user-output "invalid argument count (must be > 0)!"
 		exit 1
 	fi
 	while [[ "$#" -gt 0 ]]; do
@@ -27,7 +27,7 @@ function main () {
 				exit 1
 				;;
 			*)
-				user-output "$0: unrecognised option!"
+				user-output "unrecognised option!"
 				shift
 				exit 1
 				;;
@@ -37,22 +37,22 @@ function main () {
 
 function user-output () {
 	local output="$1"
-	>&2 echo "$1"
+	>&2 echo "$0: $1"
 }
 
 function config () {
 	if [[ "$#" -eq 0 ]]; then
-		user-output "$0: invalid config argument count (must be >0)!"
+		user-output "invalid config argument count (must be >0)!"
 		exit 1
 	fi
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
 			configure)
-				user-output "$0: config configure options not implemented yet!"
+				user-output "config configure options not implemented yet!"
 				exit 1
 				;;
 			*)
-				user-output "$0: unrecognised config option!"
+				user-output "unrecognised config option!"
 				exit 1
 		esac
 	done
