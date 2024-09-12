@@ -106,7 +106,15 @@ function create-directory () {
 
 function setup-file () {
 	local filepath="$1"
-	echo "$filepath is being set up."
+	shift
+	while [[ "$#" -ne 0 ]]; do
+		case $1 in 
+			*)
+				user-output "unrecognised option!"
+				return 1
+				;;
+		esac
+	done
 }
 
 main "$@"
