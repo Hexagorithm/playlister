@@ -120,6 +120,11 @@ function setup-file () {
 				;;
 		esac
 	done
+	if ! [[ -a "$filepath" ]]; then
+		user-output "$filepath does not exist!"
+	else
+		user-output "$filepath exists."
+	fi
 }
 
 main "$@"
