@@ -70,9 +70,15 @@ function config-configure () {
 		fi
 	fi
 	if ! [[ -a "$helpfile" ]]; then
-		user-output "$helpfile not found."
+		user-output "$helpfile not found!"
+		local helpfilename="$(basename $helpfile)"
+		if ! [[ -a "./$helpfilename" ]] ; then
+			user-output "$helpfilename not found in current directory!"
+			exit 1
+		fi
+		user-output "$helpfilename found in current directory."
 	else
-		user-output "$helpfile exits."
+		user-output "$helpfile exists."
 	fi
 }
 main "$@"
