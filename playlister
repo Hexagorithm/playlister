@@ -69,5 +69,10 @@ function config-configure () {
 			user-output "made $main_directory"
 		fi
 	fi
+	if ! [[ -a "$helpfile" ]]; then
+		user-output "$helpfile not found."
+	else
+		user-output "$helpfile exits."
+	fi
 }
 main "$@"
