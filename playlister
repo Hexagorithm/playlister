@@ -77,6 +77,12 @@ function config-configure () {
 			exit 1
 		fi
 		user-output "$helpfilename found in current directory."
+		mv $helpfilename $helpfile
+		if ! [[ $? -eq 0 ]]; then
+			user-output "$helpfilename failed to move to $helpfile !"
+			exit 1
+		fi
+		user-output "$helpfilename moved to $helpfile ."
 	else
 		user-output "$helpfile exists."
 	fi
