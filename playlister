@@ -106,9 +106,14 @@ function create-directory () {
 
 function setup-file () {
 	local filepath="$1"
+	local currentdir="no"
 	shift
 	while [[ "$#" -ne 0 ]]; do
 		case $1 in 
+			"currentdir")
+				currentdir="yes"
+				shift
+				;;
 			*)
 				user-output "unrecognised option!"
 				return 1
