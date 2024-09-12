@@ -132,7 +132,13 @@ function setup-file () {
 			user-output "$file not in current directory!"
 		else
 			user-output "$file in current directory."
-			return 0
+			mv "$file" "$filepath"
+			if [[ $? -eq 0 ]]; then
+				user-output "$file moved to $filepath ."
+				return 0
+			else
+				user-output "$file failed to move to $filepath !"
+			fi
 		fi
 	fi
 	
