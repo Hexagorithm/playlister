@@ -62,7 +62,7 @@ function config-configure () {
 		exit 1
 	fi
 	
-	if ! setup-file "$helpfile"; then
+	if ! setup-file "$helpfile" "currentdir"; then
 		user-output "failed to set up $helpfile !"
 		exit 1
 	fi
@@ -125,6 +125,17 @@ function setup-file () {
 		return 0
 	fi
 	user-output "$filepath does not exist!"
+
+	if [[ "$currentdir" == "yes" ]]; then
+		local file="$(basename "$filepath")"
+		if ! [[ -a  "$file" ]]; then
+			user-output "$file not in current directory!"
+		else
+			user-output "$file in current directory."
+			return 0
+		fi
+	fi
+	
 	return 1
 }
 
