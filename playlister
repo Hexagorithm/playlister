@@ -58,17 +58,12 @@ function config () {
 	done
 }
 function config-configure () {
-	if [[ -d $main_directory ]]; then
-		user-output "$main_directory already there."
-	else
-		mkdir $main_directory
-		if [[ $? -ne 0 ]]; then
-			user-output "failed to make $main_directory !"
-			exit 1
-		else
-			user-output "made $main_directory"
-		fi
+	if ! create-directory "$main_directory" ; then
+		exit 1
 	fi
+	user-output "end"
+	exit 1
+	
 	if ! [[ -a "$helpfile" ]]; then
 		user-output "$helpfile not found!"
 		local helpfilename="$(basename $helpfile)"
@@ -86,5 +81,23 @@ function config-configure () {
 	else
 		user-output "$helpfile exists."
 	fi
+	
+}
+
+function create-directory () {
+	local directory="$1"
+	if [[ -d "$directory" ]]; then
+		user-output "$directory already there."
+	else
+		mkdir $directory
+		if [[ $? -ne 0 ]]; then
+			user-output "failed to make $directory !"
+			return 1
+		else
+			user-output "made $directory ."
+		fi
+		
+	fi
+	return 0
 }
 main "$@"
