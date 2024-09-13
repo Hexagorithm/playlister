@@ -159,17 +159,19 @@ function setup-file () {
 }
 
 function read-config () {
-	echo "READING LINES:"
 	while read line ; do
 		local argument="$(echo "$line" | cut -d "=" -f 1)"
 		case "$argument" in
+			"mp3_directory")
+				local value="$(echo "$line" | cut -d "=" -f 2)"
+				mp3_directory="$value"
+				;;
 			*)
 				user-output "\"$argument\" is not a valid user config."
 				return 1
 				;;
 		esac
 	done < "$config_file"
-	echo "END."
 }
 
 main "$@"
