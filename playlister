@@ -67,7 +67,7 @@ function config-configure () {
 		exit 1
 	fi
 	
-	if ! setup-file "$config_file" ; then
+	if ! setup-file "$config_file" "backup"; then
 		user-output "failed to set up $config_file ."
 		exit 1
 	fi
@@ -92,10 +92,15 @@ function create-directory () {
 
 function setup-file () {
 	local filepath="$1"
+	local backup="no"
 	local currentdir="no"
 	shift
 	while [[ "$#" -ne 0 ]]; do
 		case $1 in 
+			"backup")
+				backup="yes"
+				shift
+				;;
 			"currentdir")
 				currentdir="yes"
 				shift
@@ -111,6 +116,12 @@ function setup-file () {
 		return 0
 	fi
 	user-output "$filepath does not exist!"
+
+	if [[ "$backup" == "yes" ]]; then
+		echo "$filepath will be checked for backup."
+	else
+		echo "$filepath will NOT be checked for backup."
+	fi
 
 	if [[ "$currentdir" == "yes" ]]; then
 		local file="$(basename "$filepath")"
