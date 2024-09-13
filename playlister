@@ -66,6 +66,11 @@ function config-configure () {
 		user-output "failed to set up $helpfile !"
 		exit 1
 	fi
+	
+	if ! setup-file "$config_file" ; then
+		user-output "failed to set up $config_file ."
+		exit 1
+	fi
 }
 
 function create-directory () {
