@@ -11,7 +11,7 @@ mp3_ext=".mp3"
 backup_ext=".bak"
 #	Mutable
 playlist_directory="${main_directory}playlists/"
-mp3_directory="/mp3s"
+mp3_directory="${main_directory}mp3s/"
 
 function main () {
 	if [[ "$#" -eq 0 ]]; then
@@ -79,6 +79,11 @@ function config-configure () {
 	
 	if ! setup-file "$database" "backup" "makenew"; then
 		user-output "failed to set up $database ."
+		exit 1
+	fi
+
+	if ! create-directory "$mp3_directory"; then
+		user-output "failed to set up $mp3_directory !"
 		exit 1
 	fi
 }
