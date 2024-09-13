@@ -69,6 +69,10 @@ function config-configure () {
 	if ! setup-file "$config_file" "backup"; then
 		user-output "failed to set up $config_file ."
 		exit 1
+	else
+		if read-config ; then
+			user-output "configs read from $config_file ."
+		fi
 	fi
 }
 
@@ -150,6 +154,14 @@ function setup-file () {
 	fi
 	
 	return 1
+}
+
+function read-config () {
+	echo "READING LINES:"
+	while read line ; do
+		echo "$line"
+	done < "$config_file"
+	echo "END."
 }
 
 main "$@"
