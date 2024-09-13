@@ -76,6 +76,11 @@ function config-configure () {
 			user-output "failed to read configs from $config_file !"
 		fi
 	fi
+	
+	if ! setup-file "$database" "backup" "makenew"; then
+		user-output "failed to set up $database ."
+		exit 1
+	fi
 }
 
 function create-directory () {
