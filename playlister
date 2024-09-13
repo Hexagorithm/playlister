@@ -118,7 +118,17 @@ function setup-file () {
 
 	if [[ "$backup" == "yes" ]]; then
 		local filepathbak="${filepath}${backup_ext}"
-		echo "$filepath will be fetched from $filepathbak"
+		if [[ -a "$filepathbak" ]]; then
+			user-output "$filepathbak exists."
+			cp "$filepathbak" "$filepath"
+			if [[ $? -eq 0 ]]; then
+				user-output "$filepathbak copied to $filepath ."
+				return 0
+			fi
+			user-output "$filepathbak could not copy to $filepath !"
+		else
+			user-output "$filepathbak does not exist!"
+		fi
 	else
 		echo "$filepath does not have backup functionality."
 	fi
