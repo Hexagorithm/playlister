@@ -166,6 +166,10 @@ function read-config () {
 				local value="$(echo "$line" | cut -d "=" -f 2)"
 				mp3_directory="$value"
 				;;
+			"playlist_directory")
+				local value="$(echo "$line" | cut -d "=" -f 2)"
+				playlist_directory="$value"
+				;;
 			*)
 				user-output "\"$argument\" is not a valid user config."
 				return 1
