@@ -4,15 +4,14 @@
 #	Immutable
 main_directory="$HOME/.playlister/"
 config_file="${main_directory}playlister.conf"
-config_file_bak="${config_file}.bak"
 database="${main_directory}playlister.db"
-database_bak="${database}.bak"
 helpfile="${main_directory}playlister.help"
+playlist_ext=".plst"
+mp3_ext=".mp3"
+backup_ext=".bak"
 #	Mutable
 playlist_directory="${main_directory}playlists/"
 mp3_directory="/mp3s"
-mp3_ext=".mp3"
-playlist_ext=".plst"
 
 function main () {
 	if [[ "$#" -eq 0 ]]; then
@@ -118,9 +117,10 @@ function setup-file () {
 	user-output "$filepath does not exist!"
 
 	if [[ "$backup" == "yes" ]]; then
-		echo "$filepath will be checked for backup."
+		local filepathbak="${filepath}${backup_ext}"
+		echo "$filepath will be fetched from $filepathbak"
 	else
-		echo "$filepath will NOT be checked for backup."
+		echo "$filepath does not have backup functionality."
 	fi
 
 	if [[ "$currentdir" == "yes" ]]; then
