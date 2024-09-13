@@ -72,6 +72,8 @@ function config-configure () {
 	else
 		if read-config ; then
 			user-output "configs read from $config_file ."
+		else
+			user-output "failed to read configs from $config_file !"
 		fi
 	fi
 }
@@ -159,7 +161,13 @@ function setup-file () {
 function read-config () {
 	echo "READING LINES:"
 	while read line ; do
-		echo "$line"
+		local argument="$(echo "$line" | cut -d "=" -f 1)"
+		case "$argument" in
+			*)
+				user-output "\"$argument\" is not a valid user config."
+				return 1
+				;;
+		esac
 	done < "$config_file"
 	echo "END."
 }
