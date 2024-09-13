@@ -86,6 +86,11 @@ function config-configure () {
 		user-output "failed to set up $mp3_directory !"
 		exit 1
 	fi
+
+	if ! create-directory "$playlist_directory"; then
+		user-output "failed to set up $playlist_directory !"
+		exit 1
+	fi
 }
 
 function create-directory () {
