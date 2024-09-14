@@ -15,7 +15,7 @@ mp3_directory="${main_directory}mp3s/"
 
 function main () {
 	if [[ "$#" -eq 0 ]]; then
-		user-output "invalid argument count (must be > 0)!"
+		output-failure "invalid argument count (must be > 0)"
 		exit 1
 	fi
 	while [[ "$#" -gt 0 ]]; do
@@ -26,7 +26,7 @@ function main () {
 				exit 1
 				;;
 			*)
-				user-output "unrecognised option!"
+				output-failure "unrecognised option:\"$1\""
 				shift
 				exit 1
 				;;
@@ -48,7 +48,7 @@ function output-failure () {
 
 function config () {
 	if [[ "$#" -eq 0 ]]; then
-		user-output "invalid config argument count (must be >0)!"
+		output-failure "invalid config argument count (must be >0)"
 		exit 1
 	fi
 	while [[ "$#" -gt 0 ]]; do
@@ -58,7 +58,7 @@ function config () {
 				exit 1
 				;;
 			*)
-				user-output "unrecognised config option:\"$1\"!"
+				output-failure "unrecognised config option:\"$1\""
 				exit 1
 		esac
 	done
@@ -78,7 +78,7 @@ function config-configure () {
 		if read-config ; then
 			user-output "$(basename "$config_file") read."
 		else
-			user-output "$(basename "$config_file") failed to read!"
+			output-failure "$(basename "$config_file") failed to read"
 			exit 1
 		fi
 	fi
@@ -104,7 +104,7 @@ function create-directory () {
 	else
 		mkdir $directory
 		if [[ $? -ne 0 ]]; then
-			user-output "$directoryname failed to create!"
+			output-failure "$directoryname failed to create"
 			return 1
 		else
 			user-output "$directoryname created."
@@ -136,7 +136,7 @@ function setup-file () {
 				shift
 				;;
 			*)
-				user-output "unrecognised setup-file option:\"$1\"!"
+				output-failure "unrecognised setup-file option:\"$1\""
 				return 1
 				;;
 		esac
@@ -156,7 +156,7 @@ function setup-file () {
 				user-output "$filename created from backup."
 				return 0
 			else
-				user-output "$filename failed to create from backup!"
+				output-failure "$filename failed to create from backup"
 			fi
 		else
 			user-output "$filename has no backup!"
@@ -170,7 +170,7 @@ function setup-file () {
 				user-output "$filename fetched from current directory."
 				return 0
 			else
-				user-output "$filename failed to fetch from current directory!"
+				output-failure "$filename failed to fetch from current directory"
 			fi
 		else
 			user-output "$filename not found in current directory!"
@@ -183,10 +183,10 @@ function setup-file () {
 			user-output "$filename created."
 			return 0
 		fi
-		user-output "$filename failed to create!"
+		output-failure "$filename failed to create"
 	fi
 	
-	user-output "$filename setup failed!"
+	output-failure "$filename setup failed"
 	return 1
 }
 
@@ -203,7 +203,7 @@ function read-config () {
 				playlist_directory="$value"
 				;;
 			*)
-				user-output "\"$argument\" is not a valid user config."
+				output-failure "Not valid user config: \"$argument\""
 				return 1
 				;;
 		esac
