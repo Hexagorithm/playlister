@@ -46,6 +46,13 @@ function output-failure () {
 	>&2 echo -e "${white}(${red}-${white}) ${output}!"
 }
 
+function output-info () {
+	local output="$1"
+	local white="\e[1;37m"
+	local yellow="\e[1;33m"
+	>&2 echo -e "${white}(${yellow}*${white}) ${output}."
+}
+
 function config () {
 	if [[ "$#" -eq 0 ]]; then
 		output-failure "invalid config argument count (must be >0)"
