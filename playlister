@@ -39,6 +39,13 @@ function user-output () {
 	>&2 echo "$0: $1"
 }
 
+function output-success () {
+	local output="$1"
+	local white="\e[1;37m"
+	local green="\e[1;32m"
+	>&2 echo -e "${white}(${green}+${white}) ${output}."
+}
+
 function output-failure () {
 	local output="$1"
 	local white="\e[1;37m"
