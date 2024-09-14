@@ -34,11 +34,6 @@ function main () {
 	done
 }
 
-function user-output () {
-	local output="$1"
-	>&2 echo "$0: $1"
-}
-
 function output-success () {
 	local output="$1"
 	local white="\e[1;37m"
@@ -90,7 +85,7 @@ function config-configure () {
 		exit 1
 	else
 		if read-config ; then
-			user-output "$(basename "$config_file") read."
+			output-success "$(basename "$config_file") read"
 		else
 			output-failure "$(basename "$config_file") failed to read"
 			exit 1
@@ -121,7 +116,7 @@ function create-directory () {
 			output-failure "$directoryname failed to create"
 			return 1
 		else
-			user-output "$directoryname created."
+			output-success "$directoryname created"
 		fi
 		
 	fi
@@ -167,7 +162,7 @@ function setup-file () {
 		if [[ -a "$filepathbak" ]]; then
 			cp "$filepathbak" "$filepath"
 			if [[ $? -eq 0 ]]; then
-				user-output "$filename created from backup."
+				output-success "$filename created from backup"
 				return 0
 			else
 				output-failure "$filename failed to create from backup"
@@ -181,7 +176,7 @@ function setup-file () {
 		if [[ -a  "$filename" ]]; then
 			mv "$filename" "$filepath"
 			if [[ $? -eq 0 ]]; then
-				user-output "$filename fetched from current directory."
+				output-success "$filename fetched from current directory"
 				return 0
 			else
 				output-failure "$filename failed to fetch from current directory"
@@ -194,7 +189,7 @@ function setup-file () {
 	if [[ "$makenew" == "yes" ]]; then
 		touch "$filepath"
 		if [[ $? -eq 0 ]]; then
-			user-output "$filename created."
+			output-success "$filename created"
 			return 0
 		fi
 		output-failure "$filename failed to create"
