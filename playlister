@@ -39,6 +39,13 @@ function user-output () {
 	>&2 echo "$0: $1"
 }
 
+function output-failure () {
+	local output="$1"
+	local white="\e[1;37m"
+	local red="\e[1;31m"
+	>&2 echo -e "${white}(${red}-${white}) ${output}!"
+}
+
 function config () {
 	if [[ "$#" -eq 0 ]]; then
 		user-output "invalid config argument count (must be >0)!"
