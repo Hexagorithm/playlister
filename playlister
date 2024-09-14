@@ -107,7 +107,7 @@ function create-directory () {
 	local directory="$1"
 	local directoryname="$(basename "$1")"
 	if [[ -d "$directory" ]]; then
-		user-output "$directoryname exists."
+		output-info "$directoryname exists"
 	else
 		mkdir $directory
 		if [[ $? -ne 0 ]]; then
@@ -150,10 +150,10 @@ function setup-file () {
 	done
 	
 	if [[ -a "$filepath" ]]; then
-		user-output "$filename exists."
+		output-info "$filename exists"
 		return 0
 	fi
-	user-output "$filename does not exist!"
+	output-info "$filename does not exist"
 
 	if [[ "$backup" == "yes" ]]; then
 		local filepathbak="${filepath}${backup_ext}"
@@ -166,7 +166,7 @@ function setup-file () {
 				output-failure "$filename failed to create from backup"
 			fi
 		else
-			user-output "$filename has no backup!"
+			output-info "$filename has no backup"
 		fi
 	fi
 
@@ -180,7 +180,7 @@ function setup-file () {
 				output-failure "$filename failed to fetch from current directory"
 			fi
 		else
-			user-output "$filename not found in current directory!"
+			output-info "$filename not found in current directory"
 		fi
 	fi
 
