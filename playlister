@@ -110,6 +110,11 @@ function config-list () {
 		output-info "$config_file_name exists"
 		if read-config ; then
 			output-info "$config_file_name read"
+			if list-config; then
+				output-success "configurations listed"
+			else
+				output-failure "configurations failed to list"
+			fi
 		else
 			output-failure "$config_file_name failed to read"
 		fi
@@ -234,11 +239,11 @@ function read-config () {
 }
 
 function list-config () {
-    output-info "	Main directory	-> $main_directory"
-    output-info "	Configurations	-> $config_file"
-    output-info "	Help		-> $helpfile"
-    output-info "	Playlists	-> $playlist_directory"
-    output-info "	Music		-> $mp3_directory"
+    output-info "	Main directory	-> $main_directory "
+    output-info "	Configurations	-> $config_file "
+    output-info "	Help		-> $helpfile "
+    output-info "	Playlists	-> $playlist_directory "
+    output-info "	Music		-> $mp3_directory "
 }
 
 main "$@"
