@@ -106,21 +106,24 @@ function config-configure () {
 
 function config-list () {
 	local config_file_name="$(basename "$config_file")"
-	if [[ -a "$config_file" ]]; then
-		output-info "$config_file_name exists"
-		if read-config ; then
-			output-info "$config_file_name read"
-			if list-config; then
-				output-success "configurations listed"
-			else
-				output-failure "configurations failed to list"
-			fi
-		else
-			output-failure "$config_file_name failed to read"
-		fi
-	else
+	
+	if ! [[ -a "$config_file" ]]; then
 		output-failure "$config_file_name does not exist"
+		return 1
 	fi
+	output-info "$config_file_name exists"
+
+	if  ! read-config ; then
+		output-failure "$config_file_name failed to read"
+		return 1
+	fi
+	output-info "$config_file_name read"
+
+	if ! list-config ; then
+		output-failure "configurations failed to list"
+		return 1
+	fi
+	output-info "configurations listed"
 	return 0
 }
 
