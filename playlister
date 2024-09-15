@@ -105,7 +105,12 @@ function config-configure () {
 }
 
 function config-list () {
-	echo "Listing configurations."
+	local config_file_name="$(basename "$config_file")"
+	if [[ -a "$config_file" ]]; then
+		output-info "$config_file_name exists"
+	else
+		output-failure "$config_file_name does not exist"
+	fi
 }
 
 function create-directory () {
