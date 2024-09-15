@@ -4,7 +4,6 @@
 #	Immutable
 main_directory="$HOME/.playlister/"
 config_file="${main_directory}playlister.conf"
-database="${main_directory}playlister.db"
 helpfile="${main_directory}playlister.help"
 playlist_ext=".plst"
 mp3_ext=".mp3"
@@ -92,10 +91,6 @@ function config-configure () {
 		fi
 	fi
 	
-	if ! setup-file "$database" "backup" "makenew"; then
-		exit 1
-	fi
-
 	if ! create-directory "$mp3_directory"; then
 		exit 1
 	fi
