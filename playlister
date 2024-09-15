@@ -233,4 +233,13 @@ function read-config () {
 	done < "$config_file"
 }
 
+function list-config () {
+    output-info "	Main directory	-> $main_directory"
+    output-info "	Configurations	-> $config_file"
+    output-info "	Help		-> $helpfile"
+    output-info "	Playlists	-> $playlist_directory"
+    output-info "	Music		-> $mp3_directory"
+}
+
 main "$@"
+
