@@ -111,19 +111,16 @@ function config-list () {
 		output-failure "$config_file_name does not exist"
 		return 1
 	fi
-	output-info "$config_file_name exists"
 
 	if  ! read-config ; then
 		output-failure "$config_file_name failed to read"
 		return 1
 	fi
-	output-info "$config_file_name read"
 
 	if ! list-config ; then
 		output-failure "configurations failed to list"
 		return 1
 	fi
-	output-info "configurations listed"
 	return 0
 }
 
