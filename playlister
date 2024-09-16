@@ -131,6 +131,8 @@ function config-list () {
 	fi
 
 	for configuration in "${!configs[@]}"; do
+		# i do not need to check for validity of $configuration here
+		# for $configuration is fetched directly from $configs
 		if ! get-config "$configuration"; then
 			output-failure "$configuration failed to list"
 			return 1
@@ -142,8 +144,11 @@ function config-list () {
 function config-get () {
 	# implement argument error checking
 	# shouldn't configuration checking be its separate function
-	local configuration="$1"
-	output-info "$configuration should be displayed"
+	local argument="$1"
+	if ! is-valid-config "$argument" ; then
+		output-failure "not a valid configuration: \"$argument\""
+		return 1
+	fi
 }
 
 function create-directory () {
@@ -260,9 +265,10 @@ function read-config () {
 	done < "$config_file"
 }
 
-function get-config () {
+function is-valid-config (){
 	local argument="$1"
 	local inside="no"
+	local configuration
 	for configuration in "${!configs[@]}"; do
 		if [[ "$configuration" == "$argument" ]]; then
 			inside="yes"
@@ -271,8 +277,11 @@ function get-config () {
 	if [[ "$inside" == no ]]; then
 		return 1
 	fi
+	return 0
+}
+
+function get-config () {
     output-info "	$argument	-> 	${configs[$argument]} "
 }
 
 main "$@"
-
