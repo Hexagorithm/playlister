@@ -117,7 +117,7 @@ function config-list () {
 		return 1
 	fi
 
-	if ! list-config ; then
+	if ! list-config "Main directory"; then
 		output-failure "configurations failed to list"
 		return 1
 	fi
@@ -239,6 +239,19 @@ function read-config () {
 }
 
 function list-config () {
+	local argument="$1"
+	local inside="no"
+	echo "considering $argument"
+	echo "${!configs[@]}"
+	for configuration in "Main directory" "Configurations" "Help" "Playlists" "Music"; do
+		echo "Argument = $configuration"
+		if [[ "$configuration" == "$argument" ]]; then
+			inside="yes"
+		fi
+	done
+	if [[ "$inside" == no ]]; then
+		return 1
+	fi
     output-info "	Main directory	-> $main_directory "
     output-info "	Configurations	-> $config_file "
     output-info "	Help		-> $helpfile "
