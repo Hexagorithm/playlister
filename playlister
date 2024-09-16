@@ -253,10 +253,12 @@ function read-config () {
 			"mp3_directory")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
 				mp3_directory="$value"
+				configs["Music directory"]="$value"
 				;;
 			"playlist_directory")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
 				playlist_directory="$value"
+				configs["Playlist dir"]="$value"
 				;;
 			*)
 				output-failure "not valid user config: \"$argument\""
