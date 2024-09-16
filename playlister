@@ -259,7 +259,7 @@ function read-config () {
 				playlist_directory="$value"
 				;;
 			*)
-				output-failure "Not valid user config: \"$argument\""
+				output-failure "not valid user config: \"$argument\""
 				return 1
 				;;
 		esac
@@ -282,6 +282,7 @@ function is-valid-config (){
 }
 
 function get-config () {
+    local argument="$1"
     output-info "	$argument	-> 	${configs[$argument]} "
 }
 
