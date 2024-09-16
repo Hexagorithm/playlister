@@ -75,6 +75,11 @@ function config () {
 				;;
 			list)
 				config-list
+				exit 0
+				;;
+			get)
+				shift
+				config-get "$@"
 				exit 1
 				;;
 			*)
@@ -132,6 +137,13 @@ function config-list () {
 		fi
 	done
 	return 0
+}
+
+function config-get () {
+	# implement argument error checking
+	# shouldn't configuration checking be its separate function
+	local configuration="$1"
+	output-info "$configuration should be displayed"
 }
 
 function create-directory () {
