@@ -149,6 +149,7 @@ function config-get () {
 		output-failure "not a valid configuration: \"$argument\""
 		return 1
 	fi
+	get-config "$argument"
 }
 
 function create-directory () {
