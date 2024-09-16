@@ -12,6 +12,14 @@ backup_ext=".bak"
 playlist_directory="${main_directory}playlists/"
 mp3_directory="${main_directory}mp3s/"
 
+declare -A configs=( 
+	["Main directory"]="$main_directory" \
+	["Configurations"]="$config_file" \
+	["Help file"]="$helpfile" \
+	["Playlists dir"]="$playlist_directory" \
+	["Music directory"]="$mp3_directory" \
+)
+
 function main () {
 	if [[ "$#" -eq 0 ]]; then
 		output-failure "invalid argument count (must be > 0)"
@@ -117,10 +125,12 @@ function config-list () {
 		return 1
 	fi
 
-	if ! list-config "Main directory"; then
-		output-failure "configurations failed to list"
-		return 1
-	fi
+	for configuration in "${!configs[@]}"; do
+		if ! get-config "$configuration"; then
+			output-failure "$configuration failed to list"
+			return 1
+		fi
+	done
 	return 0
 }
 
@@ -238,13 +248,10 @@ function read-config () {
 	done < "$config_file"
 }
 
-function list-config () {
+function get-config () {
 	local argument="$1"
 	local inside="no"
-	echo "considering $argument"
-	echo "${!configs[@]}"
-	for configuration in "Main directory" "Configurations" "Help" "Playlists" "Music"; do
-		echo "Argument = $configuration"
+	for configuration in "${!configs[@]}"; do
 		if [[ "$configuration" == "$argument" ]]; then
 			inside="yes"
 		fi
@@ -252,11 +259,7 @@ function list-config () {
 	if [[ "$inside" == no ]]; then
 		return 1
 	fi
-    output-info "	Main directory	-> $main_directory "
-    output-info "	Configurations	-> $config_file "
-    output-info "	Help		-> $helpfile "
-    output-info "	Playlists	-> $playlist_directory "
-    output-info "	Music		-> $mp3_directory "
+    output-info "	$argument	-> 	${configs[$argument]} "
 }
 
 main "$@"
