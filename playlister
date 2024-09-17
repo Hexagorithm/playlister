@@ -82,11 +82,18 @@ function config () {
 				shift
 				read-config-if-exists
 				config-get "$@"
-				exit 1
+				exit 0
+				;;
+			set)	
+				shift
+				read-config-if-exists
+				config-set "$@"
+				exit 0
 				;;
 			*)
 				output-failure "unrecognised config option:\"$1\""
 				exit 1
+				;;
 		esac
 	done
 }
@@ -139,6 +146,11 @@ function config-get () {
 		return 1
 	fi
 	get-config "$argument"
+}
+
+function config-set () {
+	
+	output-info "you have invoked config set"
 }
 
 function create-directory () {
