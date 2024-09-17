@@ -99,13 +99,13 @@ function config-configure () {
 	
 	if ! setup-file "$config_file" "backup" "makenew"; then
 		exit 1
+	fi
+	
+	if read-config ; then
+		output-success "$(basename "$config_file") read"
 	else
-		if read-config ; then
-			output-success "$(basename "$config_file") read"
-		else
-			output-failure "$(basename "$config_file") failed to read"
-			exit 1
-		fi
+		output-failure "$(basename "$config_file") failed to read"
+		exit 1
 	fi
 	
 	if ! create-directory "$mp3_directory"; then
@@ -142,8 +142,7 @@ function config-list () {
 }
 
 function config-get () {
-	# implement argument error checking
-	# shouldn't configuration checking be its separate function
+
 	local argument="$1"
 	if ! is-valid-config "$argument" ; then
 		output-failure "not a valid configuration: \"$argument\""
