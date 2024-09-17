@@ -140,6 +140,10 @@ function config-list () {
 }
 
 function config-get () {
+	if [[ $# -ne 1 ]]; then
+		output-failure "invalid config get argument count(must be ==1)"
+		exit 1
+	fi
 	local argument="$1"
 	if ! is-valid-config "$argument" ; then
 		output-failure "not a valid configuration: \"$argument\""
