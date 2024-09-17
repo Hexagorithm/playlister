@@ -153,6 +153,10 @@ function config-get () {
 }
 
 function config-set () {
+	if [[ $# -ne 2 ]]; then
+		output-failure "invalid config set argument count(must be ==2)"
+		exit 1
+	fi
 	
 	output-info "you have invoked config set"
 }
