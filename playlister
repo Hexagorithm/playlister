@@ -74,11 +74,13 @@ function config () {
 				exit 0
 				;;
 			list)
+				read-config-if-exists
 				config-list
 				exit 0
 				;;
 			get)
 				shift
+				read-config-if-exists
 				config-get "$@"
 				exit 1
 				;;
@@ -118,17 +120,6 @@ function config-configure () {
 }
 
 function config-list () {
-	local config_file_name="$(basename "$config_file")"
-	
-	if ! [[ -a "$config_file" ]]; then
-		output-failure "$config_file_name does not exist"
-		return 1
-	fi
-
-	if  ! read-config ; then
-		output-failure "$config_file_name failed to read"
-		return 1
-	fi
 
 	for configuration in "${!configs[@]}"; do
 		# i do not need to check for validity of $configuration here
@@ -142,18 +133,6 @@ function config-list () {
 }
 
 function config-get () {
-	local config_file_name="$(basename "$config_file")"
-	
-	if ! [[ -a "$config_file" ]]; then
-		output-failure "$config_file_name does not exist"
-		return 1
-	fi
-	
-	if ! read-config; then
-		output-failure "$config_file_name failed to read"
-		return 1
-	fi
-	
 	local argument="$1"
 	if ! is-valid-config "$argument" ; then
 		output-failure "not a valid configuration: \"$argument\""
@@ -276,6 +255,20 @@ function read-config () {
 				;;
 		esac
 	done < "$config_file"
+}
+
+function read-config-if-exists () {
+	
+	local config_file_name="$(basename "$config_file")"
+	if ! [[ -a "$config_file" ]]; then
+		output-failure "$config_file_name does not exist"
+		exit 1
+	fi
+
+	if ! read-config; then
+		output-failure "$config_file_name failed to read"
+		exit 1
+	fi
 }
 
 function is-valid-config (){
