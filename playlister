@@ -142,7 +142,18 @@ function config-list () {
 }
 
 function config-get () {
-
+	local config_file_name="$(basename "$config_file")"
+	
+	if ! [[ -a "$config_file" ]]; then
+		output-failure "$config_file_name does not exist"
+		return 1
+	fi
+	
+	if ! read-config; then
+		output-failure "$config_file_name failed to read"
+		return 1
+	fi
+	
 	local argument="$1"
 	if ! is-valid-config "$argument" ; then
 		output-failure "not a valid configuration: \"$argument\""
