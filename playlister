@@ -157,6 +157,13 @@ function config-set () {
 		exit 1
 	fi
 	
+	local config_file_name="$( basename "$config_file" )"
+	
+	if ! [[ -w "$config_file" ]]; then
+		output-failure "$config_file_name is not writable"
+		exit 1
+	fi
+	
 	output-info "you have invoked config set"
 }
 
