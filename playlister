@@ -326,17 +326,13 @@ function read-config-if-exists () {
 
 function is-valid-config (){
 	local argument="$1"
-	local inside="no"
 	local configuration
 	for configuration in "${!configs[@]}"; do
 		if [[ "$configuration" == "$argument" ]]; then
-			inside="yes"
+			return 0
 		fi
 	done
-	if [[ "$inside" == no ]]; then
-		return 1
-	fi
-	return 0
+	return 1
 }
 
 function change-configs-to-tmp () {
