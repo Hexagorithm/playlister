@@ -182,7 +182,7 @@ function config-set () {
 		exit 1
 	fi
 	
-	if ! change-configs "@"; then
+	if ! change-configs-to-tmp "$@"; then
 		output-failure "failed to change configs"
 		exit 1
 	fi
@@ -333,13 +333,22 @@ function is-valid-config (){
 	return 0
 }
 
-function change-configs () {
+function change-configs-to-tmp () {
 	local config="$1"
-	local value="$1"
+	local value="$2"
+	local found="no"
 	local line
 	while read line; do
-		output-info "line: $line"
+		if [[ "$(echo "$line" | cut -d "=" -f 1)" == "$config" ]]; then
+			echo "${config}=${value}" >> "$tmp_file"
+			found="yes"
+		else
+			echo "$line" >> "$tmp_file"
+		fi
 	done < "$config_file"
+	if [[ "$found" == "no" ]]; then
+		echo "${config}=${value}" >> "$tmp_file"
+	fi
 }
 
 function is-valid-config-mutable () {
