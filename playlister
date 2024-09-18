@@ -186,6 +186,12 @@ function config-set () {
 		output-failure "failed to change configs"
 		exit 1
 	fi
+	
+	cp "$tmp_file" "$config_file"
+	if ! [[ $? -eq 0 ]]; then
+		output-file "failed to overwrite $config_file_name with tmp file"
+		exit 1
+	fi
 }
 
 function create-directory () {
