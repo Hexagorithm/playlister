@@ -164,6 +164,12 @@ function config-set () {
 		exit 1
 	fi
 	
+	local tmp_file="/tmp/playlister-1234321.tmp"
+	> "$tmp_file"
+	if ! [[ $? -eq 0 ]]; then
+		output-failure "failed to create a file in /tmp"
+		exit 1
+	fi
 	output-info "you have invoked config set"
 }
 
