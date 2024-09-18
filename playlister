@@ -8,6 +8,7 @@ helpfile="${main_directory}playlister.help"
 playlist_ext=".plst"
 mp3_ext=".mp3"
 backup_ext=".bak"
+tmp_file="/tmp/playlister-1234321.tmp"
 #	Mutable
 playlist_directory="${main_directory}playlists/"
 mp3_directory="${main_directory}mp3s/"
@@ -169,7 +170,6 @@ function config-set () {
 		exit 1
 	fi
 	
-	local tmp_file="/tmp/playlister-1234321.tmp"
 	> "$tmp_file"
 	if ! [[ $? -eq 0 ]]; then
 		output-failure "failed to create a file in /tmp"
@@ -181,7 +181,11 @@ function config-set () {
 		output-failure "not a valid mutable configuration:\"$argument\""
 		exit 1
 	fi
-	output-info "you have invoked config set"
+	
+	if ! change-configs "@"; then
+		output-failure "failed to change configs"
+		exit 1
+	fi
 }
 
 function create-directory () {
@@ -327,6 +331,15 @@ function is-valid-config (){
 		return 1
 	fi
 	return 0
+}
+
+function change-configs () {
+	local config="$1"
+	local value="$1"
+	local line
+	while read line; do
+		output-info "line: $line"
+	done < "$config_file"
 }
 
 function is-valid-config-mutable () {
