@@ -20,6 +20,11 @@ declare -A configs=(
 	["Music directory"]="$mp3_directory" \
 )
 
+declare -a configs_mutable=(
+	"mp3_directory" \
+	"playlist_directory"
+)
+
 function main () {
 	if [[ "$#" -eq 0 ]]; then
 		output-failure "invalid argument count (must be > 0)"
@@ -170,6 +175,12 @@ function config-set () {
 		output-failure "failed to create a file in /tmp"
 		exit 1
 	fi
+	
+	local argument="$1"
+	if ! is-valid-config-mutable "$argument"; then
+		output-failure "not a valid mutable configuration:\"$argument\""
+		exit 1
+	fi
 	output-info "you have invoked config set"
 }
 
@@ -316,6 +327,18 @@ function is-valid-config (){
 		return 1
 	fi
 	return 0
+}
+
+function is-valid-config-mutable () {
+	local argument="$1"
+	local configuration
+	for configuration in "${configs_mutable[@]}"; do
+		if [[ "$argument" == "$configuration" ]]; then
+			return 0
+		fi
+	done
+	return 1
+	
 }
 
 function get-config () {
