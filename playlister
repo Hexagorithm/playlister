@@ -137,15 +137,42 @@ function add-to-items() {
         items_counted["$author"]=$((1))
 }
 
+function get-filename-part () {
+	
+	if ! [[ $# -eq 2 ]]; then
+		output-failure "invalid get-filename-part argument count (must be ==2)"
+		exit 1
+	fi
+	
+	local filename="$1"
+	local option="$2"
+	if ! ( [[ "$option" == "music" ]] || [[ "$option" == "authors" ]] ) ; then
+		output-failure "invalid get-filename-part option:\"$option\""
+		exit 1
+	fi
+	
+	local separator=" - "
+	local tmp=${filename//"$separator"/$'\2'}
+	local authors
+	local music
+	IFS=$'\2' read authors music <<< "$tmp"
+	if [[ "$option" == "authors" ]]; then
+		echo "$authors"
+	else
+		echo "$music"
+	fi
+}
+
 function extract-part () {
         if ! [[ $# -eq 2 ]]; then
                 output-failure "invalid argument count (must be ==2)"
                 return 1
         fi
         local option="$1"
-        local authors="$(echo "$2" | cut -d "-" -f 1)"
+	local filename="$2"
+	local authors="$(get-filename-part "$filename" "authors")"
         if [[ "$option" == "author" ]]; then
-                local separator=","
+                local separator=", "
                 tmp=${authors//"$separator"/$'\2'}
                 local tmparr
                 IFS=$'\2' read -ra tmparr <<< "$tmp"
