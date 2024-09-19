@@ -82,13 +82,27 @@ function show () {
 	
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
-			*)
-				output-failure "unrecognised show option:\"$1\""
+			authors)
 				shift
+				show-name "authors"
+				exit 1
+				;;
+				
+			*)
+				shift
+				output-failure "unrecognised show option:\"$1\""
 				exit 1
 				;;
 		esac
 	done
+}
+
+function show-name () {
+	if [[ $# -eq 0 ]]; then
+		output-failure "invalid show name argument count ( must be >0)"
+		exit 1
+	fi
+	output-info "showing for $1"
 }
 
 function config () {
