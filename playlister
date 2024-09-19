@@ -110,31 +110,30 @@ function show-name () {
         fi
         
         # global, so extract-part can modify it
-        items=()
-        declare -A items_counted=()
+        declare -A items=()
         
         for file in *; do
-                extract-part "author" "$file"
+		update-items "$file" "author"
         done
         output-info "List of authors"
-        for item in "${!items_counted[@]}"; do
-                echo -e "\t$item [${items_counted["$item"]}]"
+        for item in "${!items[@]}"; do
+                echo -e "\t$item \t[${items["$item"]}]"
         done
 }
 
-function add-to-items() {
-        if ! [[ $# -eq 1 ]]; then
-                output-failure "invalid argument count (must be ==1)"
-                return 1
-        fi
-        local author="$1"
-        for existing_author in "${!items_counted[@]}"; do
-                if [[ "$existing_author" == "$author" ]]; then
-                        items_counted["$existing_author"]=$((items_counted["$existing_author"] + 1))
-                        return 0
-                fi
-        done
-        items_counted["$author"]=$((1))
+function is-item-inside-items () {
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid is-item-inside-items argument count (must be ==1)"
+		exit 1
+	fi
+	local argument="$1"
+	local item
+	for item in "${!items[@]}"; do
+		if [[ "$argument" == "$item" ]]; then
+			return 0
+		fi 
+	done
+	return 1
 }
 
 function extract-filename-part () {
@@ -175,23 +174,24 @@ function extract-authors (){
 	
 }
 
-function extract-part () {
+function update-items() {
         if ! [[ $# -eq 2 ]]; then
                 output-failure "invalid argument count (must be ==2)"
                 return 1
         fi
-        local option="$1"
-	local filename="$2"
+	local filename="$1"
+        local option="$2"
 	local authors_string="$(extract-filename-part "$filename" "authors")"
         if [[ "$option" == "author" ]]; then
 		local authors
                 IFS='|' read -ra authors <<< "$( extract-authors "$authors_string" )"
 		local author
                 for author in "${authors[@]}"; do
-                        if ! add-to-items "$author"; then
-                                output-failure "$author failed to move to items"
-                                return 1
-                        fi
+		if is-item-inside-items "$author"; then
+			items["$author"]=$(( ${items["$author"]} + 1 ))
+		else
+			items["$author"]=$(( 1 ))
+		fi
                 done
         fi
 }
