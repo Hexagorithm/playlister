@@ -102,7 +102,12 @@ function show-name () {
 		output-failure "invalid show name argument count ( must be >0)"
 		exit 1
 	fi
-	output-info "showing for $1"
+	
+	cd "$mp3_directory"
+	if ! [[ $? -eq 0 ]]; then
+		output-failure "failed to change dir to $mp3_directory "
+		exit 1
+	fi
 }
 
 function config () {
