@@ -97,62 +97,66 @@ function show () {
 }
 
 function show-name () {
-	if [[ $# -eq 0 ]]; then
-		output-failure "invalid show name argument count ( must be >0)"
-		exit 1
-	fi
-	local argument="$1"
-	
-	cd "$mp3_directory"
-	if ! [[ $? -eq 0 ]]; then
-		output-failure "failed to change dir to $mp3_directory "
-		exit 1
-	fi
-	
-	# global, so extract-part can modify it
-	array=()
-	for file in *; do
-		extract-part "author" "$file"
-	done
-	output-info "List of authors"
-	for element in "${array[@]}"; do
-		echo "	$element"
-	done
+        if [[ $# -eq 0 ]]; then
+                output-failure "invalid show name argument count ( must be >0)"
+                exit 1
+        fi
+        local argument="$1"
+        
+        cd "$mp3_directory"
+        if ! [[ $? -eq 0 ]]; then
+                output-failure "failed to change dir to $mp3_directory "
+                exit 1
+        fi
+        
+        # global, so extract-part can modify it
+        items=()
+        declare -A items_counted=()
+        
+        for file in *; do
+                extract-part "author" "$file"
+        done
+        output-info "List of authors"
+        for item in "${!items_counted[@]}"; do
+                echo -e "\t$item [${items_counted["$item"]}]"
+        done
+}
+
+function add-to-items() {
+        if ! [[ $# -eq 1 ]]; then
+                output-failure "invalid argument count (must be ==1)"
+                return 1
+        fi
+        local author="$1"
+        for existing_author in "${!items_counted[@]}"; do
+                if [[ "$existing_author" == "$author" ]]; then
+                        items_counted["$existing_author"]=$((items_counted["$existing_author"] + 1))
+                        return 0
+                fi
+        done
+        items_counted["$author"]=$((1))
 }
 
 function extract-part () {
-	# first : author or music
-	# second: filename(basenamed)
-	if ! [[ $# -eq 2 ]]; then
-		output-failure "invalid argument count (must be ==2)"
-		return 1
-	fi
-	local option="$1"
-	local filename="$2"
-	if [[ "$option" == "author" ]]; then
-		local author_string="$(echo "$filename" | cut -d "-" -f 1)"
-		local authors_tmp
-		IFS="," read -ra authors_tmp <<< "$author_string"
-		local author
-		local author_tmp
-		
-		for author_tmp in "${authors_tmp[@]}"; do
-			local inside="no"
-			for author in "${array[@]}"; do
-				if [[ "$author" == "$author_tmp" ]]; then
-					inside="yes"
-				fi
-			done
-			if [[ "$inside" == "no" ]]; then
-				array+=("$author_tmp")
-				inside="no"
-			fi
-		done
-		return 0
-	fi
-	return 1
+        if ! [[ $# -eq 2 ]]; then
+                output-failure "invalid argument count (must be ==2)"
+                return 1
+        fi
+        local option="$1"
+        local authors="$(echo "$2" | cut -d "-" -f 1)"
+        if [[ "$option" == "author" ]]; then
+                local separator=","
+                tmp=${authors//"$separator"/$'\2'}
+                local tmparr
+                IFS=$'\2' read -ra tmparr <<< "$tmp"
+                for author in "${tmparr[@]}"; do
+                        if ! add-to-items "$author"; then
+                                output-failure "$author failed to move to items"
+                                return 1
+                        fi
+                done
+        fi
 }
-
 
 function config () {
 	if [[ "$#" -eq 0 ]]; then
