@@ -102,13 +102,36 @@ function show-name () {
 		output-failure "invalid show name argument count ( must be >0)"
 		exit 1
 	fi
+	local argument="$1"
 	
 	cd "$mp3_directory"
 	if ! [[ $? -eq 0 ]]; then
 		output-failure "failed to change dir to $mp3_directory "
 		exit 1
 	fi
+	
+	# global, so extract-part can modify it
+	array=()
+	for file in *; do
+		extract-part "1" "$file"
+	done
+	for element in "${array[@]}"; do
+		output-info "$element "
+	done
 }
+
+function extract-part () {
+	# first : author or music
+	# second: filename(basenamed)
+	if ! [[ $# -eq 2 ]]; then
+		output-failure "invalid argument count (must be ==2)"
+		return 1
+	fi
+	option="$1"
+	filename="$2"
+	array+=("$(echo "$filename" | cut -d "." -f 1)")
+}
+
 
 function config () {
 	if [[ "$#" -eq 0 ]]; then
