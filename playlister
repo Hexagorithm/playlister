@@ -137,10 +137,10 @@ function add-to-items() {
         items_counted["$author"]=$((1))
 }
 
-function get-filename-part () {
+function extract-filename-part () {
 	
 	if ! [[ $# -eq 2 ]]; then
-		output-failure "invalid get-filename-part argument count (must be ==2)"
+		output-failure "invalid extract-filename-part argument count (must be ==2)"
 		exit 1
 	fi
 	
@@ -163,6 +163,18 @@ function get-filename-part () {
 	fi
 }
 
+function extract-authors (){
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid extract-authors arguemnt count (must be ==1)"
+		exit 1
+	fi
+	local authors_string="$1"
+	local separator=", "
+	local authors=${authors_string//"$separator"/'|'}
+	echo "$authors"
+	
+}
+
 function extract-part () {
         if ! [[ $# -eq 2 ]]; then
                 output-failure "invalid argument count (must be ==2)"
@@ -170,13 +182,12 @@ function extract-part () {
         fi
         local option="$1"
 	local filename="$2"
-	local authors="$(get-filename-part "$filename" "authors")"
+	local authors_string="$(extract-filename-part "$filename" "authors")"
         if [[ "$option" == "author" ]]; then
-                local separator=", "
-                tmp=${authors//"$separator"/$'\2'}
-                local tmparr
-                IFS=$'\2' read -ra tmparr <<< "$tmp"
-                for author in "${tmparr[@]}"; do
+		local authors
+                IFS='|' read -ra authors <<< "$( extract-authors "$authors_string" )"
+		local author
+                for author in "${authors[@]}"; do
                         if ! add-to-items "$author"; then
                                 output-failure "$author failed to move to items"
                                 return 1
