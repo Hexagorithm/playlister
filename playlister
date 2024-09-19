@@ -79,7 +79,16 @@ function show () {
 		output-failure "invalid show argument count( must be >0)"
 		exit 1
 	fi
-	echo "these are your show arguments arguments: $@"
+	
+	while ! [[ $# -eq 0 ]]; do
+		case $1 in
+			*)
+				output-failure "unrecognised show option:\"$1\""
+				shift
+				exit 1
+				;;
+		esac
+	done
 }
 
 function config () {
