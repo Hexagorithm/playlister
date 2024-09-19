@@ -89,7 +89,6 @@ function show () {
 				;;
 				
 			*)
-				shift
 				output-failure "unrecognised show option:\"$1\""
 				exit 1
 				;;
@@ -113,10 +112,11 @@ function show-name () {
 	# global, so extract-part can modify it
 	array=()
 	for file in *; do
-		extract-part "1" "$file"
+		extract-part "author" "$file"
 	done
+	output-info "List of authors"
 	for element in "${array[@]}"; do
-		output-info "$element "
+		echo "	$element"
 	done
 }
 
@@ -127,9 +127,30 @@ function extract-part () {
 		output-failure "invalid argument count (must be ==2)"
 		return 1
 	fi
-	option="$1"
-	filename="$2"
-	array+=("$(echo "$filename" | cut -d "." -f 1)")
+	local option="$1"
+	local filename="$2"
+	if [[ "$option" == "author" ]]; then
+		local author_string="$(echo "$filename" | cut -d "-" -f 1)"
+		local authors_tmp
+		IFS="," read -ra authors_tmp <<< "$author_string"
+		local author
+		local author_tmp
+		
+		for author_tmp in "${authors_tmp[@]}"; do
+			local inside="no"
+			for author in "${array[@]}"; do
+				if [[ "$author" == "$author_tmp" ]]; then
+					inside="yes"
+				fi
+			done
+			if [[ "$inside" == "no" ]]; then
+				array+=("$author_tmp")
+				inside="no"
+			fi
+		done
+		return 0
+	fi
+	return 1
 }
 
 
