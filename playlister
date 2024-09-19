@@ -75,7 +75,11 @@ function output-info () {
 }
 
 function show () {
-	output-info "you have invoked a show option"
+	if [[ $# -eq 0 ]]; then
+		output-failure "invalid show argument count( must be >0)"
+		exit 1
+	fi
+	echo "these are your show arguments arguments: $@"
 }
 
 function config () {
