@@ -102,6 +102,11 @@ function show-name () {
                 exit 1
         fi
         local argument="$1"
+
+	if ! ( [[ "$argument" == "authors" ]] || [[ "$argument" == "music" ]] ); then
+		output-failure "invalid show name argument:\"$argument\""
+		exit 1
+	fi
         
         cd "$mp3_directory"
         if ! [[ $? -eq 0 ]]; then
@@ -113,11 +118,11 @@ function show-name () {
         declare -A items=()
         
         for file in *; do
-		update-items "$file" "author"
+		update-items "$file" "$argument"
         done
-        output-info "List of authors"
+        output-info "List"
         for item in "${!items[@]}"; do
-                echo -e "\t$item \t[${items["$item"]}]"
+                echo -e "\t[${items["$item"]}] \t $item"
         done
 }
 
@@ -146,7 +151,7 @@ function extract-filename-part () {
 	local filename="$1"
 	local option="$2"
 	if ! ( [[ "$option" == "music" ]] || [[ "$option" == "authors" ]] ) ; then
-		output-failure "invalid get-filename-part option:\"$option\""
+		output-failure "invalid extract-filename-part option:\"$option\""
 		exit 1
 	fi
 	
@@ -179,21 +184,30 @@ function update-items() {
                 output-failure "invalid argument count (must be ==2)"
                 return 1
         fi
+
 	local filename="$1"
         local option="$2"
-	local authors_string="$(extract-filename-part "$filename" "authors")"
-        if [[ "$option" == "author" ]]; then
-		local authors
-                IFS='|' read -ra authors <<< "$( extract-authors "$authors_string" )"
-		local author
-                for author in "${authors[@]}"; do
-		if is-item-inside-items "$author"; then
-			items["$author"]=$(( ${items["$author"]} + 1 ))
+	if ! ( [[ "$option" == "music" ]] || [[ "$option" == "authors" ]] ); then
+		output-failure "invalid update-items argument:\"$option\""
+		return 1
+	fi
+
+	local extracted_string="$( extract-filename-part "$filename" "$option" )"
+	local item_array
+	if [[ "$option" == "authors" ]]; then
+		IFS='|' read -ra item_array <<< "$( extract-authors "$extracted_string" )"
+	elif [[ "$option" == "music" ]]; then
+		item_array+=("$extracted_string")
+	fi
+
+	local item
+	for item in "${item_array[@]}"; do
+		if is-item-inside-items "$item"; then
+			items["$item"]=$(( ${items["$item"]} + 1 ))
 		else
-			items["$author"]=$(( 1 ))
+			items["$item"]=$(( 1 ))
 		fi
-                done
-        fi
+	done
 }
 
 function config () {
