@@ -117,17 +117,16 @@ function show-name () {
 		exit 1
 	fi
         
-        cd "$mp3_directory"
-        if ! [[ $? -eq 0 ]]; then
-                output-failure "failed to change dir to $mp3_directory "
+        if ! [[ -r "$mp3_directory" ]]; then
+                output-failure "mp3 directory is not readable"
                 exit 1
         fi
         
         # global, so extract-part can modify it
         declare -A items=()
         
-        for file in *; do
-		if ! update-items "$file" "$argument"; then
+        for file in "$mp3_directory"*; do
+		if ! update-items "$( basename "$file" )" "$argument"; then
 			exit 1
 		fi
         done
