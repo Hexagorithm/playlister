@@ -122,10 +122,16 @@ function show-name () {
         declare -A items=()
         
         for file in *; do
-		update-items "$file" "$argument"
+		if ! update-items "$file" "$argument"; then
+			exit 1
+		fi
         done
         for item in "${!items[@]}"; do
-                echo -e "\t[${items["$item"]}] \t $item"
+		if [[ ${items["$item"]} -eq 1 ]]; then
+			echo -e "\t$item"
+		else
+			echo -e "\t$item \t[${items["$item"]}]"
+		fi
         done
 }
 
@@ -163,6 +169,7 @@ function extract-filename-part () {
 	local authors
 	local music
 	IFS=$'\2' read authors music <<< "$tmp"
+	
 	if [[ "$option" == "authors" ]]; then
 		echo "$authors"
 	else
@@ -196,6 +203,10 @@ function update-items() {
 	fi
 
 	local extracted_string="$( extract-filename-part "$filename" "$option" )"
+	if [[ "$extracted_string" == "" ]]; then
+		output-failure "invalid filename detected:\"$filename\""
+		return 1
+	fi
 	local item_array
 	if [[ "$option" == "authors" ]]; then
 		IFS='|' read -ra item_array <<< "$( extract-authors "$extracted_string" )"
