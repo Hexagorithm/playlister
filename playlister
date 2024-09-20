@@ -87,7 +87,11 @@ function show () {
 				show-name "authors"
 				exit 1
 				;;
-				
+			music)
+				shift
+				show-name "music"
+				exit 1
+				;;
 			*)
 				output-failure "unrecognised show option:\"$1\""
 				exit 1
@@ -120,7 +124,6 @@ function show-name () {
         for file in *; do
 		update-items "$file" "$argument"
         done
-        output-info "List"
         for item in "${!items[@]}"; do
                 echo -e "\t[${items["$item"]}] \t $item"
         done
