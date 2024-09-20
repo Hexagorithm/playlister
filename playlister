@@ -85,12 +85,17 @@ function show () {
 			authors)
 				shift
 				show-name "authors"
+				exit 0
+				;;
+			playlists)
+				shift
+				show-playlists
 				exit 1
 				;;
 			music)
 				shift
 				show-name "music"
-				exit 1
+				exit 0
 				;;
 			*)
 				output-failure "unrecognised show option:\"$1\""
@@ -133,6 +138,17 @@ function show-name () {
 			echo -e "\t$item \t[${items["$item"]}]"
 		fi
         done
+}
+
+function show-playlists () {
+	if ! [[ -r "$playlist_directory" ]]; then
+		output-failure "playlists directory is unreadable"
+		exit 1
+	fi
+	cd "$playlist_directory"
+	for file in "${playlist_directory}"* ; do
+		echo "$(basename "$file" )"
+	done
 }
 
 function is-item-inside-items () {
