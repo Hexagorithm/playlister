@@ -145,12 +145,18 @@ function show-music () {
 				exit 1
 			fi
 		elif [[ "$argument" == "used" ]]; then
-			output-info "not implemented yet"
-				
+			if is-music-used "$file"; then
+				if ! update-items "$( basename "$file" )" "music"; then
+					exit 1
+				fi
+			fi
 		else #unused
-			output-info "not implemented yet"
+			if ! is-music-used "$file"; then
+				if ! update-items "$( basename "$file" )" "music"; then
+					exit 1
+				fi
+			fi
 		fi
-		
 	done
 	for item in "${!items[@]}"; do
  		if [[ ${items["$item"]} -eq 1 ]]; then
@@ -159,7 +165,29 @@ function show-music () {
 			echo -e "\t$item \t[${items["$item"]}]"
 		fi
 	done
+}
+
+function is-music-used () {
+	if [[ $# -ne 1 ]]; then
+		output-failure "invalid is-music-used argument count(must be ==1)"
+		exit 1
+	fi
+	local filename="$(basename "$1")"
 	
+	if ! [[ -r "$playlist_directory" ]]; then
+		output-failure "playlist directory is unreadable"
+		exit 1
+	fi
+	local playlist
+	for playlist in "$playlist_directory"*; do
+		local line
+		while read line; do
+			if [[ "$line" == "$filename" ]]; then
+				return 0
+			fi
+		done <"$playlist"
+	done
+	return 1
 }
 
 function show-playlists () {
