@@ -94,7 +94,7 @@ function show () {
 				;;
 			music)
 				shift
-				show-name "music"
+				show-music "$@"
 				exit 0
 				;;
 			*)
@@ -126,38 +126,25 @@ function show-authors () {
 	done
 }
 
-function show-name () {
-        if [[ $# -eq 0 ]]; then
-                output-failure "invalid show name argument count ( must be >0)"
-                exit 1
-        fi
-        local argument="$1"
-
-	if ! ( [[ "$argument" == "authors" ]] || [[ "$argument" == "music" ]] ); then
-		output-failure "invalid show name argument:\"$argument\""
+function show-music () {
+	if [[ $# -ne 1 ]]; then
+		output-failure "invalid show-music argument count (must be ==1)"
 		exit 1
 	fi
-        
-        if ! [[ -r "$mp3_directory" ]]; then
-                output-failure "mp3 directory is not readable"
-                exit 1
-        fi
-        
-        # global, so extract-part can modify it
-        declare -A items=()
-        
-        for file in "$mp3_directory"*; do
-		if ! update-items "$( basename "$file" )" "$argument"; then
+	declare -A items=()
+	for file in "${mp3_directory}"*; do
+		if ! update-items "$( basename "$file" )" "music"; then
 			exit 1
 		fi
-        done
-        for item in "${!items[@]}"; do
-		if [[ ${items["$item"]} -eq 1 ]]; then
+	done
+	for item in "${!items[@]}"; do
+ 		if [[ ${items["$item"]} -eq 1 ]]; then
 			echo -e "\t$item"
 		else
 			echo -e "\t$item \t[${items["$item"]}]"
 		fi
-        done
+	done
+	
 }
 
 function show-playlists () {
