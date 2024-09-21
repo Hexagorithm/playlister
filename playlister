@@ -131,11 +131,26 @@ function show-music () {
 		output-failure "invalid show-music argument count (must be ==1)"
 		exit 1
 	fi
+	local argument="$1"
+	
+	if ! ( [[ "$argument" == "all" ]] || [[ "$argument" == "used" ]] || [[ "$argument" == "unused" ]] ); then
+		output-failure "invalid show-music argument:\"$argument\""
+		exit 1
+	fi
+	
 	declare -A items=()
 	for file in "${mp3_directory}"*; do
-		if ! update-items "$( basename "$file" )" "music"; then
-			exit 1
+		if [[ "$argument" == "all" ]]; then
+			if ! update-items "$( basename "$file" )" "music"; then
+				exit 1
+			fi
+		elif [[ "$argument" == "used" ]]; then
+			output-info "not implemented yet"
+				
+		else #unused
+			output-info "not implemented yet"
 		fi
+		
 	done
 	for item in "${!items[@]}"; do
  		if [[ ${items["$item"]} -eq 1 ]]; then
