@@ -84,7 +84,7 @@ function show () {
 		case $1 in
 			authors)
 				shift
-				show-name "authors"
+				show-authors
 				exit 0
 				;;
 			playlists)
@@ -102,6 +102,27 @@ function show () {
 				exit 1
 				;;
 		esac
+	done
+}
+
+function show-authors () {
+	if ! [[ -r "$mp3_directory" ]]; then
+		output-failure "mp3 directory is not readable"
+		exit 1
+	fi
+
+	declare -A items=()
+	for file in "$mp3_directory"*; do
+		if ! update-items "$( basename "$file" )" "authors"; then
+			exit 1
+		fi
+	done
+        for item in "${!items[@]}"; do
+		if [[ ${items["$item"]} -eq 1 ]]; then
+			echo -e "\t$item"
+		else
+			echo -e "\t$item \t[${items["$item"]}]"
+		fi
 	done
 }
 
@@ -204,17 +225,17 @@ function divide-authors (){
 }
 
 function update-items() {
-        if ! [[ $# -eq 2 ]]; then
-                output-failure "invalid argument count (must be ==2)"
-                return 1
-        fi
-
+	if ! [[ $# -eq 2 ]]; then
+		output-failure "invalid update-items argument count (must be ==2)"
+		return 1
+	fi
 	local filename="$1"
         local option="$2"
 	if ! ( [[ "$option" == "music" ]] || [[ "$option" == "authors" ]] ); then
 		output-failure "invalid update-items argument:\"$option\""
 		return 1
 	fi
+	
 
 	local extracted_string="$( extract-filename-part "$filename" "$option" )"
 	if [[ "$extracted_string" == "" ]]; then
