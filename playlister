@@ -144,7 +144,6 @@ function show-playlists () {
 		output-failure "playlists directory is unreadable"
 		exit 1
 	fi
-	cd "$playlist_directory"
 	for file in "${playlist_directory}"* ; do
 		echo "$(basename "$file" )"
 	done
@@ -192,9 +191,9 @@ function extract-filename-part () {
 	fi
 }
 
-function extract-authors (){
+function divide-authors (){
 	if ! [[ $# -eq 1 ]]; then
-		output-failure "invalid extract-authors arguemnt count (must be ==1)"
+		output-failure "invalid divide-authors arguemnt count (must be ==1)"
 		exit 1
 	fi
 	local authors_string="$1"
@@ -224,7 +223,7 @@ function update-items() {
 	fi
 	local item_array
 	if [[ "$option" == "authors" ]]; then
-		IFS='|' read -ra item_array <<< "$( extract-authors "$extracted_string" )"
+		IFS='|' read -ra item_array <<< "$( divide-authors "$extracted_string" )"
 	elif [[ "$option" == "music" ]]; then
 		item_array+=("$extracted_string")
 	fi
