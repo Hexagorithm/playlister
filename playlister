@@ -76,6 +76,8 @@ function output-info () {
 
 function is-directory-readable () {
 	# check if directory is readable
+		# success -> directory is readable
+		# failure -> directory is not readable
 	# return to execution flow on success, exit on failure
 	# 1 argument: the directory
 	if ! [[ $# -eq 1 ]]; then
@@ -89,6 +91,25 @@ function is-directory-readable () {
 		exit 1
 	fi
 }
+
+function is-directory-not-empty () {
+	# check if directory is empty
+	# return to execution flow on success, exit on failure
+		# success -> directory is not empty 
+		# failure -> directory is empty
+	# 1 argument: the directory
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid is-directory-empty argument count (must be ==1)"
+		exit 1
+	fi
+	local directory="$1"
+
+	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
+		output-failure "$directory is empty"
+		exit 1
+	fi
+}
+
 
 function show () {
 	if [[ $# -eq 0 ]]; then
@@ -138,6 +159,7 @@ function show-author () {
 
 	declare -A items=()
 	
+	is-directory-not-empty "$mp3_directory"
 	local file
 	for file in "$mp3_directory"*; do
 		local authors
@@ -163,7 +185,9 @@ function show-author () {
 function show-authors () {
 	is-directory-readable "$mp3_directory"
 
+	is-directory-not-empty "$mp3_directory"
 	declare -A items=()
+	local file
 	for file in "$mp3_directory"*; do
 		if ! update-items "$( basename "$file" )" "authors"; then
 			exit 1
@@ -191,6 +215,9 @@ function show-music () {
 	fi
 	
 	declare -A items=()
+	is-directory-readable "$mp3_directory"
+	is-directory-not-empty "$mp3_directory"
+	local file
 	for file in "${mp3_directory}"*; do
 		if [[ "$argument" == "all" ]]; then
 			if ! update-items "$( basename "$file" )" "music"; then
@@ -228,6 +255,8 @@ function is-music-used () {
 	
 	is-directory-readable "$playlist_directory"
 
+	is-directory-not-empty "$playlist_directory"
+
 	local playlist
 	for playlist in "${playlist_directory}"* ; do
 		local line
@@ -243,6 +272,7 @@ function is-music-used () {
 function show-playlists () {
 	is-directory-readable "$playlist_directory"
 
+	is-directory-not-empty "$playlist_directory"
 	for file in "${playlist_directory}"* ; do
 		echo "$(basename "$file" )"
 	done
