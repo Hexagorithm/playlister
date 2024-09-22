@@ -128,39 +128,68 @@ function is-directory-not-empty () {
 }
 
 
+
 function show () {
 	if [[ $# -eq 0 ]]; then
 		output-failure "invalid show argument count( must be >0)"
 		exit 1
 	fi
+	declare -A items=()
+
 	
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			authors)
 				shift
 				show-authors
+				output-items
 				exit 0
 				;;
 			playlists)
 				shift
 				show-playlists
+				output-items
 				exit 0
 				;;
 			music)
 				shift
 				show-music "$@"
+				output-items
 				exit 0
 				;;
 			author)
 				shift
 				show-author "$@"
-				exit 1
+				output-items
+				exit 0
 				;;
 			*)
 				output-failure "unrecognised show option:\"$1\""
 				exit 1
 				;;
 		esac
+	done
+}
+
+function output-items () {
+	# output every item in the global items associative array
+	# return to execution flow on success, exit on failure
+		# success -> items were outputted
+		# failure -> function arguments were given
+	# no arguments
+	# this function should be found after show functions in the show man function.
+	if ! [[ $# -eq 0 ]]; then
+		output-failure "output-items takes in no arguments"
+		exit 1
+	fi
+
+	local item 
+        for item in "${!items[@]}"; do
+		if [[ ${items["$item"]} -eq 1 ]]; then
+			echo -e "\t$item"
+		else
+			echo -e "\t$item \t[${items["$item"]}]"
+		fi
 	done
 }
 
@@ -174,7 +203,6 @@ function show-author () {
 	
 	is-directory-readable "$mp3_directory"
 
-	declare -A items=()
 	
 	is-directory-not-empty "$mp3_directory"
 	local file
@@ -190,31 +218,16 @@ function show-author () {
 			fi
 		done
 	done
-        for item in "${!items[@]}"; do
-		if [[ ${items["$item"]} -eq 1 ]]; then
-			echo -e "\t$item"
-		else
-			echo -e "\t$item \t[${items["$item"]}]"
-		fi
-	done
 }
 
 function show-authors () {
 	is-directory-readable "$mp3_directory"
 
 	is-directory-not-empty "$mp3_directory"
-	declare -A items=()
 	local file
 	for file in "$mp3_directory"*; do
 		if ! update-items "$( basename "$file" )" "authors"; then
 			exit 1
-		fi
-	done
-        for item in "${!items[@]}"; do
-		if [[ ${items["$item"]} -eq 1 ]]; then
-			echo -e "\t$item"
-		else
-			echo -e "\t$item \t[${items["$item"]}]"
 		fi
 	done
 }
@@ -231,7 +244,6 @@ function show-music () {
 		exit 1
 	fi
 	
-	declare -A items=()
 	is-directory-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
 	local file
@@ -252,13 +264,6 @@ function show-music () {
 					exit 1
 				fi
 			fi
-		fi
-	done
-	for item in "${!items[@]}"; do
- 		if [[ ${items["$item"]} -eq 1 ]]; then
-			echo -e "\t$item"
-		else
-			echo -e "\t$item \t[${items["$item"]}]"
 		fi
 	done
 }
