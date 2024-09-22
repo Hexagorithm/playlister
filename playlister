@@ -74,6 +74,22 @@ function output-info () {
 	>&2 echo -e "${white}(${yellow}*${white}) ${output}."
 }
 
+function is-directory-readable () {
+	# check if directory is readable
+	# return to execution flow on success, exit on failure
+	# 1 argument: the directory
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid is-directory-readable argument count(must be ==1)"
+		exit 1
+	fi
+	local directory="$1"
+
+	if ! [[ -r "$directory" ]]; then
+		output-failure "$directory not readable"
+		exit 1
+	fi
+}
+
 function show () {
 	if [[ $# -eq 0 ]]; then
 		output-failure "invalid show argument count( must be >0)"
@@ -118,11 +134,8 @@ function show-author () {
 	
 	local target_author="$1"
 	
-	if ! [[ -r "$mp3_directory" ]]; then
-		output-failure "mp3 directory is not readable"
-		exit 1
-	fi
-	
+	is-directory-readable "$mp3_directory"
+
 	declare -A items=()
 	
 	local file
@@ -148,10 +161,7 @@ function show-author () {
 }
 
 function show-authors () {
-	if ! [[ -r "$mp3_directory" ]]; then
-		output-failure "mp3 directory is not readable"
-		exit 1
-	fi
+	is-directory-readable "$mp3_directory"
 
 	declare -A items=()
 	for file in "$mp3_directory"*; do
@@ -216,12 +226,10 @@ function is-music-used () {
 	fi
 	local filename="$(basename "$1")"
 	
-	if ! [[ -r "$playlist_directory" ]]; then
-		output-failure "playlist directory is unreadable"
-		exit 1
-	fi
+	is-directory-readable "$playlist_directory"
+
 	local playlist
-	for playlist in "$playlist_directory"*; do
+	for playlist in "${playlist_directory}"* ; do
 		local line
 		while read line; do
 			if [[ "$line" == "$filename" ]]; then
@@ -233,10 +241,8 @@ function is-music-used () {
 }
 
 function show-playlists () {
-	if ! [[ -r "$playlist_directory" ]]; then
-		output-failure "playlists directory is unreadable"
-		exit 1
-	fi
+	is-directory-readable "$playlist_directory"
+
 	for file in "${playlist_directory}"* ; do
 		echo "$(basename "$file" )"
 	done
