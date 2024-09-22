@@ -92,6 +92,23 @@ function is-directory-readable () {
 	fi
 }
 
+function is-file-readable () {
+	# check if file is readable
+		# success -> file is readable
+		# failure -> file is not readable
+	# return to execution flow on success, exit on failure
+	# 1 argument: the file
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid is-file-readable argument count(must be ==1)"
+		exit 1
+	fi
+	local file="$1"
+	if ! [[ -r "$file" ]]; then
+		output-failure "$file not readable"
+		exit 1
+	fi
+}
+
 function is-directory-not-empty () {
 	# check if directory is empty
 	# return to execution flow on success, exit on failure
@@ -259,6 +276,7 @@ function is-music-used () {
 
 	local playlist
 	for playlist in "${playlist_directory}"* ; do
+		is-file-readable "$playlist"
 		local line
 		while read line; do
 			if [[ "$line" == "$filename" ]]; then
@@ -588,6 +606,7 @@ function setup-file () {
 }
 
 function read-config () {
+	is-file-readable "$config_file"
 	while read line ; do
 		local argument="$(echo "$line" | cut -d "=" -f 1)"
 		case "$argument" in
