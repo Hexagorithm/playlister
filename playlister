@@ -184,11 +184,11 @@ function output-items () {
 	fi
 
 	local item 
-        for item in "${!items[@]}"; do
-		if [[ ${items["$item"]} -eq 1 ]]; then
+	for item in "${!items[@]}"; do
+		if [[ ${items["$item"]} -eq 1 ]] ; then
 			echo -e "\t$item"
 		else
-			echo -e "\t$item \t[${items["$item"]}]"
+			echo -e "\t$item \t[${items[$item]}]"
 		fi
 	done
 }
@@ -345,7 +345,7 @@ function extract-filename-part () {
 
 function divide-authors (){
 	if ! [[ $# -eq 1 ]]; then
-		output-failure "invalid divide-authors arguemnt count (must be ==1)"
+		output-failure "invalid divide-authors argument count (must be ==1)"
 		exit 1
 	fi
 	local authors_string="$1"
@@ -353,6 +353,24 @@ function divide-authors (){
 	local authors=${authors_string//"$separator"/'|'}
 	echo "$authors"
 	
+}
+
+function add-item () {
+	# add string item to items with initalized count, or if already exists: increase counter.
+	# return to execution flow on success, exit on failure
+		# success -> item added 
+		# failure -> invalid argument count
+	# 1 argument: string item to be added 
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid add-item argument count(must be ==1)"
+		exit 1
+	fi
+	local new_item="$1"
+	if is-item-inside-items "$new_item"; then
+		items["$new_item"]=$(( ${items["$new_item"]} + 1 ))
+	else
+		items["$new_item"]=$(( 1 ))
+	fi
 }
 
 function update-items() {
@@ -379,14 +397,9 @@ function update-items() {
 	elif [[ "$option" == "music" ]]; then
 		item_array+=("$extracted_string")
 	fi
-
 	local item
-	for item in "${item_array[@]}"; do
-		if is-item-inside-items "$item"; then
-			items["$item"]=$(( ${items["$item"]} + 1 ))
-		else
-			items["$item"]=$(( 1 ))
-		fi
+	for item in "${item_array[@]}" ; do
+		add-item "$item"
 	done
 }
 
