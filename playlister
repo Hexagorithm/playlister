@@ -202,14 +202,14 @@ function show-author () {
 	local target_author="$1"
 	
 	is-directory-readable "$mp3_directory"
-
 	
 	is-directory-not-empty "$mp3_directory"
+
 	local file
 	for file in "$mp3_directory"*; do
 		local authors
 		local filename="$(basename "$file")"
-		IFS='|' read -ra authors <<< "$(divide-authors "$( extract-filename-part "$filename" "authors")")"
+		IFS='|' read -ra authors <<< "$(divide-authors "$( get-from-filename "$filename" "authors")")"
 		for author in "${authors[@]}"; do
 			if [[ "$author" == "$target_author" ]]; then
 				if ! update-items "$filename" "music"; then
@@ -316,17 +316,17 @@ function is-item-inside-items () {
 	return 1
 }
 
-function extract-filename-part () {
+function get-from-filename () {
 	
 	if ! [[ $# -eq 2 ]]; then
-		output-failure "invalid extract-filename-part argument count (must be ==2)"
+		output-failure "invalid get-from-filename argument count (must be ==2)"
 		exit 1
 	fi
 	
 	local filename="$1"
 	local option="$2"
 	if ! ( [[ "$option" == "music" ]] || [[ "$option" == "authors" ]] ) ; then
-		output-failure "invalid extract-filename-part option:\"$option\""
+		output-failure "invalid get-from-filename option:\"$option\""
 		exit 1
 	fi
 	
@@ -386,7 +386,7 @@ function update-items() {
 	fi
 	
 
-	local extracted_string="$( extract-filename-part "$filename" "$option" )"
+	local extracted_string="$( get-from-filename "$filename" "$option" )"
 	if [[ "$extracted_string" == "" ]]; then
 		output-failure "invalid filename detected:\"$filename\""
 		return 1
