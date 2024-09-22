@@ -207,12 +207,14 @@ function show-author () {
 
 	local file
 	for file in "$mp3_directory"*; do
-		local authors
 		local filename="$(basename "$file")"
-		IFS='|' read -ra authors <<< "$(divide-authors "$( get-from-filename "$filename" "authors")")"
+		local mp3name="$(get-from-filename "$filename" "music")"
+		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
+		authors="$(divide-authors "$authors")" 				# divide from ", " to "|"
+		IFS='|' read -ra authors <<< "$authors"				# split with '|'
 		for author in "${authors[@]}"; do
 			if [[ "$author" == "$target_author" ]]; then
-				if ! update-items "$filename" "music"; then
+				if ! add-item "$mp3name"; then
 					exit 1
 				fi
 			fi
