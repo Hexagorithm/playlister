@@ -4,7 +4,7 @@
 #	Immutable
 main_directory="$HOME/.playlister/"
 config_file="${main_directory}playlister.conf"
-helpfile="${main_directory}playlister.help"
+help_file="${main_directory}playlister.help"
 playlist_ext=".plst"
 mp3_ext=".mp3"
 backup_ext=".bak"
@@ -14,11 +14,11 @@ playlist_directory="${main_directory}playlists/"
 mp3_directory="${main_directory}mp3s/"
 
 declare -A configs=( 
-	["Main directory"]="$main_directory" \
-	["Configurations"]="$config_file" \
-	["Help file"]="$helpfile" \
-	["Playlists dir"]="$playlist_directory" \
-	["Music directory"]="$mp3_directory" \
+	["main_directory"]="$main_directory" \
+	["config_file"]="$config_file" \
+	["help_file"]="$help_file" \
+	["playlist_directory"]="$playlist_directory" \
+	["mp3_directory"]="$mp3_directory" \
 )
 
 declare -a configs_mutable=(
@@ -371,7 +371,7 @@ function config-configure () {
 		exit 1
 	fi
 	
-	if ! setup-file "$helpfile" "currentdir"; then
+	if ! setup-file "$help_file" "currentdir"; then
 		exit 1
 	fi
 	
@@ -558,12 +558,12 @@ function read-config () {
 			"mp3_directory")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
 				mp3_directory="$value"
-				configs["Music directory"]="$value"
+				configs["mp3_directory"]="$value"
 				;;
 			"playlist_directory")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
 				playlist_directory="$value"
-				configs["Playlist dir"]="$value"
+				configs["playlist_directory"]="$value"
 				;;
 			*)
 				output-failure "not valid user config: \"$argument\""
