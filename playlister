@@ -155,9 +155,9 @@ function show () {
 				output-items
 				exit 0
 				;;
-			music)
+			mp3s)
 				shift
-				show-music "$@"
+				show-mp3s "$@"
 				output-items
 				exit 0
 				;;
@@ -221,7 +221,7 @@ function show-author () {
 	local file
 	for file in "$mp3_directory"*; do
 		local filename="$(basename "$file")"
-		local mp3name="$(get-from-filename "$filename" "music")"
+		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
 		authors="$(divide-authors "$authors")" 				# divide from ", " to "|"
 		IFS='|' read -ra authors <<< "$authors"				# split with '|'
@@ -253,7 +253,7 @@ function show-authors () {
 	local file
 	for file in "$mp3_directory"*; do
 		local filename="$(basename "$file")"
-		local mp3name="$(get-from-filename "$filename" "music")"
+		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
 		authors="$(divide-authors "$authors")" 				# divide from ", " to "|"
 		IFS='|' read -ra authors <<< "$authors"				# split with '|'
@@ -264,7 +264,7 @@ function show-authors () {
 	done
 }
 
-function show-music () {
+function show-mp3s () {
 	# adds every mp3 file to items
 	# return execution flow on success, exit 1 on failure
 		# success: all files were looped and added to items
@@ -273,11 +273,11 @@ function show-music () {
 			# arg not in ["all", "used", "unused"]
 			# mp3 directory not readable
 			# mp3 directory empty
-			# is-music-used fail
-	# 1 argument: type of music: ["all", "used", "unused"]
-	# implementation of playlister show music <type>
+			# is-mp3-used fail
+	# 1 argument: type of mp3: ["all", "used", "unused"]
+	# implementation of playlister show mp3 <type>
 	if [[ $# -ne 1 ]]; then
-		output-failure "invalid show-music argument count (must be ==1)"
+		output-failure "invalid show-mp3 argument count (must be ==1)"
 		exit 1
 	fi
 	local argument="$1"
@@ -285,7 +285,7 @@ function show-music () {
 	if ! (  [[ "$argument" == "all" ]] 	|| \
 		[[ "$argument" == "used" ]] 	|| \
 		[[ "$argument" == "unused" ]] 	); then
-		output-failure "invalid show-music argument:\"$argument\""
+		output-failure "invalid show-mp3 argument:\"$argument\""
 		exit 1
 	fi
 	
@@ -299,33 +299,33 @@ function show-music () {
 			add-item "$filename"
 
 		elif [[ "$argument" == "used" ]]; then
-			if is-music-used "$filename"; then
+			if is-mp3-used "$filename"; then
 				add-item "$filename"
 			fi
 
 		else #unused
-			if ! is-music-used "$filename"; then
+			if ! is-mp3-used "$filename"; then
 				add-item "$filename"
 			fi
 		fi
 	done
 }
 
-function is-music-used () {
+function is-mp3-used () {
 	# checks if mp3 file is entry in a playlist
 	# return int status as value, exit 1 on error
 		# success: return status
-			# 0 -> music is used
-			# 1 -> music is not used
+			# 0 -> mp3 is used
+			# 1 -> mp3 is not used
 		# failure:
 			# wrong arg count
 			# playlist directory not readable
 			# playlist directory empty
 			# playlist file not readable
 	# 1 argument: filename to be checked (previously basename'd!)
-	# used in show-music with music type distinctions
+	# used in show-mp3 with mp3 type distinctions
 	if [[ $# -ne 1 ]]; then
-		output-failure "invalid is-music-used argument count(must be ==1)"
+		output-failure "invalid is-mp3-used argument count(must be ==1)"
 		exit 1
 	fi
 	local filename="$1"
@@ -395,7 +395,7 @@ function get-from-filename () {
 	
 	local filename="$1"
 	local option="$2"
-	if ! ( [[ "$option" == "music" ]] || [[ "$option" == "authors" ]] ) ; then
+	if ! ( [[ "$option" == "mp3" ]] || [[ "$option" == "authors" ]] ) ; then
 		output-failure "invalid get-from-filename option:\"$option\""
 		exit 1
 	fi
@@ -403,13 +403,13 @@ function get-from-filename () {
 	local separator=" - "
 	local tmp=${filename//"$separator"/$'\2'}
 	local authors
-	local music
-	IFS=$'\2' read authors music <<< "$tmp"
+	local mp3
+	IFS=$'\2' read authors mp3 <<< "$tmp"
 	
 	if [[ "$option" == "authors" ]]; then
 		echo "$authors"
 	else
-		echo "$music"
+		echo "$mp3"
 	fi
 }
 
@@ -450,7 +450,7 @@ function update-items() {
 	fi
 	local filename="$1"
         local option="$2"
-	if ! ( [[ "$option" == "music" ]] || [[ "$option" == "authors" ]] ); then
+	if ! ( [[ "$option" == "mp3" ]] || [[ "$option" == "authors" ]] ); then
 		output-failure "invalid update-items argument:\"$option\""
 		return 1
 	fi
@@ -464,7 +464,7 @@ function update-items() {
 	local item_array
 	if [[ "$option" == "authors" ]]; then
 		IFS='|' read -ra item_array <<< "$( divide-authors "$extracted_string" )"
-	elif [[ "$option" == "music" ]]; then
+	elif [[ "$option" == "mp3" ]]; then
 		item_array+=("$extracted_string")
 	fi
 	local item
