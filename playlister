@@ -443,36 +443,6 @@ function add-item () {
 	fi
 }
 
-function update-items() {
-	if ! [[ $# -eq 2 ]]; then
-		output-failure "invalid update-items argument count (must be ==2)"
-		return 1
-	fi
-	local filename="$1"
-        local option="$2"
-	if ! ( [[ "$option" == "mp3" ]] || [[ "$option" == "authors" ]] ); then
-		output-failure "invalid update-items argument:\"$option\""
-		return 1
-	fi
-	
-
-	local extracted_string="$( get-from-filename "$filename" "$option" )"
-	if [[ "$extracted_string" == "" ]]; then
-		output-failure "invalid filename detected:\"$filename\""
-		return 1
-	fi
-	local item_array
-	if [[ "$option" == "authors" ]]; then
-		IFS='|' read -ra item_array <<< "$( divide-authors "$extracted_string" )"
-	elif [[ "$option" == "mp3" ]]; then
-		item_array+=("$extracted_string")
-	fi
-	local item
-	for item in "${item_array[@]}" ; do
-		add-item "$item"
-	done
-}
-
 function config () {
 	if [[ "$#" -eq 0 ]]; then
 		output-failure "invalid config argument count (must be >0)"
