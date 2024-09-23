@@ -348,11 +348,26 @@ function is-music-used () {
 }
 
 function show-playlists () {
+	# add every playlist to items
+	# return execution flow if success, exit 1 if failure
+		# success: all playlists added to items
+		# failure:
+			# wrong arg count
+			# playlist directory unreadable
+			# playlist directory empty
+			# add-item exits
+	# no arguments
+	# implementation of playlister show playlists
+	if [[ $# -ne 0 ]]; then
+		output-failure "show-playlists does not take any arguments"
+		exit 1
+	fi
 	is-directory-readable "$playlist_directory"
 
 	is-directory-not-empty "$playlist_directory"
 	for file in "${playlist_directory}"* ; do
-		echo "$(basename "$file" )"
+		local filename="$(basename "$file")"
+		add-item "$filename"
 	done
 }
 
