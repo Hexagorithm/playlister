@@ -194,6 +194,14 @@ function output-items () {
 }
 
 function show-author () {
+	# add every mp3 file name the <author> is author of
+	# return execution flow on success, exit 1 on failure
+		# succcess: all files were looped through and added to items accordingly
+		# failure: 
+			# mp3 directory not readable, 
+			# mp3 directory empty, 
+			# failed to add/increment author in items
+	# implementation of playlist show author <author>
 	if ! [[ $# -eq 1 ]]; then
 		output-failure "invalid show-author argument count(must be ==1)"
 		exit 1
@@ -214,23 +222,39 @@ function show-author () {
 		IFS='|' read -ra authors <<< "$authors"				# split with '|'
 		for author in "${authors[@]}"; do
 			if [[ "$author" == "$target_author" ]]; then
-				if ! add-item "$mp3name"; then
-					exit 1
-				fi
+				add-item "$mp3name"
 			fi
 		done
 	done
 }
 
 function show-authors () {
+	# add every author in mp3 directory to items with their respective number of "author'ed" files
+	# return execution flow on success, exit 1 on failure
+		# succcess: all files were looped through and added to items accordingly
+		# failure: 
+			# mp3 directory not readable, 
+			# mp3 directory empty, 
+			# failed to add/increment author in items
+	# implementation of playlist show authors
+	if [[ $# -ne 0 ]]; then
+		output-failure "show-authors does not take any arguments"
+		exit 1
+	fi
 	is-directory-readable "$mp3_directory"
 
 	is-directory-not-empty "$mp3_directory"
 	local file
 	for file in "$mp3_directory"*; do
-		if ! update-items "$( basename "$file" )" "authors"; then
-			exit 1
-		fi
+		local filename="$(basename "$file")"
+		local mp3name="$(get-from-filename "$filename" "music")"
+		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
+		authors="$(divide-authors "$authors")" 				# divide from ", " to "|"
+		IFS='|' read -ra authors <<< "$authors"				# split with '|'
+		for author in "${authors[@]}"; do
+			add-item "$author"
+		done
+
 	done
 }
 
