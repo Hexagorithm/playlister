@@ -77,24 +77,6 @@ function output-info () {
 	>&2 echo -e "${white}(${yellow}*${white}) ${output}."
 }
 
-function is-directory-readable () {
-	# check if directory is readable
-		# success -> directory is readable
-		# failure -> directory is not readable
-	# return to execution flow on success, exit on failure
-	# 1 argument: the directory
-	if ! [[ $# -eq 1 ]]; then
-		output-failure "invalid is-directory-readable argument count(must be ==1)"
-		exit 1
-	fi
-	local directory="$1"
-
-	if ! [[ -r "$directory" ]]; then
-		output-failure "$directory not readable"
-		exit 1
-	fi
-}
-
 function is-file-readable () {
 	# check if file is readable
 		# success -> file is readable
@@ -106,6 +88,7 @@ function is-file-readable () {
 		exit 1
 	fi
 	local file="$1"
+	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -r "$file" ]]; then
 		output-failure "$file not readable"
 		exit 1
@@ -237,7 +220,7 @@ function show-author () {
 	
 	local target_author="$1"
 	
-	is-directory-readable "$mp3_directory"
+	is-file-readable "$mp3_directory"
 	
 	is-directory-not-empty "$mp3_directory"
 
@@ -270,7 +253,7 @@ function show-authors () {
 		output-failure "show-authors does not take any arguments"
 		exit 1
 	fi
-	is-directory-readable "$mp3_directory"
+	is-file-readable "$mp3_directory"
 
 	is-directory-not-empty "$mp3_directory"
 	local file
@@ -312,7 +295,7 @@ function show-mp3s () {
 		exit 1
 	fi
 	
-	is-directory-readable "$mp3_directory"
+	is-file-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
 	local file
 	for file in "${mp3_directory}"*; do
@@ -353,7 +336,7 @@ function is-mp3-used () {
 	fi
 	local filename="$1"
 	
-	is-directory-readable "$playlist_directory"
+	is-file-readable "$playlist_directory"
 
 	is-directory-not-empty "$playlist_directory"
 
@@ -385,7 +368,7 @@ function show-playlists () {
 		output-failure "show-playlists does not take any arguments"
 		exit 1
 	fi
-	is-directory-readable "$playlist_directory"
+	is-file-readable "$playlist_directory"
 
 	is-directory-not-empty "$playlist_directory"
 	for file in "${playlist_directory}"* ; do
