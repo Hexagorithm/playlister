@@ -194,6 +194,8 @@ function show-playlist () {
 			# wrong argument count
 			# playlist directory no exists / unreadable
 			# playlist not readable
+			# mp3_directory not readable
+			# mp3_directory empty
 			# entry in playlist not valid, not to be deleted
 	# 1 argument: playlist filename(basename'd)
 	if ! [[ $# -eq 1 ]]; then
@@ -211,8 +213,38 @@ function show-playlist () {
 	is-file-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
 	while read entry; do
+		if ! is-string-valid-mp3 "$entry"; then
+			output-failure "\"$entry\" is not a valid mp3 file"
+			exit 1
+		fi
 		add-item "$entry"
 	done <"$playlist_path"
+}
+
+function is-string-valid-mp3 () {
+	# check if given string is a valid mp3 file
+	# return 0 if is, return 1 if is not, exit 1
+		# success: file was able to be checked for validity
+		# failure:
+			# mp3 directory not readable
+			# mp3 directory empty
+	# 1 argument: string
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid is-string-valid-mp3 argument count(must be == 1)"
+		exit 1
+	fi
+	local string="$1"
+	is-file-readable "$mp3_directory"
+	is-directory-not-empty "$mp3_directory"
+
+	local filename
+	for file in "$mp3_directory"*; do
+		file="$( basename "$file" )" # string directories suffix
+		if [[ "$file" == "$string" ]]; then
+			return 0
+		fi
+	done
+	return 1
 }
 
 
