@@ -167,6 +167,12 @@ function show () {
 				output-items
 				exit 0
 				;;
+			playlist)
+				shift
+				show-playlist "$@"
+				output-items
+				exit 1
+				;;
 			*)
 				output-failure "unrecognised show option:\"$1\""
 				exit 1
@@ -197,8 +203,25 @@ function output-items () {
 	done
 }
 
+function show-playlist () {
+	# add every playlist entry to items
+	# return code on execution on success , exit 1 on failure
+		# success: all entries added to items
+		# failure:
+			# wrong argument count
+			# playlist directory no exists / unreadable
+			# playlist not readable
+			# entry in playlist not valid, not to be deleted
+	# 1 argument: playlist filename(basename'd)
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid show-playlist argument count(must be ==1)"
+		exit 1
+	fi
+	local target_playlist="$1"
+}
+
 function show-author () {
-	# add every mp3 file name the <author> is author of
+	# add every mp3 file name the <author> is author of to items
 	# return execution flow on success, exit 1 on failure
 		# succcess: all files were looped through and added to items accordingly
 		# failure: 
