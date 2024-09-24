@@ -212,13 +212,16 @@ function show-playlist () {
 	
 	is-file-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
-	while read entry; do
+	while read -u 69 entry; do
 		if ! is-string-valid-mp3 "$entry"; then
 			output-failure "\"$entry\" is not a valid mp3 file"
-			exit 1
+			if ! is-confirmed "Should \"$entry\" be deleted from \"$playlist\" ?"; then
+				exit 1
+			fi
+			output-info "this functionality was not implemented yet"
 		fi
 		add-item "$entry"
-	done <"$playlist_path"
+	done 69<"$playlist_path"
 }
 
 function is-string-valid-mp3 () {
@@ -239,13 +242,46 @@ function is-string-valid-mp3 () {
 
 	local filename
 	for file in "$mp3_directory"*; do
-		file="$( basename "$file" )" # string directories suffix
+		file="$( basename "$file" )" # remove string directories suffix
 		if [[ "$file" == "$string" ]]; then
 			return 0
 		fi
 	done
 	return 1
 }
+
+function is-confirmed () {
+	# get user yes, no input to make simple script decisions
+	# return 0 if confirmed, return 1 if rejected, exit 1 on error
+		# failures: wrong arg count
+	# 1 argument: string prompt to display
+	if ! [[ $# -eq 1 ]]; then
+		output-failure "invalid is-confirmed argument count(must be == 1)"
+		exit 1
+	fi
+	local prompt="$1"
+
+	local confirmation=( "y" "ye" "yes" "Y" "Ye" "Yes" "YE" "YES" )
+	local rejection=("n" "no" "N" "No" "NO" )
+	while : ; do
+		local user
+		output-info "$prompt"
+		read -p ":" user
+		local option
+		for option in "${confirmation[@]}"; do
+			if [[ "$option" == "$user" ]]; then
+				return 0
+			fi
+		done
+		for option in "${rejection[@]}"; do
+			if [[ "$option" == "$user" ]]; then
+				return 1
+			fi
+		done
+		output-info "Invalid user input: \"$user\""
+	done
+}
+
 
 
 function show-author () {
