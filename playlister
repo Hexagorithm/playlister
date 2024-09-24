@@ -128,13 +128,13 @@ function show () {
 		case $1 in
 			authors)
 				shift
-				show-authors
+				show-authors "$@"
 				output-items
 				exit 0
 				;;
 			playlists)
 				shift
-				show-playlists
+				show-playlists "$@"
 				output-items
 				exit 0
 				;;
@@ -200,8 +200,21 @@ function show-playlist () {
 		output-failure "invalid show-playlist argument count(must be ==1)"
 		exit 1
 	fi
-	local target_playlist="$1"
+	local playlist="$1"
+
+	is-file-readable "$playlist_directory"
+	is-directory-not-empty "$playlist_directory"
+
+	local playlist_path="${playlist_directory}${playlist}"
+	is-file-readable "$playlist_path"
+	
+	is-file-readable "$mp3_directory"
+	is-directory-not-empty "$mp3_directory"
+	while read entry; do
+		add-item "$entry"
+	done <"$playlist_path"
 }
+
 
 function show-author () {
 	# add every mp3 file name the <author> is author of to items
