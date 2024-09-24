@@ -55,6 +55,7 @@ function main () {
 
 function output-success () {
 	# unifying user success output
+	# 1 argument: the string to output
 	local output="$1"
 	local white="\e[1;37m"
 	local green="\e[1;32m"
@@ -63,6 +64,7 @@ function output-success () {
 
 function output-failure () {
 	# unifying user failure output
+	# 1 argument: the string to output
 	local output="$1"
 	local white="\e[1;37m"
 	local red="\e[1;31m"
@@ -71,10 +73,20 @@ function output-failure () {
 
 function output-info () {
 	# unfying user informative output
+	# 1 argument: the string to output
 	local output="$1"
 	local white="\e[1;37m"
 	local yellow="\e[1;33m"
 	>&2 echo -e "${white}(${yellow}*${white}) ${output}."
+}
+
+function output-question () {
+	# unifying user prompt output (used in is-confirmed)
+	# 1 argument: the string to output
+	local output="$1"
+	local white="\e[1;37m"
+	local blue="\e[1;34m"
+	>&2 echo -e "${white}(${blue}?${white}) ${output}?"
 }
 
 function is-file-readable () {
@@ -215,7 +227,7 @@ function show-playlist () {
 	while read -u 69 entry; do
 		if ! is-string-valid-mp3 "$entry"; then
 			output-failure "\"$entry\" is not a valid mp3 file"
-			if ! is-confirmed "Should \"$entry\" be deleted from \"$playlist\" ?"; then
+			if ! is-confirmed "Delete \"$entry\" from \"$playlist\""; then
 				exit 1
 			fi
 			output-info "this functionality was not implemented yet"
@@ -265,7 +277,7 @@ function is-confirmed () {
 	local rejection=("n" "no" "N" "No" "NO" )
 	while : ; do
 		local user
-		output-info "$prompt"
+		output-question "$prompt"
 		read -p ":" user
 		local option
 		for option in "${confirmation[@]}"; do
