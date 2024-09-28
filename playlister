@@ -101,75 +101,8 @@ function assert-correct-argument-count () {
 	fi
 }
 
-function output-success () {
-	# unifying user success output
-	# 1 argument: the string to output
-	assert-correct-argument-count "output-success" "==" 1 "$@"
-	local output="$1"
-	local white="\e[1;37m"
-	local green="\e[1;32m"
-	>&2 echo -e "${white}(${green}+${white}) ${output}."
-}
 
-function output-failure () {
-	# unifying user failure output
-	# 1 argument: the string to output
-	assert-correct-argument-count "output-failure" "==" 1 "$@"
-	local output="$1"
-	local white="\e[1;37m"
-	local red="\e[1;31m"
-	>&2 echo -e "${white}(${red}-${white}) ${output}!"
-}
 
-function output-info () {
-	# unfying user informative output
-	# 1 argument: the string to output
-	assert-correct-argument-count "output-info" "==" 1 "$@"
-	local output="$1"
-	local white="\e[1;37m"
-	local yellow="\e[1;33m"
-	>&2 echo -e "${white}(${yellow}*${white}) ${output}."
-}
-
-function output-question () {
-	# unifying user prompt output (used in is-confirmed)
-	# 1 argument: the string to output
-	assert-correct-argument-count "output-question" "==" 1 "$@"
-	local output="$1"
-	local white="\e[1;37m"
-	local blue="\e[1;34m"
-	>&2 echo -e "${white}(${blue}?${white}) ${output}?"
-}
-
-function is-file-readable () {
-	# check if file is readable
-		# success -> file is readable
-		# failure -> file is not readable
-	# return to execution flow on success, exit on failure
-	# 1 argument: the file
-	assert-correct-argument-count "is-file-readable" "==" 1 "$@"
-	local file="$1"
-	file="${file%/}"	# trim slash if file given for when the file given is a directory.
-	if ! [[ -r "$file" ]]; then
-		output-failure "$file not readable"
-		exit 1
-	fi
-}
-
-function is-directory-not-empty () {
-	# check if directory is empty
-	# return to execution flow on success, exit on failure
-		# success -> directory is not empty 
-		# failure -> directory is empty
-	# 1 argument: the directory
-	assert-correct-argument-count "is-directory-not-empty" "==" 1 "$@"
-	local directory="$1"
-
-	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
-		output-failure "$directory is empty"
-		exit 1
-	fi
-}
 
 
 
@@ -559,6 +492,7 @@ function add-item () {
 function config () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "config" ">" 0 "$@"
+
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
 			configure)
@@ -701,31 +635,6 @@ function directory-config () {
 	output-info "\"$dirname\" is readable"
 }
 
-function is-file-exists () {
-	# determine if file exists
-	# return 0 if file exists, return 1 if file does not exist
-	# 1 argument:
-		# the full path to the file
-	assert-correct-argument-count "is-file-exists" "==" 1 "$@"
-	local file="$1"
-	if [[ -e "$file" ]]; then
-		return 0
-	fi
-	return 1
-}
-
-function is-file-directory () {
-	# determine if file exists and is a directory
-	# return 0 if file exists and is a directory, return 1 if not exists or is not a directory
-	# 1 argument:
-		# the full path to the file
-	assert-correct-argument-count "is-file-directory" "==" 1 "$@"
-	local file="$1"
-	if [[ -d "$file" ]]; then
-		return 0
-	fi
-	return 1
-}
 
 function file-configure () {
 	assert-correct-argument-count "file-configure" ">" 1 "$@"
@@ -881,10 +790,107 @@ function is-valid-config-mutable () {
 	
 }
 
+
 function get-config () {
 	assert-correct-argument-count "get-config" "==" 1 "$@"
 	local argument="$1"
     	output-info "	$argument	-> 	${configs[$argument]} "
+}
+
+function is-directory-not-empty () {
+	# check if directory is empty
+	# return to execution flow on success, exit on failure
+		# success -> directory is not empty 
+		# failure -> directory is empty
+	# 1 argument: the directory
+	assert-correct-argument-count "is-directory-not-empty" "==" 1 "$@"
+	local directory="$1"
+
+	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
+		output-failure "$directory is empty"
+		exit 1
+	fi
+}
+
+function is-file-readable () {
+	# check if file is readable
+		# success -> file is readable
+		# failure -> file is not readable
+	# return to execution flow on success, exit on failure
+	# 1 argument: the file
+	assert-correct-argument-count "is-file-readable" "==" 1 "$@"
+	local file="$1"
+	file="${file%/}"	# trim slash if file given for when the file given is a directory.
+	if ! [[ -r "$file" ]]; then
+		output-failure "$file not readable"
+		exit 1
+	fi
+}
+
+function is-file-exists () {
+	# determine if file exists
+	# return 0 if file exists, return 1 if file does not exist
+	# 1 argument:
+		# the full path to the file
+	assert-correct-argument-count "is-file-exists" "==" 1 "$@"
+	local file="$1"
+	if [[ -e "$file" ]]; then
+		return 0
+	fi
+	return 1
+}
+
+function is-file-directory () {
+	# determine if file exists and is a directory
+	# return 0 if file exists and is a directory, return 1 if not exists or is not a directory
+	# 1 argument:
+		# the full path to the file
+	assert-correct-argument-count "is-file-directory" "==" 1 "$@"
+	local file="$1"
+	if [[ -d "$file" ]]; then
+		return 0
+	fi
+	return 1
+}
+
+function output-success () {
+	# unifying user success output
+	# 1 argument: the string to output
+	assert-correct-argument-count "output-success" "==" 1 "$@"
+	local output="$1"
+	local white="\e[1;37m"
+	local green="\e[1;32m"
+	>&2 echo -e "${white}(${green}+${white}) ${output}."
+}
+
+function output-failure () {
+	# unifying user failure output
+	# 1 argument: the string to output
+	assert-correct-argument-count "output-failure" "==" 1 "$@"
+	local output="$1"
+	local white="\e[1;37m"
+	local red="\e[1;31m"
+	>&2 echo -e "${white}(${red}-${white}) ${output}!"
+}
+
+function output-info () {
+	# unfying user informative output
+	# 1 argument: the string to output
+	assert-correct-argument-count "output-info" "==" 1 "$@"
+	local output="$1"
+	local white="\e[1;37m"
+	local yellow="\e[1;33m"
+	>&2 echo -e "${white}(${yellow}*${white}) ${output}."
+}
+
+function output-question () {
+	# unifying user prompt output (used in is-confirmed)
+	# 1 argument: the string to output
+	assert-correct-argument-count "output-question" "==" 1 "$@"
+	local output="$1"
+	local white="\e[1;37m"
+	local blue="\e[1;34m"
+	>&2 echo -e "${white}(${blue}?${white}) ${output}?"
 }
 
 main "$@"
