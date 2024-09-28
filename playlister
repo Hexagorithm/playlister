@@ -590,9 +590,7 @@ function config () {
 	done
 }
 function config-configure () {
-	if ! create-directory "$main_directory" ; then
-		exit 1
-	fi
+	directory-config "$main_directory"
 	
 	if ! setup-file "$help_file" "currentdir"; then
 		exit 1
@@ -609,13 +607,9 @@ function config-configure () {
 		exit 1
 	fi
 	
-	if ! create-directory "$mp3_directory"; then
-		exit 1
-	fi
+	directory-config "$mp3_directory"
 
-	if ! create-directory "$playlist_directory"; then
-		exit 1
-	fi
+	directory-config "$playlist_directory"
 }
 
 function config-list () {
@@ -675,23 +669,66 @@ function config-set () {
 	fi
 }
 
-function create-directory () {
-	assert-correct-argument-count "create-directory" "==" 1 "$@"
-	local directory="$1"
-	local directoryname="$(basename "$1")"
-	if [[ -d "$directory" ]]; then
-		output-info "$directoryname exists"
-	else
-		mkdir $directory
-		if [[ $? -ne 0 ]]; then
-			output-failure "$directoryname failed to create"
-			return 1
-		else
-			output-success "$directoryname created"
+function directory-config () {
+	# configure directory creation for eg. config configure
+	# return to execution on success, exit 1 on failure
+		# failures:
+			# could not create directory
+			# directory is a file rather than a directory
+			# directory is not readable
+	# arguments:
+		# full path of the directory
+	assert-correct-argument-count "directory-config" "==" 1 "$@"
+	local dir="$1"
+	local dirname="$(basename "$dir" )"
+	if ! is-file-exists "$dir"; then
+		output-info "\"$dirname\" does not exist"
+		mkdir "$dir"
+		if ! [[ $? -eq 0 ]]; then
+			output-failure "\"$dirname\" failed to create"
+			exit 1
 		fi
-		
+		output-info "\"$dirname\" created"
 	fi
-	return 0
+	output-info "\"$dirname\" exists"
+
+	if ! is-file-directory "$dir"; then
+		output-failure "\"$dirname\" is not a directory"
+		exit 1
+	fi
+	output-info "\"$dirname\" is a directory"
+
+	if ! is-file-readable "$dir"; then
+		output-failure "\"$dirname\" is not readable"
+		exit 1
+	fi
+	output-info "\"$dirname\" is readable"
+}
+
+function is-file-exists () {
+	# determine if file exists
+	# return 0 if file exists, return 1 if file does not exist
+	# 1 argument:
+		# the full path to the file
+	assert-correct-argument-count "is-file-exists" "==" 1 "$@"
+	local file="$1"
+	if [[ -e "$file" ]]; then
+		return 0
+	fi
+	return 1
+}
+
+function is-file-directory () {
+	# determine if file exists and is a directory
+	# return 0 if file exists and is a directory, return 1 if not exists or is not a directory
+	# 1 argument:
+		# the full path to the file
+	assert-correct-argument-count "is-file-directory" "==" 1 "$@"
+	local file="$1"
+	if [[ -d "$file" ]]; then
+		return 0
+	fi
+	return 1
 }
 
 function setup-file () {
