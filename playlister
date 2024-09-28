@@ -551,6 +551,7 @@ function config-configure () {
 }
 
 function config-list () {
+	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "config-list" "==" 0 "$@"
 
 	for configuration in "${!configs[@]}"; do
@@ -563,12 +564,12 @@ function config-list () {
 function config-get () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "config-get" "==" 1 "$@"
-	local argument="$1"
-	if ! is-valid-config "$argument" ; then
-		output-failure "not a valid configuration: \"$argument\""
+	local configuration="$1"
+	if ! is-valid-config "$configuration" ; then
+		output-failure "not a valid configuration: \"$configuration\""
 		return 1
 	fi
-	get-config "$argument"
+	add-item "	$configuration	-> 	${configs[$configuration]} "
 }
 
 function config-set () {
