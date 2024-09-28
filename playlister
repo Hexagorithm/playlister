@@ -493,27 +493,34 @@ function config () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "config" ">" 0 "$@"
 
+	declare -A items=()
+
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
 			configure)
-				config-configure
+				shift
+				config-configure "$@"
 				exit 0
 				;;
 			list)
+				shift
 				read-config-if-exists
-				config-list
+				config-list "$@"
+				output-items
 				exit 0
 				;;
 			get)
 				shift
 				read-config-if-exists
 				config-get "$@"
+				output-items
 				exit 0
 				;;
 			set)	
 				shift
 				read-config-if-exists
 				config-set "$@"
+				output-items
 				exit 0
 				;;
 			*)
@@ -524,6 +531,7 @@ function config () {
 	done
 }
 function config-configure () {
+
 	directory-config "$main_directory"
 	
 	file-configure "$help_file" "currentdir"
@@ -543,14 +551,12 @@ function config-configure () {
 }
 
 function config-list () {
+	assert-correct-argument-count "config-list" "==" 0 "$@"
 
 	for configuration in "${!configs[@]}"; do
 		# i do not need to check for validity of $configuration here
 		# for $configuration is fetched directly from $configs
-		if ! get-config "$configuration"; then
-			output-failure "$configuration failed to list"
-			exit 1
-		fi
+		add-item "	$configuration	-> 	${configs[$configuration]} "
 	done
 }
 
