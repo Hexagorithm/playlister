@@ -592,13 +592,9 @@ function config () {
 function config-configure () {
 	directory-config "$main_directory"
 	
-	if ! setup-file "$help_file" "currentdir"; then
-		exit 1
-	fi
+	file-configure "$help_file" "currentdir"
 	
-	if ! setup-file "$config_file" "backup" "makenew"; then
-		exit 1
-	fi
+	file-configure "$config_file" "backup" "makenew"
 	
 	if read-config ; then
 		output-success "$(basename "$config_file") read"
@@ -731,81 +727,77 @@ function is-file-directory () {
 	return 1
 }
 
-function setup-file () {
-	assert-correct-argument-count "setup-file" ">" 1 "$@"
-	local filepath="$1"
-	local filename="$( basename "$filepath" )"
-	local backup="no"
-	local currentdir="no"
-	local makenew="no"
+function file-configure () {
+	assert-correct-argument-count "file-configure" ">" 1 "$@"
+	local file="$1"
+	local filename="$( basename "$file" )"
+	local backup=1
+	local currentdir=1
+	local makenew=1
 	shift
 	while [[ "$#" -ne 0 ]]; do
 		case $1 in 
 			"backup")
-				backup="yes"
+				backup=1
 				shift
 				;;
 			"currentdir")
-				currentdir="yes"
+				currentdir=1
 				shift
 				;;
 			"makenew")
-				makenew="yes"
+				makenew=1
 				shift
 				;;
 			*)
-				output-failure "unrecognised setup-file option:\"$1\""
+				output-failure "unrecognised file-configure option:\"$1\""
 				return 1
 				;;
 		esac
 	done
-	
-	if [[ -a "$filepath" ]]; then
+
+	if is-file-exists "$file"; then
 		output-info "$filename exists"
 		return 0
 	fi
 	output-info "$filename does not exist"
-
-	if [[ "$backup" == "yes" ]]; then
-		local filepathbak="${filepath}${backup_ext}"
-		if [[ -a "$filepathbak" ]]; then
-			cp "$filepathbak" "$filepath"
+	
+	if [[ $backup -eq 1 ]]; then
+		local fileback="${file}${backup_ext}"
+		if is-file-exists "$fileback"; then
+			cp "$fileback" "$file"
 			if [[ $? -eq 0 ]]; then
 				output-success "$filename created from backup"
-				return 0
-			else
-				output-failure "$filename failed to create from backup"
+				return
 			fi
-		else
-			output-info "$filename has no backup"
+			output-info "$filename failed to create from backup"
 		fi
+		output-info "$filename does not have a backup"
 	fi
 
-	if [[ "$currentdir" == "yes" ]]; then
-		if [[ -a  "$filename" ]]; then
-			mv "$filename" "$filepath"
+	if [[ $currentdir -eq 1 ]]; then
+		if is-file-exists "$filename"; then
+			cp "$filename" "$file"
 			if [[ $? -eq 0 ]]; then
-				output-success "$filename fetched from current directory"
-				return 0
-			else
-				output-failure "$filename failed to fetch from current directory"
+				output-success "$filename created from current directory"
+				return
 			fi
-		else
-			output-info "$filename not found in current directory"
+			output-info "$filename failed to create from current directory"
 		fi
+		output-info "$filename not found in current directory"
 	fi
 
-	if [[ "$makenew" == "yes" ]]; then
-		touch "$filepath"
+	if [[ $makenew -eq 1 ]]; then
+		touch "$file"
 		if [[ $? -eq 0 ]]; then
-			output-success "$filename created"
+			output-success "$filename created blank"
 			return 0
 		fi
-		output-failure "$filename failed to create"
+		output-failure "$filename failed to create blank"
 	fi
 	
-	output-failure "$filename setup failed"
-	return 1
+	output-failure "$filename configuration failed"
+	exit 1 
 }
 
 function read-config () {
