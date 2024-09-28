@@ -185,13 +185,13 @@ function show-playlist () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "show-playlist" "==" 1 "$@"
 	local playlist="$1"
-	is-file-readable "$playlist_directory"
+	assert-file-readable "$playlist_directory"
 	is-directory-not-empty "$playlist_directory"
 
 	local playlist_path="${playlist_directory}${playlist}"
-	is-file-readable "$playlist_path"
+	assert-file-readable "$playlist_path"
 	
-	is-file-readable "$mp3_directory"
+	assert-file-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
 	while read -u 69 entry; do
 		if ! is-string-valid-mp3 "$entry"; then
@@ -215,7 +215,7 @@ function is-string-valid-mp3 () {
 	# 1 argument: string
 	assert-correct-argument-count "is-string-valid-mp3" "==" 1 "$@"
 	local string="$1"
-	is-file-readable "$mp3_directory"
+	assert-file-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
 
 	local filename
@@ -274,7 +274,7 @@ function show-author () {
 	
 	local target_author="$1"
 	
-	is-file-readable "$mp3_directory"
+	assert-file-readable "$mp3_directory"
 	
 	is-directory-not-empty "$mp3_directory"
 
@@ -306,7 +306,7 @@ function show-authors () {
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "show-authors" "==" 0 "$@"
-	is-file-readable "$mp3_directory"
+	assert-file-readable "$mp3_directory"
 
 	is-directory-not-empty "$mp3_directory"
 	local file
@@ -347,7 +347,7 @@ function show-mp3s () {
 		exit 1
 	fi
 	
-	is-file-readable "$mp3_directory"
+	assert-file-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
 	local file
 	for file in "${mp3_directory}"*; do
@@ -385,13 +385,13 @@ function is-mp3-used () {
 	assert-correct-argument-count "is-mp3-used" "==" 1 "$@"
 	local filename="$1"
 	
-	is-file-readable "$playlist_directory"
+	assert-file-readable "$playlist_directory"
 
 	is-directory-not-empty "$playlist_directory"
 
 	local playlist
 	for playlist in "${playlist_directory}"* ; do
-		is-file-readable "$playlist"
+		assert-file-readable "$playlist"
 		local line
 		while read line; do
 			if [[ "$line" == "$filename" ]]; then
@@ -416,7 +416,7 @@ function show-playlists () {
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "show-playlists" "==" 0 "$@"
-	is-file-readable "$playlist_directory"
+	assert-file-readable "$playlist_directory"
 
 	is-directory-not-empty "$playlist_directory"
 	for file in "${playlist_directory}"* ; do
@@ -635,10 +635,8 @@ function directory-config () {
 	fi
 	output-info "\"$dirname\" is a directory"
 
-	if ! is-file-readable "$dir"; then
-		output-failure "\"$dirname\" is not readable"
-		exit 1
-	fi
+	assert-file-readable "$dir"
+
 	output-info "\"$dirname\" is readable"
 }
 
@@ -717,7 +715,7 @@ function file-configure () {
 }
 
 function read-config () {
-	is-file-readable "$config_file"
+	assert-file-readable "$config_file"
 	while read line ; do
 		local argument="$(echo "$line" | cut -d "=" -f 1)"
 		case "$argument" in
@@ -819,13 +817,13 @@ function is-directory-not-empty () {
 	fi
 }
 
-function is-file-readable () {
+function assert-file-readable () {
 	# check if file is readable
+	# return to execution flow on success, exit on failure
 		# success -> file is readable
 		# failure -> file is not readable
-	# return to execution flow on success, exit on failure
 	# 1 argument: the file
-	assert-correct-argument-count "is-file-readable" "==" 1 "$@"
+	assert-correct-argument-count "assert-file-readable" "==" 1 "$@"
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -r "$file" ]]; then
