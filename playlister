@@ -606,29 +606,11 @@ function update-config-file () {
 	assert-correct-argument-count "update-config-file" "==" 2 "$@"
 	local configuration="$1"
 	local newvalue="$2"
-	tmpfile=$(mktemp /tmp/playlister.XXXXXX)
-	exec 3>"$tmpfile"
-	exec 4<"$tmpfile"
 
 	assert-file-readable "$config_file"
 	assert-file-writable "$config_file"
-	local changed=0
-	while read line; do
-		line_configuration="$( echo "$line" | cut -d "=" -f 1)"
-		if [[ "$line_configuration" == "$configuration" ]]; then
-			echo "${configuration}=${newvalue}" >&3 
-			changed=1
-		else
-			echo "$line" >&3
-		fi
-	done <"$config_file"
-	if [[ $changed -eq 0 ]]; then
-		>&3 echo "${configuration}=${newvalue}"
-	fi
-	> "$config_file"
-	while read line; do
-		>>"$config_file" echo "$line" 
-	done <&4
+	sed -i "/^${configuration}=/d" "$config_file"
+	echo "${configuration}=${newvalue}" >> "$config_file"
 }
 
 function directory-config () {
