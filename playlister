@@ -38,7 +38,9 @@ function main () {
 				;;
 			show)
 				shift
-				read-config-if-exists
+				assert-file-exists "$config_file"
+				assert-file-readable "$config_file"
+				read-config
 				show "$@"
 				exit 1
 				;;
@@ -504,21 +506,27 @@ function config () {
 				;;
 			list)
 				shift
-				read-config-if-exists
+				assert-file-exists "$config_file"
+				assert-file-readable "$config_file"
+				read-config
 				config-list "$@"
 				output-items
 				exit 0
 				;;
 			get)
 				shift
-				read-config-if-exists
+				assert-file-exists "$config_file"
+				assert-file-readable "$config_file"
+				read-config
 				config-get "$@"
 				output-items
 				exit 0
 				;;
 			set)	
 				shift
-				read-config-if-exists
+				assert-file-exists "$config_file"
+				assert-file-readable "$config_file"
+				read-config
 				config-set "$@"
 				output-items
 				exit 0
@@ -742,19 +750,6 @@ function read-config () {
 	done < "$config_file"
 }
 
-function read-config-if-exists () {
-	
-	local config_file_name="$(basename "$config_file")"
-	if ! [[ -a "$config_file" ]]; then
-		output-failure "$config_file_name does not exist"
-		exit 1
-	fi
-
-	if ! read-config; then
-		output-failure "$config_file_name failed to read"
-		exit 1
-	fi
-}
 
 function is-valid-config (){
 	assert-correct-argument-count "is-valid-config" "==" 1 "$@"
@@ -833,6 +828,19 @@ function assert-file-readable () {
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -r "$file" ]]; then
 		output-failure "$file not readable"
+		exit 1
+	fi
+}
+
+function assert-file-exists (){
+	# check for file existence
+	# return execution flow if file exists, exit 1 otherwise
+	# 1 argument:
+		# the full path to the file
+	assert-correct-argument-count "assert-file-exists" "==" 1 "$@"
+	local file="$1"
+	if ! [[ -e "$file" ]]; then
+		output-failure "$(basename "$file") does not exist"
 		exit 1
 	fi
 }
