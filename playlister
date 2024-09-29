@@ -198,19 +198,25 @@ function show-playlist () {
 	is-directory-not-empty "$playlist_directory"
 
 	local playlist_path="${playlist_directory}${playlist}"
+	assert-file-exists "$playlist_path"
 	assert-file-readable "$playlist_path"
+
 	
 	assert-file-readable "$mp3_directory"
 	is-directory-not-empty "$mp3_directory"
-	while read -u 69 entry; do
+	while IFS= read -ru 69 entry; do
+		echo "Trying entry: \"$entry\""
 		if ! is-string-valid-mp3 "$entry"; then
 			output-failure "\"$entry\" is not a valid mp3 file"
 			if ! is-confirmed "Delete \"$entry\" from \"$playlist\""; then
 				exit 1
 			fi
-			output-info "this functionality was not implemented yet"
+			assert-file-writable "$playlist_path"
+			# Due to some voodoo magic, sed will not fail to delete a line from an unreadable file?
+			sed -i "/^${entry}$/d" "$playlist_path"
+		else
+			add-item "$entry"
 		fi
-		add-item "$entry"
 	done 69<"$playlist_path"
 }
 
