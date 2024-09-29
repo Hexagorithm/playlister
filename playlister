@@ -650,9 +650,9 @@ function file-configure () {
 	assert-correct-argument-count "file-configure" ">" 1 "$@"
 	local file="$1"
 	local filename="$( basename "$file" )"
-	local backup=1
-	local currentdir=1
-	local makenew=1
+	local backup=0
+	local currentdir=0
+	local makenew=0
 	shift
 	while [[ "$#" -ne 0 ]]; do
 		case $1 in 
