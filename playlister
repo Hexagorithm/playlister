@@ -8,7 +8,6 @@ help_file="${main_directory}playlister.help"
 playlist_ext=".plst"
 mp3_ext=".mp3"
 backup_ext=".bak"
-tmp_file="/tmp/playlister-1234321.tmp"
 #	Mutable
 playlist_directory="${main_directory}playlists/"
 mp3_directory="${main_directory}mp3s/"
@@ -771,25 +770,6 @@ function is-valid-config (){
 		fi
 	done
 	return 1
-}
-
-function change-configs-to-tmp () {
-	assert-correct-argument-count "change-configs-to-tmp" "==" 2 "$@"
-	local config="$1"
-	local value="$2"
-	local found="no"
-	local line
-	while read line; do
-		if [[ "$(echo "$line" | cut -d "=" -f 1)" == "$config" ]]; then
-			echo "${config}=${value}" >> "$tmp_file"
-			found="yes"
-		else
-			echo "$line" >> "$tmp_file"
-		fi
-	done < "$config_file"
-	if [[ "$found" == "no" ]]; then
-		echo "${config}=${value}" >> "$tmp_file"
-	fi
 }
 
 function is-valid-config-mutable () {
