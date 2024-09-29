@@ -531,7 +531,7 @@ function config () {
 	done
 }
 function config-configure () {
-
+	
 	directory-config "$main_directory"
 	
 	file-configure "$help_file" "currentdir"
@@ -618,8 +618,15 @@ function directory-config () {
 	assert-correct-argument-count "directory-config" "==" 1 "$@"
 	local dir="$1"
 	local dirname="$(basename "$dir" )"
-	if ! is-file-exists "$dir"; then
+	if ! is-file-directory-exists "$dir"; then
 		output-info "\"$dirname\" does not exist"
+		# is-file-directory-exists will omit ${dir%/} 
+		# but mkdir treats $dir and ${dir%/} the same
+		# and will fail if ${dir%/} exists
+		if is-file-exists "${dir%/}"; then
+			output-failure "\"$dirname\" can't be created because \"${dir%/}\" file exists"
+			exit 1
+		fi
 		mkdir "$dir"
 		if ! [[ $? -eq 0 ]]; then
 			output-failure "\"$dirname\" failed to create"
@@ -629,10 +636,8 @@ function directory-config () {
 	fi
 	output-info "\"$dirname\" exists"
 
-	if ! is-file-directory "$dir"; then
-		output-failure "\"$dirname\" is not a directory"
-		exit 1
-	fi
+	assert-file-directory "$dir"
+
 	output-info "\"$dirname\" is a directory"
 
 	assert-file-readable "$dir"
@@ -845,17 +850,30 @@ function is-file-exists () {
 	return 1
 }
 
-function is-file-directory () {
+function is-file-directory-exists () {
 	# determine if file exists and is a directory
-	# return 0 if file exists and is a directory, return 1 if not exists or is not a directory
+	# return 0 if file exists and is a directory, return 0 otherwise
 	# 1 argument:
 		# the full path to the file
-	assert-correct-argument-count "is-file-directory" "==" 1 "$@"
+	assert-correct-argument-count "is-file-directory-exists" "==" 1 "$@"
 	local file="$1"
 	if [[ -d "$file" ]]; then
 		return 0
 	fi
 	return 1
+}
+
+function assert-file-directory () {
+	# determine if file exists and is a directory
+	# return execution flow on success, exit 1 on failure
+	# 1 argument:
+		# the full path to the file
+	assert-correct-argument-count "assert-file-directory" "==" 1 "$@"
+	local file="$1"
+	if ! [[ -d "$file" ]]; then
+		output-failure "$file not a directory"
+		exit 1
+	fi
 }
 
 function output-success () {
