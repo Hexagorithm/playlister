@@ -583,35 +583,45 @@ function config-get () {
 function config-set () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-correct-argument-count "config-set" "==" 2 "$@"
-	local config_file_name="$( basename "$config_file" )"
-	
-	if ! [[ -w "$config_file" ]]; then
-		output-failure "$config_file_name is not writable"
+
+	local configuration="$1"
+	local newvalue="$2"
+	if ! is-valid-config-mutable "$configuration"; then
+		output-failure "\"$configuration\" invalid mutable configuration"
 		exit 1
 	fi
-	
-	> "$tmp_file"
-	if ! [[ $? -eq 0 ]]; then
-		output-failure "failed to create a file in /tmp"
-		exit 1
+
+	assert-file-exists "$config_file"
+	update-config-file "$configuration" "$newvalue"
+}
+
+function update-config-file () {
+	assert-correct-argument-count "update-config-file" "==" 2 "$@"
+	local configuration="$1"
+	local newvalue="$2"
+	tmpfile=$(mktemp /tmp/playlister.XXXXXX)
+	exec 3>"$tmpfile"
+	exec 4<"$tmpfile"
+
+	assert-file-readable "$config_file"
+	assert-file-writable "$config_file"
+	local changed=0
+	while read line; do
+		line_configuration="$( echo "$line" | cut -d "=" -f 1)"
+		if [[ "$line_configuration" == "$configuration" ]]; then
+			echo "${configuration}=${newvalue}" >&3 
+			changed=1
+		else
+			echo "$line" >&3
+		fi
+	done <"$config_file"
+	if [[ $changed -eq 0 ]]; then
+		>&3 echo "${configuration}=${newvalue}"
 	fi
-	
-	local argument="$1"
-	if ! is-valid-config-mutable "$argument"; then
-		output-failure "not a valid mutable configuration:\"$argument\""
-		exit 1
-	fi
-	
-	if ! change-configs-to-tmp "$@"; then
-		output-failure "failed to change configs"
-		exit 1
-	fi
-	
-	cp "$tmp_file" "$config_file"
-	if ! [[ $? -eq 0 ]]; then
-		output-file "failed to overwrite $config_file_name with tmp file"
-		exit 1
-	fi
+	> "$config_file"
+	while read line; do
+		>>"$config_file" echo "$line" 
+	done <&4
 }
 
 function directory-config () {
@@ -817,6 +827,21 @@ function is-directory-not-empty () {
 	fi
 }
 
+function assert-file-writable () {
+	# check if file is writable
+	# return to execution flow no success, exit on failure
+	# 1 argument: 
+		# full path to the file
+	assert-correct-argument-count "assert-file-writable" "==" 1 "$@"
+	local file="$1"
+	file="${file%/}"	# trim slash if file given for when the file given is a directory.
+	if ! [[ -w "$file" ]]; then
+		output-failure "$(basename "$file") not writable"
+		exit 1
+	fi
+
+}
+
 function assert-file-readable () {
 	# check if file is readable
 	# return to execution flow on success, exit on failure
@@ -827,7 +852,7 @@ function assert-file-readable () {
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -r "$file" ]]; then
-		output-failure "$file not readable"
+		output-failure "$(basename "$file") not readable"
 		exit 1
 	fi
 }
@@ -879,7 +904,7 @@ function assert-file-directory () {
 	assert-correct-argument-count "assert-file-directory" "==" 1 "$@"
 	local file="$1"
 	if ! [[ -d "$file" ]]; then
-		output-failure "$file not a directory"
+		output-failure "$(basename "$file") not a directory"
 		exit 1
 	fi
 }
