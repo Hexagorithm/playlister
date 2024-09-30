@@ -204,7 +204,7 @@ function show-mp3 () {
 	fi
 
 	assert-file-readable "$playlist_directory"
-	is-directory-not-empty "$playlist_directory"		
+	assert-directory-not-empty "$playlist_directory"		
 
 	for file in "${playlist_directory}"*; do
 		local filename="$(basename "$file" )"
@@ -233,7 +233,7 @@ function show-playlist () {
 	assert-correct-argument-count "show-playlist" "==" 1 "$@"
 	local playlist="$1"
 	assert-file-readable "$playlist_directory"
-	is-directory-not-empty "$playlist_directory"
+	assert-directory-not-empty "$playlist_directory"
 
 	local playlist_path="${playlist_directory}${playlist}"
 	assert-file-exists "$playlist_path"
@@ -241,7 +241,7 @@ function show-playlist () {
 
 	
 	assert-file-readable "$mp3_directory"
-	is-directory-not-empty "$mp3_directory"
+	assert-directory-not-empty "$mp3_directory"
 	while IFS= read -ru 69 entry; do
 		if ! is-string-valid-mp3 "$entry"; then
 			output-failure "\"$entry\" is not a valid mp3 file"
@@ -268,7 +268,7 @@ function is-string-valid-mp3 () {
 	assert-correct-argument-count "is-string-valid-mp3" "==" 1 "$@"
 	local string="$1"
 	assert-file-readable "$mp3_directory"
-	is-directory-not-empty "$mp3_directory"
+	assert-directory-not-empty "$mp3_directory"
 
 	local filename
 	for file in "$mp3_directory"*; do
@@ -328,7 +328,7 @@ function show-author () {
 	
 	assert-file-readable "$mp3_directory"
 	
-	is-directory-not-empty "$mp3_directory"
+	assert-directory-not-empty "$mp3_directory"
 
 	local file
 	for file in "$mp3_directory"*; do
@@ -360,7 +360,7 @@ function show-authors () {
 	assert-correct-argument-count "show-authors" "==" 0 "$@"
 	assert-file-readable "$mp3_directory"
 
-	is-directory-not-empty "$mp3_directory"
+	assert-directory-not-empty "$mp3_directory"
 	local file
 	for file in "$mp3_directory"*; do
 		local filename="$(basename "$file")"
@@ -400,7 +400,7 @@ function show-mp3s () {
 	fi
 	
 	assert-file-readable "$mp3_directory"
-	is-directory-not-empty "$mp3_directory"
+	assert-directory-not-empty "$mp3_directory"
 	local file
 	for file in "${mp3_directory}"*; do
 		filename="$(basename "$file" )"
@@ -439,7 +439,7 @@ function is-mp3-used () {
 	
 	assert-file-readable "$playlist_directory"
 
-	is-directory-not-empty "$playlist_directory"
+	assert-directory-not-empty "$playlist_directory"
 
 	local playlist
 	for playlist in "${playlist_directory}"* ; do
@@ -470,7 +470,7 @@ function show-playlists () {
 	assert-correct-argument-count "show-playlists" "==" 0 "$@"
 	assert-file-readable "$playlist_directory"
 
-	is-directory-not-empty "$playlist_directory"
+	assert-directory-not-empty "$playlist_directory"
 	for file in "${playlist_directory}"* ; do
 		local filename="$(basename "$file")"
 		add-item "$filename"
@@ -838,13 +838,13 @@ function get-config () {
     	output-info "	$argument	-> 	${config2value[$argument]} "
 }
 
-function is-directory-not-empty () {		# need to change it to assert-
+function assert-directory-not-empty () {
 	# check if directory is empty
 	# return to execution flow on success, exit on failure
 		# success -> directory is not empty 
 		# failure -> directory is empty
 	# 1 argument: the directory
-	assert-correct-argument-count "is-directory-not-empty" "==" 1 "$@"
+	assert-correct-argument-count "assert-directory-not-empty" "==" 1 "$@"
 	local directory="$1"
 
 	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
