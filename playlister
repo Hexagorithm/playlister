@@ -35,7 +35,7 @@ declare -a configs_mutable=(
 
 function main () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "main" ">" 0 "$@"
+	assert-arg-count "main" ">" 0 "$@"
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in 
 			config)
@@ -60,7 +60,7 @@ function main () {
 	done
 }
 
-function assert-correct-argument-count () {
+function assert-arg-count () {
 	# Check if function given correct arg amount.
 	# return execution flow on success, exit 1 on failure
 		# success: correct arg count given to function
@@ -75,7 +75,7 @@ function assert-correct-argument-count () {
 		# optional arguments... 	-> arguments given originally to func
 	# the func arguments need to be inputted with [@] (protect from "My Argument" arguments with [*])
 	if ! [[ $# -ge 3 ]]; then
-		output-failure "assert-correct-argument-count: invalid argument count(must be >= 3, but {$#} were given)"
+		output-failure "assert-arg-count: invalid argument count(must be >= 3, but {$#} were given)"
 		exit 1
 	fi
 	local func="$1"
@@ -91,13 +91,13 @@ function assert-correct-argument-count () {
 		fi
 	done
 	if ! [[ $inside -eq 1 ]]; then
-		output-failure "assert-correct-argument-count: \"$operator\" not a valid operator( one of: ${accepted_operators[*]})"
+		output-failure "assert-arg-count: \"$operator\" not a valid operator( one of: ${accepted_operators[*]})"
 		exit 1
 	fi
 	local argcount="$3"
 	local positive_num_re="^[0-9]+$"
 	if ! [[ $argcount =~ $positive_num_re ]]; then
-		output-failure "assert-correct-argument-count: \"$argcount\" not a valid positive integer"
+		output-failure "assert-arg-count: \"$argcount\" not a valid positive integer"
 		exit 1
 	fi
 
@@ -118,7 +118,7 @@ function assert-correct-argument-count () {
 function show () {
 	# extension of the program's main function for show options.
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "show" ">" 0 "$@"
+	assert-arg-count "show" ">" 0 "$@"
 	declare -A items=()
 	
 	while ! [[ $# -eq 0 ]]; do
@@ -174,7 +174,7 @@ function output-items () {
 		# failure -> function arguments were given
 	# no arguments
 	# this function should be found after show functions in the show man function.
-	assert-correct-argument-count "output-items" "==" 0 "$@"
+	assert-arg-count "output-items" "==" 0 "$@"
 	local item 
 	for item in "${!items[@]}"; do
 		if [[ ${items["$item"]} -eq 1 ]] ; then
@@ -195,7 +195,7 @@ function show-mp3 () {
 			# a playlist file is not readable
 	# 1 argument:
 		# basenamed filename of the mp3 file
-	assert-correct-argument-count "show-mp3" "==" 1 "$@"
+	assert-arg-count "show-mp3" "==" 1 "$@"
 
 	local mp3name="$1"
 	if ! is-string-valid-mp3 "$mp3name"; then
@@ -230,7 +230,7 @@ function show-playlist () {
 			# entry in playlist not valid, not to be deleted
 	# 1 argument: playlist filename(basename'd)
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "show-playlist" "==" 1 "$@"
+	assert-arg-count "show-playlist" "==" 1 "$@"
 	local playlist="$1"
 	assert-file-readable "$playlist_directory"
 	assert-directory-not-empty "$playlist_directory"
@@ -265,7 +265,7 @@ function is-string-valid-mp3 () {
 			# mp3 directory not readable
 			# mp3 directory empty
 	# 1 argument: string
-	assert-correct-argument-count "is-string-valid-mp3" "==" 1 "$@"
+	assert-arg-count "is-string-valid-mp3" "==" 1 "$@"
 	local string="$1"
 	assert-file-readable "$mp3_directory"
 	assert-directory-not-empty "$mp3_directory"
@@ -285,7 +285,7 @@ function is-confirmed () {
 	# return 0 if confirmed, return 1 if rejected, exit 1 on error
 		# failures: wrong arg count
 	# 1 argument: string prompt to display
-	assert-correct-argument-count "is-confirmed" "==" 1 "$@"
+	assert-arg-count "is-confirmed" "==" 1 "$@"
 	local prompt="$1"
 
 	local confirmation=( "y" "ye" "yes" "Y" "Ye" "Yes" "YE" "YES" )
@@ -322,7 +322,7 @@ function show-author () {
 	# implementation of playlist show author <author>
 	# 1 argument: the name of the author
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "show-author" "==" 1 "$@"
+	assert-arg-count "show-author" "==" 1 "$@"
 	
 	local target_author="$1"
 	
@@ -357,7 +357,7 @@ function show-authors () {
 	# no arguments
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "show-authors" "==" 0 "$@"
+	assert-arg-count "show-authors" "==" 0 "$@"
 	assert-file-readable "$mp3_directory"
 
 	assert-directory-not-empty "$mp3_directory"
@@ -389,7 +389,7 @@ function show-mp3s () {
 	# implementation of playlister show mp3 <type>
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "show-mp3s" "==" 1 "$@"
+	assert-arg-count "show-mp3s" "==" 1 "$@"
 	local argument="$1"
 	
 	if ! (  [[ "$argument" == "all" ]] 	|| \
@@ -434,7 +434,7 @@ function is-mp3-used () {
 			# playlist file not readable
 	# 1 argument: filename to be checked (previously basename'd!)
 	# used in show-mp3 with mp3 type distinctions
-	assert-correct-argument-count "is-mp3-used" "==" 1 "$@"
+	assert-arg-count "is-mp3-used" "==" 1 "$@"
 	local filename="$1"
 	
 	assert-file-readable "$playlist_directory"
@@ -467,7 +467,7 @@ function show-playlists () {
 	# implementation of playlister show playlists
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "show-playlists" "==" 0 "$@"
+	assert-arg-count "show-playlists" "==" 0 "$@"
 	assert-file-readable "$playlist_directory"
 
 	assert-directory-not-empty "$playlist_directory"
@@ -478,7 +478,7 @@ function show-playlists () {
 }
 
 function is-item-inside-items () {
-	assert-correct-argument-count "is-item-inside-items" "==" 1 "$@"
+	assert-arg-count "is-item-inside-items" "==" 1 "$@"
 	local argument="$1"
 	local item
 	for item in "${!items[@]}"; do
@@ -491,7 +491,7 @@ function is-item-inside-items () {
 
 function get-from-filename () {
 	
-	assert-correct-argument-count "get-from-filename" "==" 2 "$@"
+	assert-arg-count "get-from-filename" "==" 2 "$@"
 	
 	local filename="$1"
 	local option="$2"
@@ -514,7 +514,7 @@ function get-from-filename () {
 }
 
 function divide-authors (){
-	assert-correct-argument-count "divide-authors" "==" 1 "$@"
+	assert-arg-count "divide-authors" "==" 1 "$@"
 	if ! [[ $# -eq 1 ]]; then
 		output-failure "invalid divide-authors argument count (must be ==1)"
 		exit 1
@@ -532,7 +532,7 @@ function add-item () {
 		# success -> item added 
 		# failure -> invalid argument count
 	# 1 argument: string item to be added 
-	assert-correct-argument-count "add-item" "==" 1 "$@"
+	assert-arg-count "add-item" "==" 1 "$@"
 	local new_item="$1"
 	if is-item-inside-items "$new_item"; then
 		items["$new_item"]=$(( ${items["$new_item"]} + 1 ))
@@ -543,7 +543,7 @@ function add-item () {
 
 function config () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "config" ">" 0 "$@"
+	assert-arg-count "config" ">" 0 "$@"
 
 	declare -A items=()
 
@@ -610,7 +610,7 @@ function config-configure () {
 
 function config-list () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "config-list" "==" 0 "$@"
+	assert-arg-count "config-list" "==" 0 "$@"
 
 	for configuration in "${!config2value[@]}"; do
 		# i do not need to check for validity of $configuration here
@@ -621,7 +621,7 @@ function config-list () {
 
 function config-get () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "config-get" "==" 1 "$@"
+	assert-arg-count "config-get" "==" 1 "$@"
 	local configuration="$1"
 	assert-valid-config "$configuration" "all"
 	add-item "	$configuration	-> 	${config2value[$configuration]} "
@@ -629,7 +629,7 @@ function config-get () {
 
 function config-set () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-correct-argument-count "config-set" "==" 2 "$@"
+	assert-arg-count "config-set" "==" 2 "$@"
 
 	local configuration="$1"
 	local newvalue="$2"
@@ -640,7 +640,7 @@ function config-set () {
 }
 
 function update-config-file () {
-	assert-correct-argument-count "update-config-file" "==" 2 "$@"
+	assert-arg-count "update-config-file" "==" 2 "$@"
 	local configuration="$1"
 	local newvalue="$2"
 
@@ -659,7 +659,7 @@ function directory-config () {
 			# directory is not readable
 	# arguments:
 		# full path of the directory
-	assert-correct-argument-count "directory-config" "==" 1 "$@"
+	assert-arg-count "directory-config" "==" 1 "$@"
 	local dir="$1"
 	local dirname="$(basename "$dir" )"
 	if ! is-file-directory-exists "$dir"; then
@@ -691,7 +691,7 @@ function directory-config () {
 
 
 function file-configure () {
-	assert-correct-argument-count "file-configure" ">" 1 "$@"
+	assert-arg-count "file-configure" ">" 1 "$@"
 	local file="$1"
 	local filename="$( basename "$file" )"
 	local backup=0
@@ -792,7 +792,7 @@ function assert-valid-config () {
 	# 2 arguments:
 		# 1) configuration to be checked
 		# 2) keyword for type of configuration ("all" "mutable")
-	assert-correct-argument-count "assert-valid-config" "==" 2 "$@"
+	assert-arg-count "assert-valid-config" "==" 2 "$@"
 	local configuration="$1"
 	local keyword="$2"
 	declare -a valid_keywords=( "all" "mutable" )
@@ -833,7 +833,7 @@ function assert-valid-config () {
 }
 
 function get-config () {
-	assert-correct-argument-count "get-config" "==" 1 "$@"
+	assert-arg-count "get-config" "==" 1 "$@"
 	local argument="$1"
     	output-info "	$argument	-> 	${config2value[$argument]} "
 }
@@ -844,7 +844,7 @@ function assert-directory-not-empty () {
 		# success -> directory is not empty 
 		# failure -> directory is empty
 	# 1 argument: the directory
-	assert-correct-argument-count "assert-directory-not-empty" "==" 1 "$@"
+	assert-arg-count "assert-directory-not-empty" "==" 1 "$@"
 	local directory="$1"
 
 	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
@@ -858,7 +858,7 @@ function assert-file-writable () {
 	# return to execution flow no success, exit on failure
 	# 1 argument: 
 		# full path to the file
-	assert-correct-argument-count "assert-file-writable" "==" 1 "$@"
+	assert-arg-count "assert-file-writable" "==" 1 "$@"
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -w "$file" ]]; then
@@ -874,7 +874,7 @@ function assert-file-readable () {
 		# success -> file is readable
 		# failure -> file is not readable
 	# 1 argument: the file
-	assert-correct-argument-count "assert-file-readable" "==" 1 "$@"
+	assert-arg-count "assert-file-readable" "==" 1 "$@"
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -r "$file" ]]; then
@@ -888,7 +888,7 @@ function assert-file-exists (){
 	# return execution flow if file exists, exit 1 otherwise
 	# 1 argument:
 		# the full path to the file
-	assert-correct-argument-count "assert-file-exists" "==" 1 "$@"
+	assert-arg-count "assert-file-exists" "==" 1 "$@"
 	local file="$1"
 	if ! [[ -e "$file" ]]; then
 		output-failure "$(basename "$file") does not exist"
@@ -901,7 +901,7 @@ function is-file-exists () {
 	# return 0 if file exists, return 1 if file does not exist
 	# 1 argument:
 		# the full path to the file
-	assert-correct-argument-count "is-file-exists" "==" 1 "$@"
+	assert-arg-count "is-file-exists" "==" 1 "$@"
 	local file="$1"
 	if [[ -e "$file" ]]; then
 		return 0
@@ -914,7 +914,7 @@ function is-file-directory-exists () {
 	# return 0 if file exists and is a directory, return 0 otherwise
 	# 1 argument:
 		# the full path to the file
-	assert-correct-argument-count "is-file-directory-exists" "==" 1 "$@"
+	assert-arg-count "is-file-directory-exists" "==" 1 "$@"
 	local file="$1"
 	if [[ -d "$file" ]]; then
 		return 0
@@ -927,7 +927,7 @@ function assert-file-directory () {
 	# return execution flow on success, exit 1 on failure
 	# 1 argument:
 		# the full path to the file
-	assert-correct-argument-count "assert-file-directory" "==" 1 "$@"
+	assert-arg-count "assert-file-directory" "==" 1 "$@"
 	local file="$1"
 	if ! [[ -d "$file" ]]; then
 		output-failure "$(basename "$file") not a directory"
@@ -938,7 +938,7 @@ function assert-file-directory () {
 function output-success () {
 	# unifying user success output
 	# 1 argument: the string to output
-	assert-correct-argument-count "output-success" "==" 1 "$@"
+	assert-arg-count "output-success" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local green="\e[1;32m"
@@ -948,7 +948,7 @@ function output-success () {
 function output-failure () {
 	# unifying user failure output
 	# 1 argument: the string to output
-	assert-correct-argument-count "output-failure" "==" 1 "$@"
+	assert-arg-count "output-failure" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local red="\e[1;31m"
@@ -958,7 +958,7 @@ function output-failure () {
 function output-info () {
 	# unfying user informative output
 	# 1 argument: the string to output
-	assert-correct-argument-count "output-info" "==" 1 "$@"
+	assert-arg-count "output-info" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local yellow="\e[1;33m"
@@ -968,7 +968,7 @@ function output-info () {
 function output-question () {
 	# unifying user prompt output (used in is-confirmed)
 	# 1 argument: the string to output
-	assert-correct-argument-count "output-question" "==" 1 "$@"
+	assert-arg-count "output-question" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local blue="\e[1;34m"
