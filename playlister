@@ -82,7 +82,7 @@ function assert-arg-count () {
 
 
 	local operator="$2"
-	local accepted_operators=( "==" ">" )
+	local accepted_operators=( "==" ">" "<" )
 	local accepted_operator
 	local inside=0
 	for accepted_operator in "${accepted_operators[@]}"; do
@@ -104,7 +104,9 @@ function assert-arg-count () {
 	shift 3
 
 	if  ( [[ "$operator" == ">"  ]] &&  ! [[ $# -gt $argcount ]] ) || \
-	    ( [[ "$operator" == "==" ]] &&  ! [[ $# -eq $argcount ]] ) ; then
+	    ( [[ "$operator" == "==" ]] &&  ! [[ $# -eq $argcount ]] ) || \
+	    ( [[ "$operator" == "<"  ]] &&  ! [[ $# -lt $argcount ]] ) ; then
+
 		output-failure "${func}: invalid argument count($# !${operator} $argcount)"
 		exit 1
 	fi
@@ -125,7 +127,12 @@ function show () {
 		case $1 in
 			authors)
 				shift
-				show-authors "$@"
+				assert-arg-count "show-authors" "<" 2 "$@"
+				if 	[[ $# -eq 0 ]]; then
+					show-authors "$@"
+				elif 	[[ $# -eq 1 ]]; then
+					show-authors-of-mp3 "$@"
+				fi
 				output-items
 				exit 0
 				;;
@@ -371,6 +378,34 @@ function show-authors () {
 		for author in "${authors[@]}"; do
 			add-item "$author"
 		done
+
+	done
+}
+
+function show-authors-of-mp3 () {
+	# adds every author in mp3 directory that is author of mp3 file which name is <mp3>
+	# return execution flow n success, exit 1 on failure
+		# failure:
+			# wrong arg count
+			# mp3 directory not readable
+	# 1 argument:
+		# the target mp3 file name (without authors, with mp3 extension)
+	assert-arg-count "show-authors-of-mp3" "==" 1 "$@"
+	local target_mp3name="$1"
+
+	assert-file-readable "$mp3_directory"
+	assert-directory-not-empty "$mp3_directory"
+	for file in "$mp3_directory"*; do
+		local filename="$(basename "$file" )"
+		local mp3name="$(get-from-filename "$filename" "mp3")"
+		if [[ "$mp3name" == "$target_mp3name" ]]; then
+			local authors="$(get-from-filename "$filename" "authors")"
+			authors="$(divide-authors "$authors")"
+			IFS='|' read -ra authors <<< "$authors"
+			for author in "${authors[@]}"; do
+				add-item "$author"
+			done
+		fi
 
 	done
 }
