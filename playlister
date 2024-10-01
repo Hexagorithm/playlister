@@ -327,17 +327,7 @@ function show-playlist () {
 	assert-file-readable "$mp3_directory"
 	assert-directory-not-empty "$mp3_directory"
 	while IFS= read -ru 69 entry; do
-		if ! is-string-valid-mp3 "$entry"; then
-			output-failure "\"$entry\" is not a valid mp3 file"
-			if ! is-confirmed "Delete \"$entry\" from \"$playlist\""; then
-				exit 1
-			fi
-			assert-file-writable "$playlist_path"
-			# Due to some voodoo magic, sed will not fail to delete a line from an unreadable file?
-			sed -i "/^${entry}$/d" "$playlist_path"
-		else
-			add-item "$entry"
-		fi
+		add-item "$entry"
 	done 69<"$playlist_path"
 }
 
