@@ -13,17 +13,17 @@ DIR_PLAY="${DIR_MAIN}playlists/"
 DIR_MP3="${DIR_MAIN}mp3s/"
 
 declare -A config2value=( 
-	["DIR_MAIN"]="$DIR_MAIN" \
-	["FILE_CONFIG"]="$FILE_CONFIG" \
-	["FILE_HELP"]="$FILE_HELP" \
-	["DIR_PLAY"]="$DIR_PLAY" \
-	["DIR_MP3"]="$DIR_MP3" \
+	["DIR_MAIN"]="$DIR_MAIN" 	\
+	["FILE_CONFIG"]="$FILE_CONFIG" 	\
+	["FILE_HELP"]="$FILE_HELP" 	\
+	["DIR_PLAY"]="$DIR_PLAY" 	\
+	["DIR_MP3"]="$DIR_MP3"
 )
 
 declare -a configs_all=(
 	"DIR_MAIN" 	\
-	"FILE_CONFIG" 		\
-	"FILE_HELP" 		\
+	"FILE_CONFIG" 	\
+	"FILE_HELP" 	\
 	"DIR_PLAY"	\
 	"DIR_MP3"
 )
@@ -131,7 +131,7 @@ function playlist() {
 		case $1 in 
 			add)
 				shift 
-				add "$@"
+				playlist-add "$@"
 				output-items
 				exit 0	
 				;;
@@ -192,7 +192,7 @@ function playlist-play () {
 	done <"$playlist"
 }
 
-function add() {
+function playlist-add() {
 	# to playlist, add every mp3 file that is valid and not an entry, also add tme to items
 	# exit 1 on failure
 		# failures:
@@ -206,27 +206,22 @@ function add() {
 	assert-arg-count "add" ">" 1 "$@"
 	local playlistname="$1"
 	shift
-	declare -A items=()
 
-	assert-file-readable "$DIR_PLAY"
-	assert-directory-not-empty "$DIR_PLAY"
-	if ! is-string-valid-playlist "$playlistname"; then
-		output-failure "\"$playlistname\" invalid playlist"
-		exit 1
-	fi
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty 	"$DIR_PLAY"
 
 	local playlist="${DIR_PLAY}${playlistname}"
 
-	assert-file-readable "$playlist"
-	assert-file-writable "$playlist"
+	assert-file-exists 	"$playlist"
+	assert-file-readable 	"$playlist"
+	assert-file-writable 	"$playlist"
 
 	while ! [[ $# -eq 0 ]]; do
 		local entry="$1"
 		shift
-		if ! is-string-valid-mp3 "$entry"; then
-			output-failure "\"$entry\" invalid mp3 file"
-			continue
-		fi
+		assert-file-exists "${DIR_MP3}$entry"
+
 		local inside=0
 		while read line; do
 			if [[ "$entry" == "$line" ]]; then
@@ -234,7 +229,7 @@ function add() {
 			fi
 		done <"$playlist"
 		if [[ $inside -eq 1 ]]; then
-			output-failure "\"$entry\" in \"$playlistname\""
+			output-failure "\"$entry\" already in \"$playlistname\""
 			continue
 		fi
 		echo "$entry" >> "$playlist"
@@ -1065,7 +1060,7 @@ function assert-file-exists (){
 	assert-arg-count "assert-file-exists" "==" 1 "$@"
 	local file="$1"
 	if ! [[ -e "$file" ]]; then
-		output-failure "$(basename "$file") does not exist"
+		output-failure "\"$file\" does not exist"
 		exit 1
 	fi
 }
