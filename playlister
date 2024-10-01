@@ -55,7 +55,7 @@ function main () {
 				shift
 				assert-file-exists "$FILE_CONFIG"
 				assert-file-readable "$FILE_CONFIG"
-				read-config
+				# read-config
 				playlist "$@"
 				exit 1
 				;;
@@ -153,14 +153,18 @@ function playlist() {
 function playlist-play () {
 	assert-arg-count "playlist-play" "==" 1 "$@"
 	local playlistname="$1"
-	assert-file-readable "$DIR_PLAY"
-	assert-directory-not-empty "$DIR_PLAY"
+
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty 	"$DIR_PLAY"
 
 	local playlist="${DIR_PLAY}${playlistname}"
-	assert-file-readable "$playlist"
+	assert-file-exists 		"$playlist"
+	assert-file-readable 		"$playlist"
 
-	assert-file-readable "$DIR_MP3"
-	assert-directory-not-empty "$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty 	"$DIR_MP3"
 
 	local entry
 	while read entry; do
