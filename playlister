@@ -217,10 +217,15 @@ function playlist-add() {
 	assert-file-readable 	"$playlist"
 	assert-file-writable 	"$playlist"
 
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty	"$DIR_MP3"
+
+
 	while ! [[ $# -eq 0 ]]; do
 		local entry="$1"
 		shift
-		assert-file-exists "${DIR_MP3}$entry"
+		assert-file-exists "${DIR_MP3}${entry}"
 
 		local inside=0
 		while read line; do
