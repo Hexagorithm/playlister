@@ -132,8 +132,15 @@ function playlist() {
 				shift 
 				add "$@"
 				output-items
-				exit 1	
+				exit 0	
 				;;
+			play)
+				shift
+				playlist-play "$@"
+				output-items
+				exit 1
+				;;
+
 			*)
 				output-failure "\"$1\" unrecognized playlist option"
 				exit 1
@@ -141,6 +148,27 @@ function playlist() {
 		esac
 
 	done
+}
+
+function playlist-play () {
+	assert-arg-count "playlist-play" "==" 1 "$@"
+	local playlistname="$1"
+	assert-file-readable "$playlist_directory"
+	assert-directory-not-empty "$playlist_directory"
+
+	local playlist="${playlist_directory}${playlistname}"
+	assert-file-readable "$playlist"
+
+	assert-file-readable "$mp3_directory"
+	assert-directory-not-empty "$mp3_directory"
+
+	local entry
+	while read entry; do
+		local mp3="${mp3_directory}${entry}"
+		output-info "Playing: \"$entry\""
+		mpg123 "$mp3"
+	done <"$playlist"
+
 }
 
 function add() {
