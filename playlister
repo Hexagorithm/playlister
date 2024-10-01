@@ -130,9 +130,9 @@ function playlist() {
 		case $1 in 
 			add)
 				shift 
-				output-info "add has not been implemented yet"
-
+				add "$@"
 				output-items
+				exit 1	
 				;;
 			*)
 				output-failure "\"$1\" unrecognized playlist option"
@@ -140,6 +140,56 @@ function playlist() {
 				;;
 		esac
 
+	done
+}
+
+function add() {
+	# to playlist, add every mp3 file that is valid and not an entry, also add tme to items
+	# exit 1 on failure
+		# failures:
+			# wrong arg count
+			# playlist directory not readable or empty
+			# playlist file invalid, not readable, not writable
+			# invalid mp3 file
+	# 2 arguments;
+		# 1) 	basenamed playlist filename
+		# 2..)  basenamed mp3files to add
+	assert-arg-count "add" ">" 1 "$@"
+	local playlistname="$1"
+	shift
+	declare -A items=()
+
+	assert-file-readable "$playlist_directory"
+	assert-directory-not-empty "$playlist_directory"
+	if ! is-string-valid-playlist "$playlistname"; then
+		output-failure "\"$playlistname\" invalid playlist"
+		exit 1
+	fi
+
+	local playlist="${playlist_directory}${playlistname}"
+
+	assert-file-readable "$playlist"
+	assert-file-writable "$playlist"
+
+	while ! [[ $# -eq 0 ]]; do
+		local entry="$1"
+		shift
+		if ! is-string-valid-mp3 "$entry"; then
+			output-failure "\"$entry\" invalid mp3 file"
+			continue
+		fi
+		local inside=0
+		while read line; do
+			if [[ "$entry" == "$line" ]]; then
+				inside=1
+			fi
+		done <"$playlist"
+		if [[ $inside -eq 1 ]]; then
+			output-failure "\"$entry\" in \"$playlistname\""
+			continue
+		fi
+		echo "$entry" >> "$playlist"
+		add-item "$entry"
 	done
 }
 
@@ -308,6 +358,29 @@ function is-string-valid-mp3 () {
 	for file in "$mp3_directory"*; do
 		file="$( basename "$file" )" # remove string directories suffix
 		if [[ "$file" == "$string" ]]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+function is-string-valid-playlist () {
+	# check if given string is a valid playlist 
+	# return 0 if is, return 1 if is not, exit 1
+		# success: file was able to be checked for validity
+		# failure:
+			# playlist directory not readable
+			# playlist directory empty
+	# 1 argument: basenamed name of the playlist
+	assert-arg-count "is-string-valid-playlist" "==" 1 "$@"
+	local target_filename="$1"
+	assert-file-readable "$playlist_directory"
+	assert-directory-not-empty "$playlist_directory"
+
+	local file
+	for file in "$playlist_directory"* ; do 
+		local filename="$(basename "$file")"
+		if [[ "$filename" == "$target_filename" ]]; then
 			return 0
 		fi
 	done
