@@ -49,8 +49,17 @@ function main () {
 				assert-file-readable "$config_file"
 				read-config
 				show "$@"
+				exit 0
+				;;
+			playlist)
+				shift
+				assert-file-exists "$config_file"
+				assert-file-readable "$config_file"
+				read-config
+				playlist "$@"
 				exit 1
 				;;
+
 			*)
 				output-failure "unrecognised option:\"$1\""
 				shift
@@ -114,7 +123,25 @@ function assert-arg-count () {
 
 
 
+function playlist() {
+	assert-arg-count "playlist" ">" 0 "$@"
+	declare -A items=()
+	while ! [[ $# -eq 0 ]]; do
+		case $1 in 
+			add)
+				shift 
+				output-info "add has not been implemented yet"
 
+				output-items
+				;;
+			*)
+				output-failure "\"$1\" unrecognized playlist option"
+				exit 1
+				;;
+		esac
+
+	done
+}
 
 
 function show () {
@@ -158,13 +185,13 @@ function show () {
 				shift
 				show-playlist "$@"
 				output-items
-				exit 1
+				exit 0
 				;;
 			mp3)
 				shift
 				show-mp3 "$@"
 				output-items
-				exit 1
+				exit 0
 				;;
 			*)
 				output-failure "unrecognised show option:\"$1\""
