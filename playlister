@@ -55,7 +55,7 @@ function main () {
 				shift
 				assert-file-exists "$FILE_CONFIG"
 				assert-file-readable "$FILE_CONFIG"
-				# read-config
+				read-config
 				playlist "$@"
 				exit 1
 				;;
@@ -167,10 +167,17 @@ function playlist-play () {
 	assert-directory-not-empty 	"$DIR_MP3"
 
 	local entry
+	local lastnumber="$(cat "$playlist" | wc -l )"
+	local currnumber=1
 	while read entry; do
 		local mp3="${DIR_MP3}${entry}"
-		output-info "Playing: \"$entry\""
-		mpg123 "$mp3"
+		output-info "Playing(${currnumber}/${lastnumber}): $entry"
+		mpg123 "$mp3" 2> /dev/null 
+		if ! [[ $? -eq 0 ]]; then
+			output-failure "mpg123 failed to play \"$entry\""
+			exit 1
+		fi
+		currnumber=$(( currnumber + 1 ))
 	done <"$playlist"
 
 }
