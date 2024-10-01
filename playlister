@@ -1,36 +1,36 @@
 #!/bin/bash
 
 # Hardcoded defaults
-#	Immutable
-main_directory="$HOME/.playlister/"
-config_file="${main_directory}playlister.conf"
-help_file="${main_directory}playlister.help"
-playlist_ext=".plst"
-mp3_ext=".mp3"
-backup_ext=".bak"
-#	Mutable
-playlist_directory="${main_directory}playlists/"
-mp3_directory="${main_directory}mp3s/"
+	# Immutable
+DIR_MAIN="$HOME/.playlister/"
+FILE_CONFIG="${DIR_MAIN}playlister.conf"
+FILE_HELP="${DIR_MAIN}playlister.help"
+EXT_PLAY=".plst"
+EXT_MP3=".mp3"
+EXT_BKUP=".bak"
+	# Mutable
+DIR_PLAY="${DIR_MAIN}playlists/"
+DIR_MP3="${DIR_MAIN}mp3s/"
 
 declare -A config2value=( 
-	["main_directory"]="$main_directory" \
-	["config_file"]="$config_file" \
-	["help_file"]="$help_file" \
-	["playlist_directory"]="$playlist_directory" \
-	["mp3_directory"]="$mp3_directory" \
+	["DIR_MAIN"]="$DIR_MAIN" \
+	["FILE_CONFIG"]="$FILE_CONFIG" \
+	["FILE_HELP"]="$FILE_HELP" \
+	["DIR_PLAY"]="$DIR_PLAY" \
+	["DIR_MP3"]="$DIR_MP3" \
 )
 
 declare -a configs_all=(
-	"main_directory" 	\
-	"config_file" 		\
-	"help_file" 		\
-	"playlist_directory"	\
-	"mp3_directory"
+	"DIR_MAIN" 	\
+	"FILE_CONFIG" 		\
+	"FILE_HELP" 		\
+	"DIR_PLAY"	\
+	"DIR_MP3"
 )
 
 declare -a configs_mutable=(
-	"mp3_directory" \
-	"playlist_directory"
+	"DIR_MP3" \
+	"DIR_PLAY"
 )
 
 function main () {
@@ -45,16 +45,16 @@ function main () {
 				;;
 			show)
 				shift
-				assert-file-exists "$config_file"
-				assert-file-readable "$config_file"
+				assert-file-exists "$FILE_CONFIG"
+				assert-file-readable "$FILE_CONFIG"
 				read-config
 				show "$@"
 				exit 0
 				;;
 			playlist)
 				shift
-				assert-file-exists "$config_file"
-				assert-file-readable "$config_file"
+				assert-file-exists "$FILE_CONFIG"
+				assert-file-readable "$FILE_CONFIG"
 				read-config
 				playlist "$@"
 				exit 1
@@ -153,18 +153,18 @@ function playlist() {
 function playlist-play () {
 	assert-arg-count "playlist-play" "==" 1 "$@"
 	local playlistname="$1"
-	assert-file-readable "$playlist_directory"
-	assert-directory-not-empty "$playlist_directory"
+	assert-file-readable "$DIR_PLAY"
+	assert-directory-not-empty "$DIR_PLAY"
 
-	local playlist="${playlist_directory}${playlistname}"
+	local playlist="${DIR_PLAY}${playlistname}"
 	assert-file-readable "$playlist"
 
-	assert-file-readable "$mp3_directory"
-	assert-directory-not-empty "$mp3_directory"
+	assert-file-readable "$DIR_MP3"
+	assert-directory-not-empty "$DIR_MP3"
 
 	local entry
 	while read entry; do
-		local mp3="${mp3_directory}${entry}"
+		local mp3="${DIR_MP3}${entry}"
 		output-info "Playing: \"$entry\""
 		mpg123 "$mp3"
 	done <"$playlist"
@@ -187,14 +187,14 @@ function add() {
 	shift
 	declare -A items=()
 
-	assert-file-readable "$playlist_directory"
-	assert-directory-not-empty "$playlist_directory"
+	assert-file-readable "$DIR_PLAY"
+	assert-directory-not-empty "$DIR_PLAY"
 	if ! is-string-valid-playlist "$playlistname"; then
 		output-failure "\"$playlistname\" invalid playlist"
 		exit 1
 	fi
 
-	local playlist="${playlist_directory}${playlistname}"
+	local playlist="${DIR_PLAY}${playlistname}"
 
 	assert-file-readable "$playlist"
 	assert-file-writable "$playlist"
@@ -315,10 +315,10 @@ function show-mp3 () {
 		exit 1
 	fi
 
-	assert-file-readable "$playlist_directory"
-	assert-directory-not-empty "$playlist_directory"		
+	assert-file-readable "$DIR_PLAY"
+	assert-directory-not-empty "$DIR_PLAY"		
 
-	for file in "${playlist_directory}"*; do
+	for file in "${DIR_PLAY}"*; do
 		local filename="$(basename "$file" )"
 		assert-file-readable "$file"
 		while read line; do 
@@ -337,23 +337,23 @@ function show-playlist () {
 			# wrong argument count
 			# playlist directory no exists / unreadable
 			# playlist not readable
-			# mp3_directory not readable
-			# mp3_directory empty
+			# DIR_MP3 not readable
+			# DIR_MP3 empty
 			# entry in playlist not valid, not to be deleted
 	# 1 argument: playlist filename(basename'd)
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-playlist" "==" 1 "$@"
 	local playlist="$1"
-	assert-file-readable "$playlist_directory"
-	assert-directory-not-empty "$playlist_directory"
+	assert-file-readable "$DIR_PLAY"
+	assert-directory-not-empty "$DIR_PLAY"
 
-	local playlist_path="${playlist_directory}${playlist}"
+	local playlist_path="${DIR_PLAY}${playlist}"
 	assert-file-exists "$playlist_path"
 	assert-file-readable "$playlist_path"
 
 	
-	assert-file-readable "$mp3_directory"
-	assert-directory-not-empty "$mp3_directory"
+	assert-file-readable "$DIR_MP3"
+	assert-directory-not-empty "$DIR_MP3"
 	while IFS= read -ru 69 entry; do
 		add-item "$entry"
 	done 69<"$playlist_path"
@@ -369,11 +369,11 @@ function is-string-valid-mp3 () {
 	# 1 argument: string
 	assert-arg-count "is-string-valid-mp3" "==" 1 "$@"
 	local string="$1"
-	assert-file-readable "$mp3_directory"
-	assert-directory-not-empty "$mp3_directory"
+	assert-file-readable "$DIR_MP3"
+	assert-directory-not-empty "$DIR_MP3"
 
 	local filename
-	for file in "$mp3_directory"*; do
+	for file in "$DIR_MP3"*; do
 		file="$( basename "$file" )" # remove string directories suffix
 		if [[ "$file" == "$string" ]]; then
 			return 0
@@ -392,11 +392,11 @@ function is-string-valid-playlist () {
 	# 1 argument: basenamed name of the playlist
 	assert-arg-count "is-string-valid-playlist" "==" 1 "$@"
 	local target_filename="$1"
-	assert-file-readable "$playlist_directory"
-	assert-directory-not-empty "$playlist_directory"
+	assert-file-readable "$DIR_PLAY"
+	assert-directory-not-empty "$DIR_PLAY"
 
 	local file
-	for file in "$playlist_directory"* ; do 
+	for file in "$DIR_PLAY"* ; do 
 		local filename="$(basename "$file")"
 		if [[ "$filename" == "$target_filename" ]]; then
 			return 0
@@ -451,12 +451,12 @@ function show-author () {
 	
 	local target_author="$1"
 	
-	assert-file-readable "$mp3_directory"
+	assert-file-readable "$DIR_MP3"
 	
-	assert-directory-not-empty "$mp3_directory"
+	assert-directory-not-empty "$DIR_MP3"
 
 	local file
-	for file in "$mp3_directory"*; do
+	for file in "$DIR_MP3"*; do
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
@@ -483,11 +483,11 @@ function show-authors () {
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-authors" "==" 0 "$@"
-	assert-file-readable "$mp3_directory"
+	assert-file-readable "$DIR_MP3"
 
-	assert-directory-not-empty "$mp3_directory"
+	assert-directory-not-empty "$DIR_MP3"
 	local file
-	for file in "$mp3_directory"*; do
+	for file in "$DIR_MP3"*; do
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
@@ -511,9 +511,9 @@ function show-authors-of-mp3 () {
 	assert-arg-count "show-authors-of-mp3" "==" 1 "$@"
 	local target_mp3name="$1"
 
-	assert-file-readable "$mp3_directory"
-	assert-directory-not-empty "$mp3_directory"
-	for file in "$mp3_directory"*; do
+	assert-file-readable "$DIR_MP3"
+	assert-directory-not-empty "$DIR_MP3"
+	for file in "$DIR_MP3"*; do
 		local filename="$(basename "$file" )"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		if [[ "$mp3name" == "$target_mp3name" ]]; then
@@ -552,10 +552,10 @@ function show-mp3s () {
 		exit 1
 	fi
 	
-	assert-file-readable "$mp3_directory"
-	assert-directory-not-empty "$mp3_directory"
+	assert-file-readable "$DIR_MP3"
+	assert-directory-not-empty "$DIR_MP3"
 	local file
-	for file in "${mp3_directory}"*; do
+	for file in "${DIR_MP3}"*; do
 		filename="$(basename "$file" )"
 
 		if [[ "$argument" == "all" ]]; then
@@ -590,12 +590,12 @@ function is-mp3-used () {
 	assert-arg-count "is-mp3-used" "==" 1 "$@"
 	local filename="$1"
 	
-	assert-file-readable "$playlist_directory"
+	assert-file-readable "$DIR_PLAY"
 
-	assert-directory-not-empty "$playlist_directory"
+	assert-directory-not-empty "$DIR_PLAY"
 
 	local playlist
-	for playlist in "${playlist_directory}"* ; do
+	for playlist in "${DIR_PLAY}"* ; do
 		assert-file-readable "$playlist"
 		local line
 		while read line; do
@@ -621,10 +621,10 @@ function show-playlists () {
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-playlists" "==" 0 "$@"
-	assert-file-readable "$playlist_directory"
+	assert-file-readable "$DIR_PLAY"
 
-	assert-directory-not-empty "$playlist_directory"
-	for file in "${playlist_directory}"* ; do
+	assert-directory-not-empty "$DIR_PLAY"
+	for file in "${DIR_PLAY}"* ; do
 		local filename="$(basename "$file")"
 		add-item "$filename"
 	done
@@ -709,8 +709,8 @@ function config () {
 				;;
 			list)
 				shift
-				assert-file-exists "$config_file"
-				assert-file-readable "$config_file"
+				assert-file-exists "$FILE_CONFIG"
+				assert-file-readable "$FILE_CONFIG"
 				read-config
 				config-list "$@"
 				output-items
@@ -718,8 +718,8 @@ function config () {
 				;;
 			get)
 				shift
-				assert-file-exists "$config_file"
-				assert-file-readable "$config_file"
+				assert-file-exists "$FILE_CONFIG"
+				assert-file-readable "$FILE_CONFIG"
 				read-config
 				config-get "$@"
 				output-items
@@ -727,8 +727,8 @@ function config () {
 				;;
 			set)	
 				shift
-				assert-file-exists "$config_file"
-				assert-file-readable "$config_file"
+				assert-file-exists "$FILE_CONFIG"
+				assert-file-readable "$FILE_CONFIG"
 				read-config
 				config-set "$@"
 				output-items
@@ -743,22 +743,22 @@ function config () {
 }
 function config-configure () {
 	
-	directory-config "$main_directory"
+	directory-config "$DIR_MAIN"
 	
-	file-configure "$help_file" "currentdir"
+	file-configure "$FILE_HELP" "currentdir"
 	
-	file-configure "$config_file" "backup" "makenew"
+	file-configure "$FILE_CONFIG" "backup" "makenew"
 	
 	if read-config ; then
-		output-success "$(basename "$config_file") read"
+		output-success "$(basename "$FILE_CONFIG") read"
 	else
-		output-failure "$(basename "$config_file") failed to read"
+		output-failure "$(basename "$FILE_CONFIG") failed to read"
 		exit 1
 	fi
 	
-	directory-config "$mp3_directory"
+	directory-config "$DIR_MP3"
 
-	directory-config "$playlist_directory"
+	directory-config "$DIR_PLAY"
 }
 
 function config-list () {
@@ -788,7 +788,7 @@ function config-set () {
 	local newvalue="$2"
 	assert-valid-config "$configuration" "mutable"
 
-	assert-file-exists "$config_file"
+	assert-file-exists "$FILE_CONFIG"
 	update-config-file "$configuration" "$newvalue"
 }
 
@@ -797,10 +797,10 @@ function update-config-file () {
 	local configuration="$1"
 	local newvalue="$2"
 
-	assert-file-readable "$config_file"
-	assert-file-writable "$config_file"
-	sed -i "/^${configuration}=/d" "$config_file"
-	echo "${configuration}=${newvalue}" >> "$config_file"
+	assert-file-readable "$FILE_CONFIG"
+	assert-file-writable "$FILE_CONFIG"
+	sed -i "/^${configuration}=/d" "$FILE_CONFIG"
+	echo "${configuration}=${newvalue}" >> "$FILE_CONFIG"
 }
 
 function directory-config () {
@@ -879,7 +879,7 @@ function file-configure () {
 	output-info "$filename does not exist"
 	
 	if [[ $backup -eq 1 ]]; then
-		local fileback="${file}${backup_ext}"
+		local fileback="${file}${EXT_BKUP}"
 		if is-file-exists "$fileback"; then
 			cp "$fileback" "$file"
 			if [[ $? -eq 0 ]]; then
@@ -917,26 +917,26 @@ function file-configure () {
 }
 
 function read-config () {
-	assert-file-readable "$config_file"
+	assert-file-readable "$FILE_CONFIG"
 	while read line ; do
 		local argument="$(echo "$line" | cut -d "=" -f 1)"
 		case "$argument" in
-			"mp3_directory")
+			"DIR_MP3")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
-				mp3_directory="$value"
-				config2value["mp3_directory"]="$value"
+				DIR_MP3="$value"
+				config2value["DIR_MP3"]="$value"
 				;;
-			"playlist_directory")
+			"DIR_PLAY")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
-				playlist_directory="$value"
-				config2value["playlist_directory"]="$value"
+				DIR_PLAY="$value"
+				config2value["DIR_PLAY"]="$value"
 				;;
 			*)
 				output-failure "not valid user config: \"$argument\""
 				return 1
 				;;
 		esac
-	done < "$config_file"
+	done < "$FILE_CONFIG"
 }
 
 function assert-valid-config () {
