@@ -124,6 +124,7 @@ function assert-arg-count () {
 
 
 function playlist() {
+	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "playlist" ">" 0 "$@"
 	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
@@ -151,6 +152,16 @@ function playlist() {
 }
 
 function playlist-play () {
+	# for entry in playlist given, give it to mpg123 program for playing
+	# exit 1 on failure
+		# failure:
+			# wrong arg count
+			# playlist directory does not exist, is unreadable, is empty
+			# playlist file does not exist, is unreadable
+			# mp3 directory does not exist, is unreadable, is empty
+			# mpg123 failed to play mp3 file
+	# 1 argument
+		# the basenamed name of the playlist
 	assert-arg-count "playlist-play" "==" 1 "$@"
 	local playlistname="$1"
 
@@ -179,7 +190,6 @@ function playlist-play () {
 		fi
 		currnumber=$(( currnumber + 1 ))
 	done <"$playlist"
-
 }
 
 function add() {
