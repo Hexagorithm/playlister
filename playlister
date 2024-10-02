@@ -329,12 +329,14 @@ function show-mp3 () {
 	# 1 argument:
 		# basenamed filename of the mp3 file
 	assert-arg-count "show-mp3" "==" 1 "$@"
-
 	local mp3name="$1"
-	if ! is-string-valid-mp3 "$mp3name"; then
-		output-failure "\"$mp3name\" not a valid mp3 file"
-		exit 1
-	fi
+
+	assert-file-exists "$DIR_MP3"
+	assert-file-readable "$DIR_MP3"
+
+	local mp3="${DIR_MP3}${mp3name}"
+
+	assert-file-exists "$mp3"
 
 	assert-file-readable "$DIR_PLAY"
 	assert-directory-not-empty "$DIR_PLAY"		
