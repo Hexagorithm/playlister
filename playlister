@@ -45,19 +45,19 @@ function main () {
 				;;
 			show)
 				shift
-				assert-file-exists "$FILE_CONFIG"
-				assert-file-readable "$FILE_CONFIG"
+				assert-file-exists 	"$FILE_CONFIG"
+				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				show "$@"
 				exit 0
 				;;
 			playlist)
 				shift
-				assert-file-exists "$FILE_CONFIG"
-				assert-file-readable "$FILE_CONFIG"
+				assert-file-exists 	"$FILE_CONFIG"
+				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				playlist "$@"
-				exit 1
+				exit 0
 				;;
 
 			*)
@@ -303,8 +303,7 @@ function show () {
 function output-items () {
 	# output every item in the global items associative array
 	# return to execution flow on success, exit on failure
-		# success -> items were outputted
-		# failure -> function arguments were given
+		# failure -> wrong func arg count
 	# no arguments
 	# this function should be found after show functions in the show man function.
 	assert-arg-count "output-items" "==" 0 "$@"
@@ -323,23 +322,26 @@ function show-mp3 () {
 	# return execution on success, ext 1 on failure
 		# failure:
 			# wrong arg count
-			# argument not a  valid mp3 file
-			# playlist directory not readable or is empty
-			# a playlist file is not readable
+			# DIR_MP3 does not exist, is unreadable or is empty
+			# mp3name does not point to an existing mp3 file
+			# DIR_PLAY does not exist, is unreadable or is empty
+			# a playlist file is unreadable
 	# 1 argument:
 		# basenamed filename of the mp3 file
 	assert-arg-count "show-mp3" "==" 1 "$@"
 	local mp3name="$1"
 
-	assert-file-exists "$DIR_MP3"
-	assert-file-readable "$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty 	"$DIR_MP3"
 
 	local mp3="${DIR_MP3}${mp3name}"
 
-	assert-file-exists "$mp3"
+	assert-file-exists 		"$mp3"
 
-	assert-file-readable "$DIR_PLAY"
-	assert-directory-not-empty "$DIR_PLAY"		
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty 	"$DIR_PLAY"		
 
 	for file in "${DIR_PLAY}"*; do
 		local filename="$(basename "$file" )"
@@ -355,31 +357,31 @@ function show-mp3 () {
 function show-playlist () {
 	# add every playlist entry to items
 	# return code on execution on success , exit 1 on failure
-		# success: all entries added to items
 		# failure:
 			# wrong argument count
-			# playlist directory no exists / unreadable
-			# playlist not readable
-			# DIR_MP3 not readable
-			# DIR_MP3 empty
-			# entry in playlist not valid, not to be deleted
-	# 1 argument: playlist filename(basename'd)
+			# mp3 directory does not exist, unreadable or empty
+			# playlistname points to a nonexistant mp3 file
+			# playlist directory does not exist, unreadable, or empty
+	# 1 argument: 
+		# playlist filename(basename'd)
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-playlist" "==" 1 "$@"
-	local playlist="$1"
-	assert-file-readable "$DIR_PLAY"
-	assert-directory-not-empty "$DIR_PLAY"
+	local playlistname="$1"
 
-	local playlist_path="${DIR_PLAY}${playlist}"
-	assert-file-exists "$playlist_path"
-	assert-file-readable "$playlist_path"
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty 	"$DIR_PLAY"
 
-	
-	assert-file-readable "$DIR_MP3"
-	assert-directory-not-empty "$DIR_MP3"
+	local playlist="${DIR_PLAY}${playlistname}"
+	assert-file-exists 		"$playlist"
+	assert-file-readable 		"$playlist"
+
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty 	"$DIR_MP3"
 	while IFS= read -ru 69 entry; do
 		add-item "$entry"
-	done 69<"$playlist_path"
+	done 69<"$playlist"
 }
 
 function is-confirmed () {
@@ -416,21 +418,18 @@ function is-confirmed () {
 function show-author () {
 	# add every mp3 file name the <author> is author of to items
 	# return execution flow on success, exit 1 on failure
-		# succcess: all files were looped through and added to items accordingly
 		# failure: 
-			# mp3 directory not readable, 
-			# mp3 directory empty, 
-			# failed to add/increment author in items
-	# implementation of playlist show author <author>
-	# 1 argument: the name of the author
+			# wrong arg count
+			# DIR_MP3 does not exist, is unreadable or empty
+	# 1 argument: 
+		# the name of the author
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-author" "==" 1 "$@"
-	
 	local target_author="$1"
 	
-	assert-file-readable "$DIR_MP3"
-	
-	assert-directory-not-empty "$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty 	"$DIR_MP3"
 
 	local file
 	for file in "$DIR_MP3"*; do
@@ -450,19 +449,17 @@ function show-author () {
 function show-authors () {
 	# add every author in mp3 directory to items with their respective number of "author'ed" files
 	# return execution flow on success, exit 1 on failure
-		# succcess: all files were looped through and added to items accordingly
 		# failure: 
-			# mp3 directory not readable, 
-			# mp3 directory empty, 
+			# DIR_MP3 does not exist, unreadable or empty
 			# failed to add/increment author in items
-	# implementation of playlist show authors
 	# no arguments
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-authors" "==" 0 "$@"
-	assert-file-readable "$DIR_MP3"
 
-	assert-directory-not-empty "$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty 	"$DIR_MP3"
 	local file
 	for file in "$DIR_MP3"*; do
 		local filename="$(basename "$file")"
@@ -482,14 +479,17 @@ function show-authors-of-mp3 () {
 	# return execution flow n success, exit 1 on failure
 		# failure:
 			# wrong arg count
-			# mp3 directory not readable
+			# mp3 directory does not exist, is unreadable or empty
 	# 1 argument:
 		# the target mp3 file name (without authors, with mp3 extension)
 	assert-arg-count "show-authors-of-mp3" "==" 1 "$@"
 	local target_mp3name="$1"
 
-	assert-file-readable "$DIR_MP3"
-	assert-directory-not-empty "$DIR_MP3"
+
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty 	"$DIR_MP3"
+	local file
 	for file in "$DIR_MP3"*; do
 		local filename="$(basename "$file" )"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
@@ -529,8 +529,9 @@ function show-mp3s () {
 		exit 1
 	fi
 	
-	assert-file-readable "$DIR_MP3"
-	assert-directory-not-empty "$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty 	"$DIR_MP3"
 	local file
 	for file in "${DIR_MP3}"*; do
 		filename="$(basename "$file" )"
@@ -559,17 +560,16 @@ function is-mp3-used () {
 			# 1 -> mp3 is not used
 		# failure:
 			# wrong arg count
-			# playlist directory not readable
-			# playlist directory empty
-			# playlist file not readable
-	# 1 argument: filename to be checked (previously basename'd!)
-	# used in show-mp3 with mp3 type distinctions
+			# playlist directory does not exist, unreadable, or empty
+			# a playlist file is unreadable
+	# 1 argument: 
+		# filename to be checked (previously basename'd!)
 	assert-arg-count "is-mp3-used" "==" 1 "$@"
 	local filename="$1"
 	
-	assert-file-readable "$DIR_PLAY"
-
-	assert-directory-not-empty "$DIR_PLAY"
+	assert-file-exits 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty 	"$DIR_PLAY"
 
 	local playlist
 	for playlist in "${DIR_PLAY}"* ; do
@@ -590,17 +590,16 @@ function show-playlists () {
 		# success: all playlists added to items
 		# failure:
 			# wrong arg count
-			# playlist directory unreadable
-			# playlist directory empty
-			# add-item exits
+			# playlist does not exits, unreadable or empty
 	# no arguments
-	# implementation of playlister show playlists
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-playlists" "==" 0 "$@"
-	assert-file-readable "$DIR_PLAY"
 
-	assert-directory-not-empty "$DIR_PLAY"
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty 	"$DIR_PLAY"
+
 	for file in "${DIR_PLAY}"* ; do
 		local filename="$(basename "$file")"
 		add-item "$filename"
@@ -645,10 +644,6 @@ function get-from-filename () {
 
 function divide-authors (){
 	assert-arg-count "divide-authors" "==" 1 "$@"
-	if ! [[ $# -eq 1 ]]; then
-		output-failure "invalid divide-authors argument count (must be ==1)"
-		exit 1
-	fi
 	local authors_string="$1"
 	local separator=", "
 	local authors=${authors_string//"$separator"/'|'}
@@ -659,9 +654,9 @@ function divide-authors (){
 function add-item () {
 	# add string item to items with initalized count, or if already exists: increase counter.
 	# return to execution flow on success, exit on failure
-		# success -> item added 
 		# failure -> invalid argument count
-	# 1 argument: string item to be added 
+	# 1 argument: 
+		# string item to be added 
 	assert-arg-count "add-item" "==" 1 "$@"
 	local new_item="$1"
 	if is-item-inside-items "$new_item"; then
@@ -765,7 +760,7 @@ function config-set () {
 	local newvalue="$2"
 	assert-valid-config "$configuration" "mutable"
 
-	assert-file-exists "$FILE_CONFIG"
+	assert-file-exists 	"$FILE_CONFIG"
 	update-config-file "$configuration" "$newvalue"
 }
 
@@ -774,8 +769,9 @@ function update-config-file () {
 	local configuration="$1"
 	local newvalue="$2"
 
-	assert-file-readable "$FILE_CONFIG"
-	assert-file-writable "$FILE_CONFIG"
+	assert-file-exists 	"$FILE_CONFIG"
+	assert-file-readable 	"$FILE_CONFIG"
+	assert-file-writable 	"$FILE_CONFIG"
 	sed -i "/^${configuration}=/d" "$FILE_CONFIG"
 	echo "${configuration}=${newvalue}" >> "$FILE_CONFIG"
 }
@@ -964,8 +960,8 @@ function assert-valid-config () {
 
 function get-config () {
 	assert-arg-count "get-config" "==" 1 "$@"
-	local argument="$1"
-    	output-info "	$argument	-> 	${config2value[$argument]} "
+	local configuration="$1"
+    	output-info "	$configuration-> 	${config2value[$configuration]} "
 }
 
 function assert-directory-not-empty () {
@@ -978,7 +974,7 @@ function assert-directory-not-empty () {
 	local directory="$1"
 
 	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
-		output-failure "$directory is empty"
+		output-failure "\"$directory\" is empty"
 		exit 1
 	fi
 }
@@ -992,7 +988,7 @@ function assert-file-writable () {
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -w "$file" ]]; then
-		output-failure "$(basename "$file") not writable"
+		output-failure "\"$(basename "$file")\" not writable"
 		exit 1
 	fi
 
@@ -1007,8 +1003,9 @@ function assert-file-readable () {
 	assert-arg-count "assert-file-readable" "==" 1 "$@"
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
+	local filename="$(basename "$file")"
 	if ! [[ -r "$file" ]]; then
-		output-failure "$(basename "$file") not readable"
+		output-failure "\"$filename\" not readable"
 		exit 1
 	fi
 }
@@ -1059,15 +1056,17 @@ function assert-file-directory () {
 		# the full path to the file
 	assert-arg-count "assert-file-directory" "==" 1 "$@"
 	local file="$1"
+	local filename="$(basename "$file")"
 	if ! [[ -d "$file" ]]; then
-		output-failure "$(basename "$file") not a directory"
+		output-failure "\"$filename\" not a directory"
 		exit 1
 	fi
 }
 
 function output-success () {
 	# unifying user success output
-	# 1 argument: the string to output
+	# 1 argument: 
+		# the string to output
 	assert-arg-count "output-success" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
@@ -1077,7 +1076,8 @@ function output-success () {
 
 function output-failure () {
 	# unifying user failure output
-	# 1 argument: the string to output
+	# 1 argument: 
+		# the string to output
 	assert-arg-count "output-failure" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
@@ -1087,7 +1087,8 @@ function output-failure () {
 
 function output-info () {
 	# unfying user informative output
-	# 1 argument: the string to output
+	# 1 argument: 
+		# the string to output
 	assert-arg-count "output-info" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
@@ -1097,7 +1098,8 @@ function output-info () {
 
 function output-question () {
 	# unifying user prompt output (used in is-confirmed)
-	# 1 argument: the string to output
+	# 1 argument: 
+		# the string to output
 	assert-arg-count "output-question" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
