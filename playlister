@@ -467,20 +467,23 @@ function show-mp3s () {
 	local file
 	for file in "${DIR_MP3}"*; do
 		filename="$(basename "$file" )"
-
-		if [[ "$argument" == "all" ]]; then
-			add-item "$filename"
-
-		elif [[ "$argument" == "used" ]]; then
-			if is-mp3-used "$filename"; then
+		case "$argument" in
+			"all")
 				add-item "$filename"
-			fi
-
-		else #unused
-			if ! is-mp3-used "$filename"; then
-				add-item "$filename"
-			fi
-		fi
+				;;
+			"used")
+				if is-mp3-used "$filename"; then
+					add-item "$filename"
+				fi
+				;;
+			"unused")
+				if ! is-mp3-used "$filename"; then
+					add-item "$filename"
+				fi
+				;;
+			*)
+				output-failure "how did \"$argument\" slip through the argument check?"
+		esac
 	done
 }
 
@@ -499,7 +502,7 @@ function is-mp3-used () {
 	assert-arg-count "is-mp3-used" "==" 1 "$@"
 	local filename="$1"
 	
-	assert-file-exits 		"$DIR_PLAY"
+	assert-file-exists 		"$DIR_PLAY"
 	assert-file-readable 		"$DIR_PLAY"
 	assert-directory-not-empty 	"$DIR_PLAY"
 
