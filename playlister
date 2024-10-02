@@ -69,57 +69,6 @@ function main () {
 	done
 }
 
-function assert-arg-count () {
-	# Check if function given correct arg amount.
-	# return execution flow on success, exit 1 on failure
-		# success: correct arg count given to function
-		# failure:
-			# wrong arg count given to assert-corr...
-			# invalid operator given
-			# assertion failed
-	# Arguments:
-		# func 				-> name of function (needed for failure output)
-		# operator 			-> keyword together with argcount specifying the argument count
-		# argcount 			-> a point of refrence for arguments expected
-		# optional arguments... 	-> arguments given originally to func
-	# the func arguments need to be inputted with [@] (protect from "My Argument" arguments with [*])
-	if ! [[ $# -ge 3 ]]; then
-		output-failure "assert-arg-count: invalid argument count(must be >= 3, but {$#} were given)"
-		exit 1
-	fi
-	local func="$1"
-
-
-	local operator="$2"
-	local accepted_operators=( "==" ">" "<" )
-	local accepted_operator
-	local inside=0
-	for accepted_operator in "${accepted_operators[@]}"; do
-		if [[ "$accepted_operator" == "$operator" ]]; then
-			inside=1
-		fi
-	done
-	if ! [[ $inside -eq 1 ]]; then
-		output-failure "assert-arg-count: \"$operator\" not a valid operator( one of: ${accepted_operators[*]})"
-		exit 1
-	fi
-	local argcount="$3"
-	local positive_num_re="^[0-9]+$"
-	if ! [[ $argcount =~ $positive_num_re ]]; then
-		output-failure "assert-arg-count: \"$argcount\" not a valid positive integer"
-		exit 1
-	fi
-
-	shift 3
-
-	if  ( [[ "$operator" == ">"  ]] &&  ! [[ $# -gt $argcount ]] ) || \
-	    ( [[ "$operator" == "==" ]] &&  ! [[ $# -eq $argcount ]] ) || \
-	    ( [[ "$operator" == "<"  ]] &&  ! [[ $# -lt $argcount ]] ) ; then
-
-		output-failure "${func}: invalid argument count($# !${operator} $argcount)"
-		exit 1
-	fi
-}
 
 
 
@@ -297,23 +246,6 @@ function show () {
 				exit 1
 				;;
 		esac
-	done
-}
-
-function output-items () {
-	# output every item in the global items associative array
-	# return to execution flow on success, exit on failure
-		# failure -> wrong func arg count
-	# no arguments
-	# this function should be found after show functions in the show man function.
-	assert-arg-count "output-items" "==" 0 "$@"
-	local item 
-	for item in "${!items[@]}"; do
-		if [[ ${items["$item"]} -eq 1 ]] ; then
-			echo -e "\t$item"
-		else
-			echo -e "\t$item \t[${items[$item]}]"
-		fi
 	done
 }
 
@@ -649,21 +581,6 @@ function divide-authors (){
 	local authors=${authors_string//"$separator"/'|'}
 	echo "$authors"
 	
-}
-
-function add-item () {
-	# add string item to items with initalized count, or if already exists: increase counter.
-	# return to execution flow on success, exit on failure
-		# failure -> invalid argument count
-	# 1 argument: 
-		# string item to be added 
-	assert-arg-count "add-item" "==" 1 "$@"
-	local new_item="$1"
-	if is-item-inside-items "$new_item"; then
-		items["$new_item"]=$(( ${items["$new_item"]} + 1 ))
-	else
-		items["$new_item"]=$(( 1 ))
-	fi
 }
 
 function config () {
@@ -1063,6 +980,74 @@ function assert-file-directory () {
 	fi
 }
 
+function assert-arg-count () {
+	# Check if function given correct arg amount.
+	# return execution flow on success, exit 1 on failure
+		# success: correct arg count given to function
+		# failure:
+			# wrong arg count given to assert-corr...
+			# invalid operator given
+			# assertion failed
+	# Arguments:
+		# func 				-> name of function (needed for failure output)
+		# operator 			-> keyword together with argcount specifying the argument count
+		# argcount 			-> a point of refrence for arguments expected
+		# optional arguments... 	-> arguments given originally to func
+	# the func arguments need to be inputted with [@] (protect from "My Argument" arguments with [*])
+	if ! [[ $# -ge 3 ]]; then
+		output-failure "assert-arg-count: invalid argument count(must be >= 3, but {$#} were given)"
+		exit 1
+	fi
+	local func="$1"
+
+
+	local operator="$2"
+	local accepted_operators=( "==" ">" "<" )
+	local accepted_operator
+	local inside=0
+	for accepted_operator in "${accepted_operators[@]}"; do
+		if [[ "$accepted_operator" == "$operator" ]]; then
+			inside=1
+		fi
+	done
+	if ! [[ $inside -eq 1 ]]; then
+		output-failure "assert-arg-count: \"$operator\" not a valid operator( one of: ${accepted_operators[*]})"
+		exit 1
+	fi
+	local argcount="$3"
+	local positive_num_re="^[0-9]+$"
+	if ! [[ $argcount =~ $positive_num_re ]]; then
+		output-failure "assert-arg-count: \"$argcount\" not a valid positive integer"
+		exit 1
+	fi
+
+	shift 3
+
+	if  ( [[ "$operator" == ">"  ]] &&  ! [[ $# -gt $argcount ]] ) || \
+	    ( [[ "$operator" == "==" ]] &&  ! [[ $# -eq $argcount ]] ) || \
+	    ( [[ "$operator" == "<"  ]] &&  ! [[ $# -lt $argcount ]] ) ; then
+
+		output-failure "${func}: invalid argument count($# !${operator} $argcount)"
+		exit 1
+	fi
+}
+
+function add-item () {
+	# add string item to items with initalized count, or if already exists: increase counter.
+	# return to execution flow on success, exit on failure
+		# failure -> invalid argument count
+	# 1 argument: 
+		# string item to be added 
+	assert-arg-count "add-item" "==" 1 "$@"
+	local new_item="$1"
+	if is-item-inside-items "$new_item"; then
+		items["$new_item"]=$(( ${items["$new_item"]} + 1 ))
+	else
+		items["$new_item"]=$(( 1 ))
+	fi
+}
+
+
 function output-success () {
 	# unifying user success output
 	# 1 argument: 
@@ -1105,6 +1090,23 @@ function output-question () {
 	local white="\e[1;37m"
 	local blue="\e[1;34m"
 	>&2 echo -e "${white}(${blue}?${white}) ${output}?"
+}
+
+function output-items () {
+	# output every item in the global items associative array
+	# return to execution flow on success, exit on failure
+		# failure -> wrong func arg count
+	# no arguments
+	# this function should be found after show functions in the show man function.
+	assert-arg-count "output-items" "==" 0 "$@"
+	local item 
+	for item in "${!items[@]}"; do
+		if [[ ${items["$item"]} -eq 1 ]] ; then
+			echo -e "\t$item"
+		else
+			echo -e "\t$item \t[${items[$item]}]"
+		fi
+	done
 }
 
 main "$@"
