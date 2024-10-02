@@ -8,6 +8,9 @@ FILE_HELP="${DIR_MAIN}playlister.help"
 EXT_PLAY=".plst"
 EXT_MP3=".mp3"
 EXT_BKUP=".bak"
+SEP_POLI_AUTHOR_AUTHOR=", "			# this points to separator dividing the authors from eachother
+SEP_POLI_AUTHORS_MP3=" - "			# this points to separator dividing the authors and the mp3 name
+SEP_MONO="|"					# SEP_POLI separators are mutated to this for easier processing
 	# Mutable
 DIR_PLAY="${DIR_MAIN}playlists/"
 DIR_MP3="${DIR_MAIN}mp3s/"
@@ -368,8 +371,8 @@ function show-author () {
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
-		authors="$(divide-authors "$authors")" 				# divide from ", " to "|"
-		IFS='|' read -ra authors <<< "$authors"				# split with '|'
+		authors="$(divide-authors "$authors")" 				# divide from SEP_POLI_AUTHOR_AUTHOR to SEP_MONO
+		IFS="${SEP_MONO}" read -ra authors <<< "$authors"				# split with SEP_MONO
 		for author in "${authors[@]}"; do
 			if [[ "$author" == "$target_author" ]]; then
 				add-item "$mp3name"
@@ -397,8 +400,8 @@ function show-authors () {
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
-		authors="$(divide-authors "$authors")" 				# divide from ", " to "|"
-		IFS='|' read -ra authors <<< "$authors"				# split with '|'
+		authors="$(divide-authors "$authors")" 				# divide from SEP_POLI_AUTHOR_AUTHOR to SEP_MONO
+		IFS="${SEP_MONO}" read -ra authors <<< "$authors"		# split with SEP_MONO 
 		for author in "${authors[@]}"; do
 			add-item "$author"
 		done
@@ -428,7 +431,7 @@ function show-authors-of-mp3 () {
 		if [[ "$mp3name" == "$target_mp3name" ]]; then
 			local authors="$(get-from-filename "$filename" "authors")"
 			authors="$(divide-authors "$authors")"
-			IFS='|' read -ra authors <<< "$authors"
+			IFS="${SEP_MONO}" read -ra authors <<< "$authors"
 			for author in "${authors[@]}"; do
 				add-item "$author"
 			done
@@ -564,11 +567,10 @@ function get-from-filename () {
 		exit 1
 	fi
 	
-	local separator=" - "
-	local tmp=${filename//"$separator"/$'\2'}
+	local tmp=${filename//"${SEP_POLI_AUTHORS_MP3}"/${SEP_MONO}}
 	local authors
 	local mp3
-	IFS=$'\2' read authors mp3 <<< "$tmp"
+	IFS="${SEP_MONO}" read authors mp3 <<< "$tmp"
 	
 	if [[ "$option" == "authors" ]]; then
 		echo "$authors"
@@ -580,8 +582,7 @@ function get-from-filename () {
 function divide-authors (){
 	assert-arg-count "divide-authors" "==" 1 "$@"
 	local authors_string="$1"
-	local separator=", "
-	local authors=${authors_string//"$separator"/'|'}
+	local authors=${authors_string//"${SEP_POLI_AUTHOR_AUTHOR}"/"${SEP_MONO}"}
 	echo "$authors"
 	
 }
