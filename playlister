@@ -382,52 +382,6 @@ function show-playlist () {
 	done 69<"$playlist_path"
 }
 
-function is-string-valid-mp3 () {
-	# check if given string is a valid mp3 file
-	# return 0 if is, return 1 if is not, exit 1
-		# success: file was able to be checked for validity
-		# failure:
-			# mp3 directory not readable
-			# mp3 directory empty
-	# 1 argument: string
-	assert-arg-count "is-string-valid-mp3" "==" 1 "$@"
-	local string="$1"
-	assert-file-readable "$DIR_MP3"
-	assert-directory-not-empty "$DIR_MP3"
-
-	local filename
-	for file in "$DIR_MP3"*; do
-		file="$( basename "$file" )" # remove string directories suffix
-		if [[ "$file" == "$string" ]]; then
-			return 0
-		fi
-	done
-	return 1
-}
-
-function is-string-valid-playlist () {
-	# check if given string is a valid playlist 
-	# return 0 if is, return 1 if is not, exit 1
-		# success: file was able to be checked for validity
-		# failure:
-			# playlist directory not readable
-			# playlist directory empty
-	# 1 argument: basenamed name of the playlist
-	assert-arg-count "is-string-valid-playlist" "==" 1 "$@"
-	local target_filename="$1"
-	assert-file-readable "$DIR_PLAY"
-	assert-directory-not-empty "$DIR_PLAY"
-
-	local file
-	for file in "$DIR_PLAY"* ; do 
-		local filename="$(basename "$file")"
-		if [[ "$filename" == "$target_filename" ]]; then
-			return 0
-		fi
-	done
-	return 1
-}
-
 function is-confirmed () {
 	# get user yes, no input to make simple script decisions
 	# return 0 if confirmed, return 1 if rejected, exit 1 on error
