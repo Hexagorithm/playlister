@@ -334,16 +334,12 @@ function is-confirmed () {
 		output-question "$prompt"
 		read -p ":" user
 		local option
-		for option in "${confirmation[@]}"; do
-			if [[ "$option" == "$user" ]]; then
-				return 0
-			fi
-		done
-		for option in "${rejection[@]}"; do
-			if [[ "$option" == "$user" ]]; then
-				return 1
-			fi
-		done
+		if is-element-in-array "$user" "confirmation"; then
+			return 0
+		elif is-element-in-array "$user" "rejection"; then
+			return 1
+		fi
+
 		output-info "Invalid user input: \"$user\""
 	done
 }
@@ -455,12 +451,10 @@ function show-mp3s () {
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-mp3s" "==" 1 "$@"
-	local argument="$1"
-	
-	if ! (  [[ "$argument" == "all" ]] 	|| \
-		[[ "$argument" == "used" ]] 	|| \
-		[[ "$argument" == "unused" ]] 	); then
-		output-failure "invalid show-mp3 argument:\"$argument\""
+	local keyword="$1"
+	local valid_keywords=( "all" "used" "unused")
+	if ! is-element-in-array "$keyword" "valid_keywords"; then
+		output-failure "\"$keyword\" is not inside \"${valid_keywords[*]}\""
 		exit 1
 	fi
 	
@@ -561,20 +555,23 @@ function get-from-filename () {
 	assert-arg-count "get-from-filename" "==" 2 "$@"
 	
 	local filename="$1"
-	local option="$2"
-	if ! ( [[ "$option" == "mp3" ]] || [[ "$option" == "authors" ]] ) ; then
-		output-failure "invalid get-from-filename option:\"$option\""
+	local keyword="$2"
+
+	local valid_keywords=( "mp3" "authors" )
+
+	if ! is-element-in-array "$keyword" "valid_keywords"; then
+		output-failure "\"$keyword\" not in: \"${valid_keywords[*]}\""
 		exit 1
 	fi
-	
+
 	local tmp=${filename//"${SEP_POLI_AUTHORS_MP3}"/${SEP_MONO}}
 	local authors
 	local mp3
 	IFS="${SEP_MONO}" read authors mp3 <<< "$tmp"
 	
-	if [[ "$option" == "authors" ]]; then
+	if 	[[ "$keyword" == "authors" ]]; then
 		echo "$authors"
-	else
+	elif 	[[ "$keyword" == "mp3" ]]; then
 		echo "$mp3"
 	fi
 }
@@ -1007,6 +1004,7 @@ function assert-arg-count () {
 
 	local operator="$2"
 	local accepted_operators=( "==" ">" "<" )
+	# cant use is-element-in-array here, at it produces an infinite loop
 	local accepted_operator
 	local inside=0
 	for accepted_operator in "${accepted_operators[@]}"; do
@@ -1049,6 +1047,27 @@ function add-item () {
 	else
 		items["$new_item"]=$(( 1 ))
 	fi
+}
+
+function is-element-in-array() {
+	# checks if argument is in array
+	# return 0 if yes, 1 if not, exit 1 on failure
+		# failure:
+			# wrong arg count
+	# 2 arguments
+		# 1) element to be checked
+		# 2) name of array
+	assert-arg-count "is-element-in-array" "==" 2 "$@"
+	local element="$1"
+	local arraynameargs="$2[@]"
+	local array=("${!arraynameargs}")		# "(" ")" to treat as array
+	local array_element
+	for array_element in "${array[@]}"; do
+		if [[ "$array_element" == "$element" ]]; then
+			return 0
+		fi
+	done
+	return 1
 }
 
 
