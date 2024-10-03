@@ -538,18 +538,6 @@ function show-playlists () {
 	done
 }
 
-function is-item-inside-items () {
-	assert-arg-count "is-item-inside-items" "==" 1 "$@"
-	local argument="$1"
-	local item
-	for item in "${!items[@]}"; do
-		if [[ "$argument" == "$item" ]]; then
-			return 0
-		fi 
-	done
-	return 1
-}
-
 function get-from-filename () {
 	
 	assert-arg-count "get-from-filename" "==" 2 "$@"
@@ -1042,7 +1030,8 @@ function add-item () {
 		# string item to be added 
 	assert-arg-count "add-item" "==" 1 "$@"
 	local new_item="$1"
-	if is-item-inside-items "$new_item"; then
+	local items_array=("${!items[@]}")
+	if is-element-in-array "$new_item" "items_array"; then
 		items["$new_item"]=$(( ${items["$new_item"]} + 1 ))
 	else
 		items["$new_item"]=$(( 1 ))
