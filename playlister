@@ -457,7 +457,7 @@ function show-mp3s () {
 	local file
 	for file in "${DIR_MP3}"*; do
 		filename="$(basename "$file" )"
-		case "$argument" in
+		case "$keyword" in
 			"all")
 				add-item "$filename"
 				;;
@@ -472,7 +472,7 @@ function show-mp3s () {
 				fi
 				;;
 			*)
-				output-failure "how did \"$argument\" slip through the argument check?"
+				output-failure "how did \"$keyword\" slip through the argument check?"
 		esac
 	done
 }
@@ -500,11 +500,9 @@ function is-mp3-used () {
 	for playlist in "${DIR_PLAY}"* ; do
 		assert-file-readable "$playlist"
 		local line
-		while read line; do
-			if [[ "$line" == "$filename" ]]; then
-				return 0
-			fi
-		done <"$playlist"
+		if is-line-in-file "$filename" "$playlist"; then
+			return 0
+		fi
 	done
 	return 1
 }
