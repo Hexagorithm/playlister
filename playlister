@@ -276,11 +276,9 @@ function show-mp3 () {
 	for file in "${DIR_PLAY}"*; do
 		local filename="$(basename "$file" )"
 		assert-file-readable "$file"
-		while read line; do 
-			if [[ "$line" == "$mp3name" ]]; then
-				add-item "$filename"
-			fi
-		done < "$file"
+		if is-line-in-file "$mp3name" "$file"; then
+			add-item "$filename"
+		fi
 	done
 }
 
