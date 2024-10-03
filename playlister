@@ -15,7 +15,7 @@ SEP_MONO="|"					# SEP_POLI separators are mutated to this for easier processing
 DIR_PLAY="${DIR_MAIN}playlists/"
 DIR_MP3="${DIR_MAIN}mp3s/"
 
-declare -A config2value=( 
+declare -A CONFIG_VALUES=(
 	["DIR_MAIN"]="$DIR_MAIN" 	\
 	["FILE_CONFIG"]="$FILE_CONFIG" 	\
 	["FILE_HELP"]="$FILE_HELP" 	\
@@ -23,7 +23,7 @@ declare -A config2value=(
 	["DIR_MP3"]="$DIR_MP3"
 )
 
-declare -a configs_all=(
+declare -a CONFIGS_ALL=(
 	"DIR_MAIN" 	\
 	"FILE_CONFIG" 	\
 	"FILE_HELP" 	\
@@ -31,7 +31,7 @@ declare -a configs_all=(
 	"DIR_MP3"
 )
 
-declare -a configs_mutable=(
+declare -a CONFIGS_MUTABLE=(
 	"DIR_MP3" \
 	"DIR_PLAY"
 )
@@ -643,10 +643,11 @@ function config-list () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "config-list" "==" 0 "$@"
 
-	for configuration in "${!config2value[@]}"; do
+	local configuration
+	for configuration in "${CONFIG_ALL[@]}"; do
 		# i do not need to check for validity of $configuration here
-		# for $configuration is fetched directly from $config2value
-		add-item "	$configuration	-> 	${config2value[$configuration]} "
+		# for $configuration is fetched directly from $CONFIG_VALUES
+		add-item "	$configuration	-> 	${CONFIG_VALUES[$configuration]} "
 	done
 }
 
@@ -655,7 +656,7 @@ function config-get () {
 	assert-arg-count "config-get" "==" 1 "$@"
 	local configuration="$1"
 	assert-valid-config "$configuration" "all"
-	add-item "	$configuration	-> 	${config2value[$configuration]} "
+	add-item "	$configuration	-> 	${CONFIG_VALUES[$configuration]} "
 }
 
 function config-set () {
@@ -803,12 +804,12 @@ function read-config () {
 			"DIR_MP3")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
 				DIR_MP3="$value"
-				config2value["DIR_MP3"]="$value"
+				CONFIG_VALUES["DIR_MP3"]="$value"
 				;;
 			"DIR_PLAY")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
 				DIR_PLAY="$value"
-				config2value["DIR_PLAY"]="$value"
+				CONFIG_VALUES["DIR_PLAY"]="$value"
 				;;
 			*)
 				output-failure "not valid user config: \"$argument\""
@@ -841,12 +842,12 @@ function assert-valid-config () {
 
 	declare -a valid_configurations=()
 	if 	[[ "$keyword" == "all" ]]; then
-		for item in "${configs_all[@]}"; do
+		for item in "${CONFIGS_ALL[@]}"; do
 			valid_configurations+=("$item")
 		done
 
 	elif 	[[ "$keyword" == "mutable" ]]; then
-		for item in "${configs_mutable[@]}"; do
+		for item in "${CONFIGS_MUTABLE[@]}"; do
 			valid_configurations+=("$item")
 		done
 
@@ -867,7 +868,7 @@ function assert-valid-config () {
 function get-config () {
 	assert-arg-count "get-config" "==" 1 "$@"
 	local configuration="$1"
-    	output-info "	$configuration-> 	${config2value[$configuration]} "
+    	output-info "	$configuration-> 	${CONFIG_VALUES[$configuration]} "
 }
 
 function assert-directory-not-empty () {
