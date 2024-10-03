@@ -655,7 +655,10 @@ function config-get () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "config-get" "==" 1 "$@"
 	local configuration="$1"
-	assert-valid-config "$configuration" "all"
+	if ! is-element-in-array "$configuration" "CONFIGS_ALL"; then
+		output-failure "\"$configuration\" invalid configuration"
+		exit 1
+	fi
 	add-item "	$configuration	-> 	${CONFIG_VALUES[$configuration]} "
 }
 
@@ -665,7 +668,14 @@ function config-set () {
 
 	local configuration="$1"
 	local newvalue="$2"
-	assert-valid-config "$configuration" "mutable"
+	if ! is-element-in-array "$configuration" "CONFIGS_ALL"; then
+		output-failure "\"$configuration\" invalid configuration"
+		exit 1
+	fi
+	if ! is-element-in-array "$configuration" "CONFIGS_MUTABLE"; then
+		output-failure "\"$configuration\" configuration not mutable"
+		exit 1
+	fi
 
 	assert-file-exists 	"$FILE_CONFIG"
 	update-config-file "$configuration" "$newvalue"
@@ -817,52 +827,6 @@ function read-config () {
 				;;
 		esac
 	done < "$FILE_CONFIG"
-}
-
-function assert-valid-config () {
-	# check if config is valid
-	# return to execution flow if config valid , exit 1 if otherwise
-	# 2 arguments:
-		# 1) configuration to be checked
-		# 2) keyword for type of configuration ("all" "mutable")
-	assert-arg-count "assert-valid-config" "==" 2 "$@"
-	local configuration="$1"
-	local keyword="$2"
-	declare -a valid_keywords=( "all" "mutable" )
-	local is_valid=0
-	for valid_keyword in "${valid_keywords[@]}"; do
-		if [[ "$valid_keyword" == "$keyword" ]]; then
-			is_valid=1
-		fi
-	done
-	if [[ $is_valid -eq 0 ]]; then
-		output-failure "\"$keyword\" not a valid assert-valid-config keyword (must be in:\"${valid_keywords[*]}\")"
-		exit 1
-	fi
-
-	declare -a valid_configurations=()
-	if 	[[ "$keyword" == "all" ]]; then
-		for item in "${CONFIGS_ALL[@]}"; do
-			valid_configurations+=("$item")
-		done
-
-	elif 	[[ "$keyword" == "mutable" ]]; then
-		for item in "${CONFIGS_MUTABLE[@]}"; do
-			valid_configurations+=("$item")
-		done
-
-	else
-		output-failure "\"$keyword\"... What the fuck?"
-		exit 1
-	fi
-
-	for valid_configuration in "${valid_configurations[@]}"; do
-		if [[ "$configuration" == "$valid_configuration" ]]; then
-			return
-		fi
-	done
-	output-failure "\"${configuration}\" not a valid ${keyword} configuration"
-	exit 1
 }
 
 function get-config () {
