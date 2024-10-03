@@ -145,13 +145,13 @@ function playlist-play () {
 }
 
 function playlist-add() {
-	# to playlist, add every mp3 file that is valid and not an entry, also add tme to items
+	# to playlist, add every mp3 file that is valid and not an entry, also add them to items
 	# exit 1 on failure
 		# failures:
 			# wrong arg count
-			# playlist directory not readable or empty
-			# playlist file invalid, not readable, not writable
-			# invalid mp3 file
+			# playlist directory does not exist, not readable, or empty
+			# playlist file does not exist, not readable, not writable
+			# mp3 directory does nto exist, not readable, or empty
 	# 2 arguments;
 		# 1) 	basenamed playlist filename
 		# 2..)  basenamed mp3files to add
@@ -179,17 +179,12 @@ function playlist-add() {
 		shift
 		assert-file-exists "${DIR_MP3}${entry}"
 
-		local inside=0
-		while read line; do
-			if [[ "$entry" == "$line" ]]; then
-				inside=1
-			fi
-		done <"$playlist"
-		if [[ $inside -eq 1 ]]; then
+		if is-line-in-file "$entry" "$playlist"; then
 			output-failure "\"$entry\" already in \"$playlistname\""
 			continue
 		fi
 		echo "$entry" >> "$playlist"
+
 		add-item "$entry"
 	done
 }
@@ -1024,6 +1019,28 @@ function is-element-in-array() {
 	return 1
 }
 
+function is-line-in-file() {
+	# checks if given line in given file
+	# assumption: 
+		# file exists 
+		# file is readable
+	# return 0 if yes, 1 if not, exit 1 on failure
+		# failure:
+			# wrong arg count
+	# 2 arguments
+		# 1) line
+		# 2) full path to file
+	assert-arg-count "is-line-in-file" "==" 2 "$@"
+	local target_line="$1"
+	local file="$2"
+	local line
+	while read line; do
+		if [[ "$line" == "$target_line" ]]; then
+			return 0
+		fi
+	done <"$file"
+	return 1
+}
 
 function output-success () {
 	# unifying user success output
