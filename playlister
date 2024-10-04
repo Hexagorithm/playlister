@@ -105,6 +105,12 @@ function playlist() {
 				output-items
 				exit 0
 				;;
+			copy)
+				shift
+				playlist-copy "$@"
+				output-items
+				exit 0
+				;;
 			*)
 				output-failure "\"$1\" unrecognized playlist option"
 				exit 1
@@ -262,10 +268,44 @@ function playlist-create() {
 	local playlist="${DIR_PLAY}${playlistname}"
 
 	if is-file-exists "$playlist"; then
-		output-failure "\"$playlistname\" existing playlist"
+		output-failure "\"$playlistname\" exists"
 		exit 1
 	fi
 	touch "$playlist"
+}
+
+function playlist-copy() {
+	# copy an existing given playlist into a new playlist of given new name
+		# exit 1 on failure
+			# DIR_PLAY does not exist, unreadable, empty, unwritable
+			# existiing playlist does not exist
+			# new playlist already exists
+	# 2 arguments
+		# 1) existing playlist
+		# 2) new playlist
+	assert-arg-count "playlist-copy" "==" 2 "$@"
+	local existplaylistname="$1"
+	local newplaylistname="$2"
+
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable		"$DIR_PLAY"
+	assert-directory-not-empty	"$DIR_PLAY"
+	assert-file-writable 		"$DIR_PLAY"
+
+	local existplaylist="${DIR_PLAY}${existplaylistname}"
+	local newplaylist="${DIR_PLAY}${newplaylistname}"
+
+
+	if ! is-file-exists "$existplaylist"; then
+		output-failure "\"$existplaylistname\" does not exist"
+		exit 1
+	fi
+
+	if is-file-exists "$newplaylist"; then
+		output-failure "\"$newplaylistname\" exists"
+		exit 1
+	fi
+	cp "$existplaylist" "$newplaylist"
 }
 
 function show () {
