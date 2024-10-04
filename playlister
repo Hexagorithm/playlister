@@ -455,8 +455,13 @@ function show-mp3s () {
 	assert-file-readable 		"$DIR_MP3"
 	assert-directory-not-empty 	"$DIR_MP3"
 	local file
+
+	for file in "${DIR_PLAY}"*; do		# playlist check for is-mp3-used
+		assert-file-readable "$file"
+	done
+
 	for file in "${DIR_MP3}"*; do
-		filename="$(basename "$file" )"
+		local filename="$(basename "$file" )"
 		case "$keyword" in
 			"all")
 				add-item "$filename"
@@ -479,26 +484,22 @@ function show-mp3s () {
 
 function is-mp3-used () {
 	# checks if mp3 file is entry in a playlist
+	# Assumption: 
+			# DIR_PLAY exists, readable and not empty, 
+			# every playlist is readable
 	# return int status as value, exit 1 on error
 		# success: return status
 			# 0 -> mp3 is used
 			# 1 -> mp3 is not used
 		# failure:
 			# wrong arg count
-			# playlist directory does not exist, unreadable, or empty
-			# a playlist file is unreadable
 	# 1 argument: 
 		# filename to be checked (previously basename'd!)
 	assert-arg-count "is-mp3-used" "==" 1 "$@"
 	local filename="$1"
 	
-	assert-file-exists 		"$DIR_PLAY"
-	assert-file-readable 		"$DIR_PLAY"
-	assert-directory-not-empty 	"$DIR_PLAY"
-
 	local playlist
 	for playlist in "${DIR_PLAY}"* ; do
-		assert-file-readable "$playlist"
 		local line
 		if is-line-in-file "$filename" "$playlist"; then
 			return 0
@@ -828,6 +829,7 @@ function get-config () {
 
 function assert-directory-not-empty () {
 	# check if directory is empty
+	# assumption: directory exists and is readable
 	# return to execution flow on success, exit on failure
 		# success -> directory is not empty 
 		# failure -> directory is empty
@@ -844,6 +846,7 @@ function assert-directory-not-empty () {
 function assert-file-writable () {
 	# check if file is writable
 	# return to execution flow no success, exit on failure
+	# Assumption: file exists
 	# 1 argument: 
 		# full path to the file
 	assert-arg-count "assert-file-writable" "==" 1 "$@"
@@ -858,6 +861,7 @@ function assert-file-writable () {
 
 function assert-file-readable () {
 	# check if file is readable
+	# Assumption: file exists
 	# return to execution flow on success, exit on failure
 		# success -> file is readable
 		# failure -> file is not readable
@@ -1018,8 +1022,7 @@ function is-element-in-array() {
 function is-line-in-file() {
 	# checks if given line in given file
 	# assumption: 
-		# file exists 
-		# file is readable
+		# file exists and is readable
 	# return 0 if yes, 1 if not, exit 1 on failure
 		# failure:
 			# wrong arg count
