@@ -97,7 +97,13 @@ function playlist() {
 				shift
 				playlist-del "$@"
 				output-items
-				exit 1
+				exit 0
+				;;
+			create)
+				shift
+				playlist-create "$@"
+				output-items
+				exit 0
 				;;
 			*)
 				output-failure "\"$1\" unrecognized playlist option"
@@ -237,6 +243,30 @@ function playlist-del() {
 	done
 }
 
+function playlist-create() {
+	# create a new blank playlist of the given name
+		# exit 1 on failure
+			# failure:
+				# DIR_PLAY does not exists, unreadable, unwritable, or empty
+				# playlist of the given name already exists
+	# 1 argument:
+		# the basenamed name of the playlist
+	assert-arg-count "playlist-create" "==" 1 "$@"
+	local playlistname="$1"
+
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable		"$DIR_PLAY"
+	assert-directory-not-empty	"$DIR_PLAY"
+	assert-file-writable 		"$DIR_PLAY"
+
+	local playlist="${DIR_PLAY}${playlistname}"
+
+	if is-file-exists "$playlist"; then
+		output-failure "\"$playlistname\" existing playlist"
+		exit 1
+	fi
+	touch "$playlist"
+}
 
 function show () {
 	# extension of the program's main function for show options.
