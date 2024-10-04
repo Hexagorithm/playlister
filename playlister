@@ -131,8 +131,20 @@ function playlist-play () {
 			# mpg123 failed to play mp3 file
 	# 1 argument
 		# the basenamed name of the playlist
-	assert-arg-count "playlist-play" "==" 1 "$@"
+		# keyword for the order in which mp3 files should be outputted
+	assert-arg-count "playlist-play" "==" 2 "$@"
 	local playlistname="$1"
+	local keyword="$2"
+
+	local valid_keywords=( "random" "original" )
+
+
+
+	if ! is-element-in-array "$keyword" "valid_keywords" ;then 
+		output-failure "\"$keyword\" is not a valid playlist-play keyword"
+		exit 1
+	fi
+
 
 	assert-file-exists 		"$DIR_PLAY"
 	assert-file-readable 		"$DIR_PLAY"
@@ -147,8 +159,23 @@ function playlist-play () {
 	assert-directory-not-empty 	"$DIR_MP3"
 
 	local entry
-	local lastnumber="$(cat "$playlist" | wc -l )"
+
+	local tmpfile=$(mktemp /tmp/playlister-temp.XXXXXX)
+	exec 3>"$tmpfile"
+	exec 4<"$tmpfile"
+	
+	if 	[[ "$keyword" == "random" ]]; then
+		echo "$(cat "$playlist" | sort -R )" 	>&3
+	elif 	[[ "$keyword" == "original" ]]; then
+		echo "$(cat "$playlist" )" 		>&3
+	else
+		output-failure "\"$keywordl\" rouge keyword caught"
+		exit 1
+	fi
+
+	local lastnumber="$(cat "$tmpfile" | wc -l )"
 	local currnumber=1
+
 	while read entry; do
 		local mp3="${DIR_MP3}${entry}"
 		output-info "Playing(${currnumber}/${lastnumber}): $entry"
@@ -158,7 +185,7 @@ function playlist-play () {
 			exit 1
 		fi
 		currnumber=$(( currnumber + 1 ))
-	done <"$playlist"
+	done <&4
 }
 
 function playlist-add() {
@@ -253,16 +280,16 @@ function playlist-create() {
 	# create a new blank playlist of the given name
 		# exit 1 on failure
 			# failure:
-				# DIR_PLAY does not exists, unreadable, unwritable, or empty
+				# DIR_PLAY does not exists, unreadable, unwritable 
 				# playlist of the given name already exists
 	# 1 argument:
 		# the basenamed name of the playlist
 	assert-arg-count "playlist-create" "==" 1 "$@"
 	local playlistname="$1"
 
+	# DiR_PLAY should not fail to create playlist even if playlist is empty
 	assert-file-exists 		"$DIR_PLAY"
 	assert-file-readable		"$DIR_PLAY"
-	assert-directory-not-empty	"$DIR_PLAY"
 	assert-file-writable 		"$DIR_PLAY"
 
 	local playlist="${DIR_PLAY}${playlistname}"
