@@ -91,9 +91,14 @@ function playlist() {
 				shift
 				playlist-play "$@"
 				output-items
+				exit 0
+				;;
+			del)
+				shift
+				playlist-del "$@"
+				output-items
 				exit 1
 				;;
-
 			*)
 				output-failure "\"$1\" unrecognized playlist option"
 				exit 1
@@ -155,7 +160,7 @@ function playlist-add() {
 	# 2 arguments;
 		# 1) 	basenamed playlist filename
 		# 2..)  basenamed mp3files to add
-	assert-arg-count "add" ">" 1 "$@"
+	assert-arg-count "playlist-add" ">" 1 "$@"
 	local playlistname="$1"
 	shift
 
@@ -185,6 +190,49 @@ function playlist-add() {
 		fi
 		echo "$entry" >> "$playlist"
 
+		add-item "$entry"
+	done
+}
+
+function playlist-del() {
+	# delete every instance of mp3 names given in playlist
+		# exit 1 on failure
+			# failure:
+				# DIR_PLAY does not exist, not readable, or empty
+				# given playlist does not exist, unreadable or unwritable
+				# DIR_MP3 does not exist, not readable or empty
+	# arguments:
+		# 1) basenamed playlist name
+		# 2...)  basenamed mp3 file name
+	assert-arg-count "playlist-del" ">" 1 "$@"
+	local playlistname="$1"
+	shift
+
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty 	"$DIR_PLAY"
+
+	local playlist="${DIR_PLAY}${playlistname}"
+
+	assert-file-exists 	"$playlist"
+	assert-file-readable 	"$playlist"
+	assert-file-writable 	"$playlist"
+
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty	"$DIR_MP3"
+
+
+	while ! [[ $# -eq 0 ]]; do
+		local entry="$1"
+		shift
+		assert-file-exists "${DIR_MP3}${entry}"
+
+		if ! is-line-in-file "$entry" "$playlist"; then
+			output-failure "\"$entry\" not in \"$playlistname\""
+			continue
+		fi
+		sed -i "/^${entry}/d" "$playlist"
 		add-item "$entry"
 	done
 }
