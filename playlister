@@ -62,7 +62,14 @@ function main () {
 				playlist "$@"
 				exit 0
 				;;
-
+			check)
+				shift
+				assert-file-exists 	"$FILE_CONFIG"
+				assert-file-readable 	"$FILE_CONFIG"
+				read-config
+				check "$@"
+				exit 0
+				;;
 			*)
 				output-failure "unrecognised option:\"$1\""
 				shift
@@ -71,9 +78,6 @@ function main () {
 		esac
 	done
 }
-
-
-
 
 function playlist() {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
@@ -119,6 +123,21 @@ function playlist() {
 				;;
 			*)
 				output-failure "\"$1\" unrecognized playlist option"
+				exit 1
+				;;
+		esac
+
+	done
+}
+
+function check() {
+	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
+	assert-arg-count "check" ">" 0 "$@"
+	declare -A items=()
+	while ! [[ $# -eq 0 ]]; do
+		case $1 in
+			*)
+				output-failure "\"$1\" unrecognized check option"
 				exit 1
 				;;
 		esac
