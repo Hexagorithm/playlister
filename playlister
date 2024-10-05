@@ -136,11 +136,48 @@ function check() {
 	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
+			mp3s)
+				shift
+				check-mp3s "$@"
+				output-items
+				exit 0
+				;;
 			*)
 				output-failure "\"$1\" unrecognized check option"
 				exit 1
 				;;
 		esac
+
+	done
+}
+
+function check-mp3s() {
+	# checks if mp3 files are formatted correctly
+	# no arguments
+	assert-arg-count "check-mp3s" "==" 0 "$@"
+
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable 		"$DIR_MP3"
+	assert-directory-not-empty	"$DIR_MP3"
+
+	local file
+	for file in "${DIR_MP3}"*; do
+		local filename="$(basename "$file")"
+		local authors="$(get-from-filename "$filename" "authors")"
+		if [[ "$authors" == "" ]]; then
+			output-failure "\"$filename\" invalid authors detected"
+			exit 1
+		fi
+
+		local mp3name="$(get-from-filename "$filename" "mp3")"
+		if 	[[ "$mp3name" == "" ]]; then
+			output-failure "\"$filename\" invalid mp3name detected"
+			exit 1
+		elif	! [[ "$mp3name" == *"${EXT_MP3}" ]]; then
+			output-failure "\"$filename\" invalid extension detected"
+			exit 1
+
+		fi
 
 	done
 }
