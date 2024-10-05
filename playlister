@@ -11,6 +11,7 @@ EXT_BKUP=".bak"
 SEP_POLI_AUTHOR_AUTHOR=", "			# this points to separator dividing the authors from eachother
 SEP_POLI_AUTHORS_MP3=" - "			# this points to separator dividing the authors and the mp3 name
 SEP_MONO="|"					# SEP_POLI separators are mutated to this for easier processing
+USER_INPUT=":"
 	# Mutable
 DIR_PLAY="${DIR_MAIN}playlists/"
 DIR_MP3="${DIR_MAIN}mp3s/"
@@ -166,20 +167,44 @@ function check-mp3s() {
 		local authors="$(get-from-filename "$filename" "authors")"
 		if [[ "$authors" == "" ]]; then
 			output-failure "\"$filename\" invalid authors detected"
-			exit 1
+			if is-confirmed "Rename file"; then
+				assert-file-writable "$DIR_MP3"
+				output-info "Give new file name of \"$filename\""
+				local user="$(get-user-input)"
+				mv "$file" "${DIR_MP3}${user}"
+			fi
+
 		fi
 
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		if 	[[ "$mp3name" == "" ]]; then
 			output-failure "\"$filename\" invalid mp3name detected"
-			exit 1
+			if is-confirmed "Rename file"; then
+				assert-file-writable "$DIR_MP3"
+				output-info "Give new file name of \"$filename\""
+				local user="$(get-user-input)"
+				mv "$file" "${DIR_MP3}${user}"
+			fi
+
 		elif	! [[ "$mp3name" == *"${EXT_MP3}" ]]; then
 			output-failure "\"$filename\" invalid extension detected"
-			exit 1
-
+			if is-confirmed "Rename file"; then
+				assert-file-writable "$DIR_MP3"
+				output-info "Give new file name of \"$filename\""
+				local user="$(get-user-input)"
+				mv "$file" "${DIR_MP3}${user}"
+			fi
 		fi
 
 	done
+}
+
+function get-user-input() {
+	assert-arg-count "get-user-input" "==" 0 "$@"
+	local user
+	read -p "${USER_INPUT}" user
+	echo "$user"
+
 }
 
 function playlist-play () {
@@ -558,7 +583,7 @@ function is-confirmed () {
 	while : ; do
 		local user
 		output-question "$prompt"
-		read -p ":" user
+		read -p "${USER_INPUT}" user
 		local option
 		if is-element-in-array "$user" "confirmation"; then
 			return 0
