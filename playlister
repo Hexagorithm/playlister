@@ -105,6 +105,12 @@ function playlist() {
 				output-items
 				exit 0
 				;;
+			destroy)
+				shift
+				playlist-destroy "$@"
+				output-items
+				exit 0
+				;;
 			copy)
 				shift
 				playlist-copy "$@"
@@ -299,6 +305,32 @@ function playlist-create() {
 		exit 1
 	fi
 	touch "$playlist"
+}
+
+function playlist-destroy() {
+	# delete an existing playlist of given name
+		# exit 1 on failure
+			# failure:
+				# DIR_PLAY does not exists, unreadable, unwritable 
+				# playlist of the given name does not exist
+	# 1 argument:
+		# the basenamed name of the playlist
+	assert-arg-count "playlist-destroy" "==" 1 "$@"
+	local playlistname="$1"
+
+	# DiR_PLAY should not fail to playlist even if playlist is empty
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable		"$DIR_PLAY"
+	assert-directory-not-empty	"$DIR_PLAY"
+	assert-file-writable 		"$DIR_PLAY"
+
+	local playlist="${DIR_PLAY}${playlistname}"
+
+	if ! is-file-exists "$playlist"; then
+		output-failure "\"$playlistname\" does not exist"
+		exit 1
+	fi
+	rm "$playlist"
 }
 
 function playlist-copy() {
