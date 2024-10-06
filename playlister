@@ -172,7 +172,7 @@ function check-mp3s() {
 	for file in "${DIR_MP3}"*; do
 		local filename="$(basename "$file")"
 
-		if ! is-valid-mp3name "$filename"; then
+		if ! is-string-valid-mp3name "$filename"; then
 			output-failure "\"$filename\" invalid mp3 file name"
 			if is-confirmed "Rename \"$filename\""; then
 				assert-file-writable "$DIR_MP3"
@@ -180,7 +180,7 @@ function check-mp3s() {
 				while : ; do
 					output-info "Give new file name of \"$filename\""
 					user="$(get-user-input)"
-					if 	! is-valid-mp3name "$user"; then
+					if 	! is-string-valid-mp3name "$user"; then
 						output-failure "\"$user\" invalid mp3 file name"
 						continue
 					elif 	is-file-exists "${DIR_MP3}${user}"; then
@@ -241,8 +241,8 @@ function is-string-valid-playlist() {
 
 }
 
-function is-valid-mp3name () {
-	assert-arg-count "is-valid-mp3name" "==" 1 "$@"
+function is-string-valid-mp3name () {
+	assert-arg-count "is-string-valid-mp3name" "==" 1 "$@"
 	local mp3name="$1"
 	local authors="$(get-from-filename "$mp3name" "authors")"
 	if [[ "$authors" == "" ]]; then
