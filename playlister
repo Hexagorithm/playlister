@@ -143,6 +143,12 @@ function check() {
 				output-items
 				exit 0
 				;;
+			playlists)
+				shift
+				check-playlists "$@"
+				output-items
+				exit 0
+				;;
 			*)
 				output-failure "\"$1\" unrecognized check option"
 				exit 1
@@ -154,6 +160,7 @@ function check() {
 
 function check-mp3s() {
 	# checks if mp3 files are formatted correctly
+	# allows to rename a playlist
 	# no arguments
 	assert-arg-count "check-mp3s" "==" 0 "$@"
 
@@ -167,7 +174,7 @@ function check-mp3s() {
 
 		if ! is-valid-mp3name "$filename"; then
 			output-failure "\"$filename\" invalid mp3 file name"
-			if is-confirmed "Rename file"; then
+			if is-confirmed "Rename \"$filename\""; then
 				assert-file-writable "$DIR_MP3"
 				local user
 				while : ; do
@@ -186,6 +193,52 @@ function check-mp3s() {
 			fi
 		fi
 	done
+}
+
+function check-playlists() {
+	#checks if every playlist file is formatted correctly
+	#no arguments
+
+	assert-arg-count "check-playlist" "==" 0 "$@"
+
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable 		"$DIR_PLAY"
+	assert-directory-not-empty	"$DIR_PLAY"
+
+	local file
+	for file in "${DIR_PLAY}"*; do
+		local filename="$(basename "$file" )"
+		if ! is-string-valid-playlist "$filename"; then
+			output-failure "\"$filename\" invalid playlist name"
+			if is-confirmed "Rename \"$filename\""; then
+				assert-file-writable "$DIR_PLAY"
+				local user
+				while : ; do
+					output-info "Give new file name of \"$filename\""
+					user="$(get-user-input)"
+					if 	! is-string-valid-playlist "$user"; then
+						output-failure "\"$user\" invalid playlist name"
+						continue
+					elif 	is-file-exists "${DIR_PLAY}${user}"; then
+						output-failure "\"$user\" playlist exists"
+						continue
+					fi
+					break
+				done
+				mv "$file" "${DIR_PLAY}${user}"
+			fi
+		fi
+	done
+}
+
+function is-string-valid-playlist() {
+	assert-arg-count "is-string-valid-playlist" "==" 1 "$@"
+	local playlistname="$1"
+	if !	[[ "$playlistname" == *"${EXT_PLAY}" ]]; then
+		return 1
+	fi
+	return 0
+
 }
 
 function is-valid-mp3name () {
