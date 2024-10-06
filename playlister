@@ -182,13 +182,39 @@ function check-playlist() {
 	assert-file-readable		"$playlist"
 
 	local entry
-	while read entry; do
+	while read -u 69 entry; do
 		local mp3file="${DIR_MP3}${entry}"
 		if ! is-file-exists "$mp3file"; then
 			output-failure "\"$entry\" does not point to existant file"
+			if is-confirmed "Rename \"$entry\""; then
+				assert-file-writable 	"$DIR_MP3"
+				assert-file-writable 	"$playlist"
+				local user
+				while : ; do
+					output-info "Give new file name of \"$entry\""
+					user="$(get-user-input)"
+					if 	! is-string-valid-mp3name "$user"; then
+						output-failure "\"$user\" invalid mp3 file name"
+						continue
+					elif 	! is-file-exists "${DIR_MP3}${user}"; then
+						output-failure "\"$user\" does reffer to existing mp3 file"
+						continue
+					fi
+					break
+				done
+				local linecount=1
+				while read -u 68 line; do
+					if [[ "$line" == "$entry" ]]; then
+						sed -i "${linecount}s/$entry/$user/" "$playlist"
+						break
+					fi
+					linecount=$((linecount + 1))
+				done 68< "$playlist"
+				output-success "\"$entry\" changed to \"$user\""
+			fi
 		fi
 
-	done <"$playlist"
+	done 69< "$playlist"
 
 
 
@@ -268,6 +294,7 @@ function check-playlists() {
 }
 
 function is-string-valid-playlist() {
+	# does not validate user string propelly(slashes), oh well!
 	assert-arg-count "is-string-valid-playlist" "==" 1 "$@"
 	local playlistname="$1"
 	if !	[[ "$playlistname" == *"${EXT_PLAY}" ]]; then
@@ -278,6 +305,7 @@ function is-string-valid-playlist() {
 }
 
 function is-string-valid-mp3name () {
+	# does not validate user string propelly(slashes), oh well!
 	assert-arg-count "is-string-valid-mp3name" "==" 1 "$@"
 	local mp3name="$1"
 	local authors="$(get-from-filename "$mp3name" "authors")"
