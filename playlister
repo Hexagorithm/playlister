@@ -149,6 +149,12 @@ function check() {
 				output-items
 				exit 0
 				;;
+			playlist)
+				shift
+				check-playlist "$@"
+				output-items
+				exit 0
+				;;
 			*)
 				output-failure "\"$1\" unrecognized check option"
 				exit 1
@@ -156,6 +162,36 @@ function check() {
 		esac
 
 	done
+}
+
+function check-playlist() {
+	# checks if every entry in playlist is an existing mp3 file
+	assert-arg-count "check-playlist" "==" 1 "$@"
+	local playlistname="$1"
+
+	assert-file-exists 		"$DIR_MP3"
+	assert-file-readable		"$DIR_MP3"
+	assert-directory-not-empty	"$DIR_MP3"
+
+	assert-file-exists 		"$DIR_PLAY"
+	assert-file-readable		"$DIR_PLAY"
+	assert-directory-not-empty	"$DIR_PLAY"
+
+	local playlist="${DIR_PLAY}${playlistname}"
+	assert-file-exists 		"$playlist"
+	assert-file-readable		"$playlist"
+
+	local entry
+	while read entry; do
+		local mp3file="${DIR_MP3}${entry}"
+		if ! is-file-exists "$mp3file"; then
+			output-failure "\"$entry\" does not point to existant file"
+		fi
+
+	done <"$playlist"
+
+
+
 }
 
 function check-mp3s() {
