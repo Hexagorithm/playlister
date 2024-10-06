@@ -211,6 +211,17 @@ function check-playlist() {
 					linecount=$((linecount + 1))
 				done 68< "$playlist"
 				output-success "\"$entry\" changed to \"$user\""
+			elif is-confirmed "Delete \"$entry\""; then
+				assert-file-writable 	"$playlist"
+				local linecount=1
+				while read -u 68 line; do
+					if [[ "$line" == "$entry" ]]; then
+						sed -i "${linecount}d" "$playlist"
+						break
+					fi
+					linecount=$((linecount + 1))
+				done 68< "$playlist"
+				output-success "\"$entry\" deleted"
 			fi
 		fi
 
