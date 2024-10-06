@@ -954,7 +954,7 @@ function config-list () {
 	assert-arg-count "config-list" "==" 0 "$@"
 
 	local configuration
-	for configuration in "${CONFIG_ALL[@]}"; do
+	for configuration in "${CONFIGS_ALL[@]}"; do
 		# i do not need to check for validity of $configuration here
 		# for $configuration is fetched directly from $CONFIG_VALUES
 		add-item "	$configuration	-> 	${CONFIG_VALUES[$configuration]} "
