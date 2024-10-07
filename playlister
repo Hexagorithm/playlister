@@ -177,45 +177,48 @@ function check-playlist() {
 	local entry
 	while read -u 69 entry; do
 		local mp3file="${DIR_MP3S}${entry}"
-		if ! is-file-exists "$mp3file"; then
-			output-failure "\"$entry\" does not point to existant file"
-			if is-confirmed "Rename \"$entry\""; then
-				assert-file-writable 	"$DIR_MP3S"
-				assert-file-writable 	"$playlist"
-				local user
-				while : ; do
-					output-info "Give new file name of \"$entry\""
-					user="$(get-user-input)"
-					if 	! is-string-valid-mp3name "$user"; then
-						output-failure "\"$user\" invalid mp3 file name"
-						continue
-					elif 	! is-file-exists "${DIR_MP3S}${user}"; then
-						output-failure "\"$user\" does reffer to existing mp3 file"
-						continue
-					fi
+		if is-file-exists "$mp3file"; then
+			output-success "\"$entry\" reffers to existing file"
+			continue
+		fi
+
+		output-failure "\"$entry\" does not reffer to existing file"
+		if is-confirmed "Rename \"$entry\""; then
+			assert-file-writable 	"$DIR_MP3S"
+			assert-file-writable 	"$playlist"
+			local user
+			while : ; do
+				output-info "Give new file name of \"$entry\""
+				user="$(get-user-input)"
+				if 	! is-string-valid-mp3name "$user"; then
+					output-failure "\"$user\" invalid mp3 file name"
+					continue
+				elif 	! is-file-exists "${DIR_MP3S}${user}"; then
+					output-failure "\"$user\" does reffer to existing mp3 file"
+					continue
+				fi
+				break
+			done
+			local linecount=1
+			while read -u 68 line; do
+				if [[ "$line" == "$entry" ]]; then
+					sed -i "${linecount}s/$entry/$user/" "$playlist"
 					break
-				done
-				local linecount=1
-				while read -u 68 line; do
-					if [[ "$line" == "$entry" ]]; then
-						sed -i "${linecount}s/$entry/$user/" "$playlist"
-						break
-					fi
-					linecount=$((linecount + 1))
-				done 68< "$playlist"
-				output-success "\"$entry\" changed to \"$user\""
-			elif is-confirmed "Delete \"$entry\""; then
-				assert-file-writable 	"$playlist"
-				local linecount=1
-				while read -u 68 line; do
-					if [[ "$line" == "$entry" ]]; then
-						sed -i "${linecount}d" "$playlist"
-						break
-					fi
-					linecount=$((linecount + 1))
-				done 68< "$playlist"
-				output-success "\"$entry\" deleted"
-			fi
+				fi
+				linecount=$((linecount + 1))
+			done 68< "$playlist"
+			output-success "\"$entry\" changed to \"$user\""
+		elif is-confirmed "Delete \"$entry\""; then
+			assert-file-writable 	"$playlist"
+			local linecount=1
+			while read -u 68 line; do
+				if [[ "$line" == "$entry" ]]; then
+					sed -i "${linecount}d" "$playlist"
+					break
+				fi
+				linecount=$((linecount + 1))
+			done 68< "$playlist"
+			output-success "\"$entry\" deleted"
 		fi
 
 	done 69< "$playlist"
