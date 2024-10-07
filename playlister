@@ -137,15 +137,8 @@ function check() {
 	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
-			mp3s)
-				shift
-				check-mp3s "$@"
-				output-items
-				exit 0
-				;;
-			playlists)
-				shift
-				check-playlists "$@"
+			mp3s | playlists )
+				check-files "$@"
 				output-items
 				exit 0
 				;;
@@ -231,76 +224,75 @@ function check-playlist() {
 
 }
 
-function check-mp3s() {
-	# checks if mp3 files are formatted correctly
-	# allows to rename a playlist
-	# no arguments
-	assert-arg-count "check-mp3s" "==" 0 "$@"
+function check-files() {
+	# checks if every file  is formatted according to its type
+	# Asumption: keyword given is a valid keyword "playlists" or "mp3s"
+	# 1 keyword argument -> "playlists" or "mp3s"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty	"$DIR_MP3"
+	assert-arg-count "check-files" "==" 1 "$@"
+	local keyword="$1"
 
-	local file
-	for file in "${DIR_MP3}"*; do
-		local filename="$(basename "$file")"
+	local directory
+	if [[ "$keyword" == "playlists" ]]; then	directory="$DIR_PLAY"
+	else						directory="$DIR_MP3"
+	fi
 
-		if ! is-string-valid-mp3name "$filename"; then
-			output-failure "\"$filename\" invalid mp3 file name"
-			if is-confirmed "Rename \"$filename\""; then
-				assert-file-writable "$DIR_MP3"
-				local user
-				while : ; do
-					output-info "Give new file name of \"$filename\""
-					user="$(get-user-input)"
-					if 	! is-string-valid-mp3name "$user"; then
-						output-failure "\"$user\" invalid mp3 file name"
-						continue
-					elif 	is-file-exists "${DIR_MP3}${user}"; then
-						output-failure "\"$user\" mp3 file already exists"
-						continue
-					fi
-					break
-				done
-				mv "$file" "${DIR_MP3}${user}"
-			fi
-		fi
-	done
-}
-
-function check-playlists() {
-	#checks if every playlist file is formatted correctly
-	#no arguments
-
-	assert-arg-count "check-playlist" "==" 0 "$@"
-
-	assert-file-exists 		"$DIR_PLAY"
-	assert-file-readable 		"$DIR_PLAY"
-	assert-directory-not-empty	"$DIR_PLAY"
+	assert-file-exists 		"$directory"
+	assert-file-readable 		"$directory"
+	assert-directory-not-empty	"$directory"
 
 	local file
-	for file in "${DIR_PLAY}"*; do
+	for file in "${directory}"*; do
 		local filename="$(basename "$file" )"
-		if ! is-string-valid-playlist "$filename"; then
-			output-failure "\"$filename\" invalid playlist name"
-			if is-confirmed "Rename \"$filename\""; then
-				assert-file-writable "$DIR_PLAY"
-				local user
-				while : ; do
-					output-info "Give new file name of \"$filename\""
-					user="$(get-user-input)"
-					if 	! is-string-valid-playlist "$user"; then
-						output-failure "\"$user\" invalid playlist name"
-						continue
-					elif 	is-file-exists "${DIR_PLAY}${user}"; then
-						output-failure "\"$user\" playlist exists"
-						continue
-					fi
-					break
-				done
-				mv "$file" "${DIR_PLAY}${user}"
+		local isvalid
+
+		if [[ "$keyword" == "playlists" ]]; then
+			if 	is-string-valid-playlist "$filename"; then 	isvalid=0
+			else							isvalid=1
+			fi
+		else # mp3s
+			if is-string-valid-mp3name "$filename"; then		isvalid=0
+			else 							isvalid=1
 			fi
 		fi
+
+		if [[ $isvalid -eq 0 ]]; then
+			output-success "\"$filename\" valid ${keyword%s}"	# delete s from keyword
+			continue
+		fi
+		output-failure "\"$filename\" invalid ${keyword%s}"		
+
+		if ! is-confirmed "Rename \"$filename\""; then
+			continue
+		fi
+
+		assert-file-writable "$directory"
+
+		local user
+		while : ; do
+			output-info "Give new name of \"$filename\""
+			user="$(get-user-input)"
+			local isvalid
+			if [[ "$keyword" == "playlists" ]]; then
+				if is-string-valid-playlist "$user"; then	isvalid=0
+				else						isvalid=1
+				fi
+			else # mp3s
+				if is-string-valid-mp3name "$user"; then	isvalid=0
+				else						isvalid=1
+				fi
+			fi
+			if   [[ $isvalid -eq 1 ]]; then
+				output-failure "\"$user\" invalid ${keyword%s} name"
+				continue
+			elif is-file-exists "${directory}${user}"; then
+				output-failure "\"$user\" ${keyword%s} exists"
+				continue
+			fi
+			break
+		done
+		mv "$file" "${directory}${user}"
+		output-success "Renamed \"$filename\" to \"$user\""
 	done
 }
 
