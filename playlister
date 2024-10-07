@@ -14,14 +14,14 @@ SEP_MONO="|"					# SEP_POLI separators are mutated to this for easier processing
 USER_INPUT=":"
 	# Mutable
 DIR_PLAY="${DIR_MAIN}playlists/"
-DIR_MP3="${DIR_MAIN}mp3s/"
+DIR_MP3S="${DIR_MAIN}mp3s/"
 
 declare -A CONFIG_VALUES=(
 	["DIR_MAIN"]="$DIR_MAIN" 	\
 	["FILE_CONFIG"]="$FILE_CONFIG" 	\
 	["FILE_HELP"]="$FILE_HELP" 	\
 	["DIR_PLAY"]="$DIR_PLAY" 	\
-	["DIR_MP3"]="$DIR_MP3"
+	["DIR_MP3S"]="$DIR_MP3S"
 )
 
 declare -a CONFIGS_ALL=(
@@ -29,11 +29,11 @@ declare -a CONFIGS_ALL=(
 	"FILE_CONFIG" 	\
 	"FILE_HELP" 	\
 	"DIR_PLAY"	\
-	"DIR_MP3"
+	"DIR_MP3S"
 )
 
 declare -a CONFIGS_MUTABLE=(
-	"DIR_MP3" \
+	"DIR_MP3S" \
 	"DIR_PLAY"
 )
 
@@ -162,9 +162,9 @@ function check-playlist() {
 	assert-arg-count "check-playlist" "==" 1 "$@"
 	local playlistname="$1"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable		"$DIR_MP3"
-	assert-directory-not-empty	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable		"$DIR_MP3S"
+	assert-directory-not-empty	"$DIR_MP3S"
 
 	assert-file-exists 		"$DIR_PLAY"
 	assert-file-readable		"$DIR_PLAY"
@@ -176,11 +176,11 @@ function check-playlist() {
 
 	local entry
 	while read -u 69 entry; do
-		local mp3file="${DIR_MP3}${entry}"
+		local mp3file="${DIR_MP3S}${entry}"
 		if ! is-file-exists "$mp3file"; then
 			output-failure "\"$entry\" does not point to existant file"
 			if is-confirmed "Rename \"$entry\""; then
-				assert-file-writable 	"$DIR_MP3"
+				assert-file-writable 	"$DIR_MP3S"
 				assert-file-writable 	"$playlist"
 				local user
 				while : ; do
@@ -189,7 +189,7 @@ function check-playlist() {
 					if 	! is-string-valid-mp3name "$user"; then
 						output-failure "\"$user\" invalid mp3 file name"
 						continue
-					elif 	! is-file-exists "${DIR_MP3}${user}"; then
+					elif 	! is-file-exists "${DIR_MP3S}${user}"; then
 						output-failure "\"$user\" does reffer to existing mp3 file"
 						continue
 					fi
@@ -234,7 +234,7 @@ function check-files() {
 
 	local directory
 	if [[ "$keyword" == "playlists" ]]; then	directory="$DIR_PLAY"
-	else						directory="$DIR_MP3"
+	else						directory="$DIR_MP3S"
 	fi
 
 	assert-file-exists 		"$directory"
@@ -368,9 +368,9 @@ function playlist-play () {
 	assert-file-exists 		"$playlist"
 	assert-file-readable 		"$playlist"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty 	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty 	"$DIR_MP3S"
 
 	local entry
 
@@ -391,7 +391,7 @@ function playlist-play () {
 	local currnumber=1
 
 	while read entry; do
-		local mp3="${DIR_MP3}${entry}"
+		local mp3="${DIR_MP3S}${entry}"
 		output-info "Playing(${currnumber}/${lastnumber}): $entry"
 		mpg123 "$mp3" 2> /dev/null 
 		if ! [[ $? -eq 0 ]]; then
@@ -427,15 +427,15 @@ function playlist-add() {
 	assert-file-readable 	"$playlist"
 	assert-file-writable 	"$playlist"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty	"$DIR_MP3S"
 
 
 	while ! [[ $# -eq 0 ]]; do
 		local entry="$1"
 		shift
-		assert-file-exists "${DIR_MP3}${entry}"
+		assert-file-exists "${DIR_MP3S}${entry}"
 
 		if is-line-in-file "$entry" "$playlist"; then
 			output-failure "\"$entry\" already in \"$playlistname\""
@@ -453,7 +453,7 @@ function playlist-del() {
 			# failure:
 				# DIR_PLAY does not exist, not readable, or empty
 				# given playlist does not exist, unreadable or unwritable
-				# DIR_MP3 does not exist, not readable or empty
+				# DIR_MP3S does not exist, not readable or empty
 	# arguments:
 		# 1) basenamed playlist name
 		# 2...)  basenamed mp3 file name
@@ -471,15 +471,15 @@ function playlist-del() {
 	assert-file-readable 	"$playlist"
 	assert-file-writable 	"$playlist"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty	"$DIR_MP3S"
 
 
 	while ! [[ $# -eq 0 ]]; do
 		local entry="$1"
 		shift
-		assert-file-exists "${DIR_MP3}${entry}"
+		assert-file-exists "${DIR_MP3S}${entry}"
 
 		if ! is-line-in-file "$entry" "$playlist"; then
 			output-failure "\"$entry\" not in \"$playlistname\""
@@ -637,7 +637,7 @@ function show-mp3 () {
 	# return execution on success, ext 1 on failure
 		# failure:
 			# wrong arg count
-			# DIR_MP3 does not exist, is unreadable or is empty
+			# DIR_MP3S does not exist, is unreadable or is empty
 			# mp3name does not point to an existing mp3 file
 			# DIR_PLAY does not exist, is unreadable or is empty
 			# a playlist file is unreadable
@@ -646,11 +646,11 @@ function show-mp3 () {
 	assert-arg-count "show-mp3" "==" 1 "$@"
 	local mp3name="$1"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty 	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty 	"$DIR_MP3S"
 
-	local mp3="${DIR_MP3}${mp3name}"
+	local mp3="${DIR_MP3S}${mp3name}"
 
 	assert-file-exists 		"$mp3"
 
@@ -689,9 +689,9 @@ function show-playlist () {
 	assert-file-exists 		"$playlist"
 	assert-file-readable 		"$playlist"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty 	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty 	"$DIR_MP3S"
 	while IFS= read -ru 69 entry; do
 		add-item "$entry"
 	done 69<"$playlist"
@@ -729,19 +729,19 @@ function show-author () {
 	# return execution flow on success, exit 1 on failure
 		# failure: 
 			# wrong arg count
-			# DIR_MP3 does not exist, is unreadable or empty
+			# DIR_MP3S does not exist, is unreadable or empty
 	# 1 argument: 
 		# the name of the author
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-author" "==" 1 "$@"
 	local target_author="$1"
 	
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty 	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty 	"$DIR_MP3S"
 
 	local file
-	for file in "$DIR_MP3"*; do
+	for file in "$DIR_MP3S"*; do
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
@@ -759,18 +759,18 @@ function show-authors () {
 	# add every author in mp3 directory to items with their respective number of "author'ed" files
 	# return execution flow on success, exit 1 on failure
 		# failure: 
-			# DIR_MP3 does not exist, unreadable or empty
+			# DIR_MP3S does not exist, unreadable or empty
 			# failed to add/increment author in items
 	# no arguments
 
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show-authors" "==" 0 "$@"
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty 	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty 	"$DIR_MP3S"
 	local file
-	for file in "$DIR_MP3"*; do
+	for file in "$DIR_MP3S"*; do
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
@@ -795,11 +795,11 @@ function show-authors-of-mp3 () {
 	local target_mp3name="$1"
 
 
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty 	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty 	"$DIR_MP3S"
 	local file
-	for file in "$DIR_MP3"*; do
+	for file in "$DIR_MP3S"*; do
 		local filename="$(basename "$file" )"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		if [[ "$mp3name" == "$target_mp3name" ]]; then
@@ -836,16 +836,16 @@ function show-mp3s () {
 		exit 1
 	fi
 	
-	assert-file-exists 		"$DIR_MP3"
-	assert-file-readable 		"$DIR_MP3"
-	assert-directory-not-empty 	"$DIR_MP3"
+	assert-file-exists 		"$DIR_MP3S"
+	assert-file-readable 		"$DIR_MP3S"
+	assert-directory-not-empty 	"$DIR_MP3S"
 	local file
 
 	for file in "${DIR_PLAY}"*; do		# playlist check for is-mp3-used
 		assert-file-readable "$file"
 	done
 
-	for file in "${DIR_MP3}"*; do
+	for file in "${DIR_MP3S}"*; do
 		local filename="$(basename "$file" )"
 		case "$keyword" in
 			"all")
@@ -1011,7 +1011,7 @@ function config-configure () {
 		exit 1
 	fi
 	
-	directory-config "$DIR_MP3"
+	directory-config "$DIR_MP3S"
 
 	directory-config "$DIR_PLAY"
 }
@@ -1188,10 +1188,10 @@ function read-config () {
 	while read line ; do
 		local argument="$(echo "$line" | cut -d "=" -f 1)"
 		case "$argument" in
-			"DIR_MP3")
+			"DIR_MP3S")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
-				DIR_MP3="$value"
-				CONFIG_VALUES["DIR_MP3"]="$value"
+				DIR_MP3S="$value"
+				CONFIG_VALUES["DIR_MP3S"]="$value"
 				;;
 			"DIR_PLAY")
 				local value="$(echo "$line" | cut -d "=" -f 2)"
