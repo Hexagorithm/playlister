@@ -1469,7 +1469,7 @@ function output-question () {
 	local output="$1"
 	local white="\e[1;37m"
 	local blue="\e[1;34m"
-	>&2 echo -e "${white}(${blue}?${white}) ${output}?"
+	>&2 echo -ne "${white}(${blue}?${white}) ${output}? "
 }
 
 function output-items () {
