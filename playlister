@@ -711,9 +711,8 @@ function is-confirmed () {
 	local confirmation=( "y" "ye" "yes" "Y" "Ye" "Yes" "YE" "YES" )
 	local rejection=("n" "no" "N" "No" "NO" )
 	while : ; do
-		local user
 		output-question "$prompt"
-		read -p "${USER_INPUT}" user
+		local user="$(get-user-input)"
 		local option
 		if is-element-in-array "$user" "confirmation"; then
 			return 0
