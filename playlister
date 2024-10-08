@@ -1225,7 +1225,7 @@ function assert-directory-not-empty () {
 	local directory="$1"
 
 	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
-		output-failure "\"$directory\" is empty"
+		output-failure "\"$(basename "$directory")\" is empty"
 		exit 1
 	fi
 }
