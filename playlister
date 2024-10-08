@@ -1004,6 +1004,8 @@ function config () {
 function config-configure () {
 	
 	directory-config "$DIR_MAIN"
+
+	directory-config "$DIR_BKUP"
 	
 	file-configure "$FILE_HELP" "currentdir"
 	
@@ -1151,7 +1153,7 @@ function file-configure () {
 	output-info "$filename does not exist"
 	
 	if [[ $backup -eq 1 ]]; then
-		local fileback="${file}${EXT_BKUP}"
+		local fileback="${DIR_BKUP}${filename}${EXT_BKUP}"
 		if is-file-exists "$fileback"; then
 			cp "$fileback" "$file"
 			if [[ $? -eq 0 ]]; then
