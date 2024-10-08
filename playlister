@@ -3,6 +3,7 @@
 # Hardcoded defaults
 	# Immutable
 DIR_MAIN="$HOME/.playlister/"
+DIR_BKUP="${DIR_MAIN}backups/"
 FILE_CONFIG="${DIR_MAIN}playlister.conf"
 FILE_HELP="${DIR_MAIN}playlister.help"
 EXT_PLAY=".plst"
@@ -18,6 +19,7 @@ DIR_MP3S="${DIR_MAIN}mp3s/"
 
 declare -A CONFIG_VALUES=(
 	["DIR_MAIN"]="$DIR_MAIN" 	\
+	["DIR_BKUP"]="$DIR_BKUP"	\
 	["FILE_CONFIG"]="$FILE_CONFIG" 	\
 	["FILE_HELP"]="$FILE_HELP" 	\
 	["DIR_PLAY"]="$DIR_PLAY" 	\
@@ -26,6 +28,7 @@ declare -A CONFIG_VALUES=(
 
 declare -a CONFIGS_ALL=(
 	"DIR_MAIN" 	\
+	"DIR_BKUP"	\
 	"FILE_CONFIG" 	\
 	"FILE_HELP" 	\
 	"DIR_PLAY"	\
