@@ -4,6 +4,8 @@
 	# Immutable
 DIR_MAIN="$HOME/.playlister/"
 DIR_BKUP="${DIR_MAIN}backups/"
+TAR_MP3S="mp3s.tar"
+TAR_PLAY="playlists.tar"
 FILE_CONFIG="${DIR_MAIN}playlister.conf"
 FILE_HELP="${DIR_MAIN}playlister.help"
 EXT_PLAY=".plst"
@@ -97,6 +99,11 @@ function backup() {
 	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
+			playlists | mp3s)
+				archive-directory-to-backup "$@"
+				exit 0
+				;;
+
 			*)
 				output-failure "unrecognised backup option: \"$1\""
 				shift
@@ -104,7 +111,42 @@ function backup() {
 				;;
 		esac
 	done
+}
 
+function archive-directory-to-backup {
+	# assumption: keyword is inside ( "mp3s" "playlists")
+	assert-arg-count "archive-directory" "==" 1 "$@"
+	local keyword="$1"
+
+	local directory
+	if [[ "$keyword" == "mp3s" ]]; then
+		directory="$DIR_MP3S"
+		file="$TAR_MP3S"
+	else
+		directory="$DIR_PLAY"
+		file="$TAR_PLAY"
+	fi
+
+
+	assert-file-exists		"$DIR_BKUP"
+	assert-file-readable		"$DIR_BKUP"
+	assert-file-writable		"$DIR_BKUP"
+
+
+	if is-file-exists "${DIR_BKUP}${TAR_MP3S}"; then
+		assert-file-writable 	"${DIR_BKUP}${TAR_MP3S}"
+	fi
+
+
+	assert-file-exists 		"$directory"
+	assert-file-readable 		"$directory"
+	assert-directory-not-empty	"$directory"
+
+
+	output-info "Archiving \"$directory\" into \"${DIR_BKUP}${file}\""
+	cd $directory
+
+	tar --create -f "${DIR_BKUP}${file}" *
 }
 
 function playlist() {
