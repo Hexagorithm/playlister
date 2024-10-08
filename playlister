@@ -219,12 +219,11 @@ function check-playlist() {
 				linecount=$((linecount + 1))
 			done 68< "$playlist"
 			output-success "\"$entry\" deleted"
+		else
+			add-item "$entry"
 		fi
 
 	done 69< "$playlist"
-
-
-
 }
 
 function check-files() {
@@ -266,6 +265,7 @@ function check-files() {
 		output-failure "\"$filename\" invalid ${keyword%s}"		
 
 		if ! is-confirmed "Rename \"$filename\""; then
+			add-item "$filename"
 			continue
 		fi
 
