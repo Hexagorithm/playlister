@@ -93,7 +93,6 @@ function main () {
 	done
 }
 
-
 function backup() {
 	assert-arg-count "backup" ">" 0 "$@"
 	declare -A items=()
@@ -626,6 +625,9 @@ function playlist-create() {
 
 	if is-file-exists "$playlist"; then
 		output-failure "\"$playlistname\" exists"
+		exit 1
+	elif ! is-string-valid-playlist "$playlistname"; then
+		output-failure "\"$playlistname\" invalid playlist name"
 		exit 1
 	fi
 	touch "$playlist"
