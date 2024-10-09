@@ -84,6 +84,14 @@ function main () {
 				backup "$@"
 				exit 0
 				;;
+			restore)
+				shift
+				assert-file-exists "$FILE_CONFIG"
+				assert-file-readable "$FILE_CONFIG"
+				read-config
+				restore "$@"
+				exit 0
+				;;
 			*)
 				output-failure "unrecognised option:\"$1\""
 				shift
@@ -92,6 +100,21 @@ function main () {
 		esac
 	done
 }
+
+function restore() {
+	assert-arg-count "restore" ">" 0 "$@"
+	while ! [[ $# -eq 0 ]]; do
+		case $1 in
+			*)
+				output-failure "unrecognised restore option:\"$1\""
+				shift
+				exit 1
+				;;
+		esac
+	done
+
+}
+
 
 function backup() {
 	assert-arg-count "backup" ">" 0 "$@"
