@@ -105,6 +105,10 @@ function restore() {
 	assert-arg-count "restore" ">" 0 "$@"
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
+			mp3s | playlists)
+				restore-directory "$@"
+				exit 0
+				;;
 			*)
 				output-failure "unrecognised restore option:\"$1\""
 				shift
@@ -113,6 +117,34 @@ function restore() {
 		esac
 	done
 
+}
+
+function restore-directory() {
+	# assumption: keyword is in ("mp3s" "playlists"), so if keyword not mp3, keyword == "playlists" assumed
+	assert-arg-count "restore-directory" "==" 1 "$@"
+	local keyword="$1"
+
+	local src=""
+	local dst=""
+	if [[ "$keyword" == "mp3s" ]]; then
+		src="${DIR_BKUP}${TAR_MP3S}"
+		dst="${DIR_MP3S}"
+	else
+		src="${DIR_BKUP}${TAR_PLAY}"
+		dst="${DIR_PLAY}"
+	fi
+
+	assert-file-exists 	"$src"
+	assert-file-readable 	"$src"
+
+	assert-file-exists 	"$dst"
+	assert-file-readable 	"$dst"
+	assert-file-writable 	"$dst"
+	tar -x --directory="$dst" -f "$src"
+	if ! [[ $? -eq 0 ]]; then
+		output-failure "Failed to restore $keyword from \"$src\" to \"$dst\""
+		exit 1
+	fi
 }
 
 
