@@ -134,12 +134,16 @@ function archive-file() {
 	assert-file-exists	"$file"
 	assert-file-readable	"$file"
 
+
+	output-info 	"Copying \"$file\" to \"$DIR_BKUP\""
+
 	cp "$file" "${DIR_BKUP}$(basename "$file")${EXT_BKUP}"
 	if ! [[ $? -eq 0 ]]; then
 		output-failure "Failed to copy \"$file\" to \"$DIR_BKUP\""
 		exit 1
 	fi
-	output-success "Copied \"$file\" to \"$DIR_BKUP\""
+
+	output-success 	"Copied \"$file\" to \"$DIR_BKUP\""
 }
 
 
@@ -173,10 +177,16 @@ function archive-directory-to-backup() {
 	assert-directory-not-empty	"$directory"
 
 
-	output-info "Archiving \"$directory\" into \"${DIR_BKUP}${file}\""
-	cd $directory
+	output-info 	"Archiving \"$directory\" into \"${DIR_BKUP}${file}\""
 
+	cd "$directory"
 	tar --create -f "${DIR_BKUP}${file}" *
+	if ! [[ $? -eq 0 ]]; then
+		output-failure "Failed to archive \"$directory\" into \"${DIR_BKUP}${file}\""
+		exit 1
+	fi
+
+	output-success 	"Archived \"$directory\" into \"${DIR_BKUP}${file}\""
 }
 
 function playlist() {
