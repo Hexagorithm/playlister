@@ -103,7 +103,10 @@ function backup() {
 				archive-directory-to-backup "$@"
 				exit 0
 				;;
-
+			configs)
+				archive-file "$FILE_CONFIG"
+				exit 0
+				;;
 			*)
 				output-failure "unrecognised backup option: \"$1\""
 				shift
@@ -113,9 +116,30 @@ function backup() {
 	done
 }
 
-function archive-directory-to-backup {
+function archive-file() {
+	assert-arg-count "archive-file" "==" 1 "$@"
+
+	local file="$1"
+
+	assert-file-exists 	"$DIR_BKUP"
+	assert-file-readable	"$DIR_BKUP"
+	assert-file-writable	"$DIR_BKUP"
+
+	assert-file-exists	"$file"
+	assert-file-readable	"$file"
+
+	cp "$file" "${DIR_BKUP}$(basename "$file")${EXT_BKUP}"
+	if ! [[ $? -eq 0 ]]; then
+		output-failure "Failed to copy \"$file\" to \"$DIR_BKUP\""
+		exit 1
+	fi
+	output-success "Copied \"$file\" to \"$DIR_BKUP\""
+}
+
+
+function archive-directory-to-backup() {
 	# assumption: keyword is inside ( "mp3s" "playlists")
-	assert-arg-count "archive-directory" "==" 1 "$@"
+	assert-arg-count "archive-directory-to-backup" "==" 1 "$@"
 	local keyword="$1"
 
 	local directory
