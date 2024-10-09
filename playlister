@@ -111,6 +111,11 @@ function restore() {
 				output-items
 				exit 0
 				;;
+			configs)
+				restore-file "$@"
+				output-items
+				exit 0
+				;;
 			*)
 				output-failure "unrecognised restore option:\"$1\""
 				shift
@@ -119,6 +124,37 @@ function restore() {
 		esac
 	done
 
+}
+
+function restore-file() {
+	# assumption: keyword is in array ("configs")
+	assert-arg-count "restore-items" "==" 1 "$@"
+	local keyword="$1"
+
+	if [[ "$keyword" == "configs" ]]; then
+		src="${DIR_BKUP}$(basename "$FILE_CONFIG")${EXT_BKUP}"
+		dst="${FILE_CONFIG}"
+	fi
+
+	assert-file-exists 	"$src"
+	assert-file-readable 	"$src"
+
+	if is-file-exists "$dst"; then
+		assert-file-writable "$dst"
+	fi
+
+	output-info "Copying \"$src\" to \"$dst\""
+	cp "$src" "$dst"
+	if ! [[ $? -eq 0 ]]; then
+		output-failure "Failed to copy \"$src\" to \"$dst\""
+		exit 1
+	fi
+	output-success "Copied \"$src\" to \"$dst\""
+
+	local contents="$(cat "$dst")"
+	while IFS= read -r content; do
+		add-item "$content"
+	done <<< "$contents"
 }
 
 function restore-directory() {
