@@ -135,6 +135,10 @@ function archive-file() {
 	assert-file-readable	"$file"
 
 
+	if is-file-exists "${DIR_BKUP}$(basename "$file")${EXT_BKUP}"; then
+		assert-file-writable "${DIR_BKUP}$(basename "$file")${EXT_BKUP}"
+	fi
+
 	output-info 	"Copying \"$file\" to \"$DIR_BKUP\""
 
 	cp "$file" "${DIR_BKUP}$(basename "$file")${EXT_BKUP}"
