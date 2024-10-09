@@ -103,10 +103,12 @@ function main () {
 
 function restore() {
 	assert-arg-count "restore" ">" 0 "$@"
+	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			mp3s | playlists)
 				restore-directory "$@"
+				output-items
 				exit 0
 				;;
 			*)
@@ -145,6 +147,12 @@ function restore-directory() {
 		output-failure "Failed to restore $keyword from \"$src\" to \"$dst\""
 		exit 1
 	fi
+	output-success "Restored $keyword"
+
+	entries="$(tar -tf "$src")"
+	while IFS= read -r entry;do
+		add-item "$entry"
+	done <<< "$entries"
 }
 
 
