@@ -107,6 +107,12 @@ function backup() {
 				archive-file "$FILE_CONFIG"
 				exit 0
 				;;
+			all)
+				archive-directory-to-backup "playlists"
+				archive-directory-to-backup "mp3s"
+				archive-file "$FILE_CONFIG"
+				exit 0
+				;;
 			*)
 				output-failure "unrecognised backup option: \"$1\""
 				shift
