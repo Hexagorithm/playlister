@@ -338,9 +338,14 @@ function playlist() {
 				;;
 			create)
 				shift
-				playlist-create "$@"
+				while [[ $# -gt 0 ]]; do
+					local playlist="$1"
+					shift
+					playlist-create "$playlist"
+				done
+				output-info "Created playlists"
 				output-items
-				exit 0
+				exit 0	
 				;;
 			destroy)
 				shift
@@ -717,7 +722,7 @@ function playlist-del() {
 }
 
 function playlist-create() {
-	# create a new blank playlist of the given name
+	# create <playlist> and add it to items
 		# exit 1 on failure
 			# failure:
 				# DIR_PLAY does not exists, unreadable, unwritable 
@@ -735,13 +740,13 @@ function playlist-create() {
 	local playlist="${DIR_PLAY}${playlistname}"
 
 	if is-file-exists "$playlist"; then
-		output-failure "\"$playlistname\" exists"
-		exit 1
+		output-info "\"$playlistname\" exists"
 	elif ! is-string-valid-playlist "$playlistname"; then
 		output-failure "\"$playlistname\" invalid playlist name"
-		exit 1
+	else
+		touch "$playlist"
+		add-item "$playlistname"
 	fi
-	touch "$playlist"
 }
 
 function playlist-destroy() {
