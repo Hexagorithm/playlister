@@ -1237,7 +1237,10 @@ function config () {
 				assert-file-exists "$FILE_CONFIG"
 				assert-file-readable "$FILE_CONFIG"
 				read-config
-				config-get "$@"
+				while ! [[ $# -eq 0 ]]; do  
+					config-get "$1"
+					shift
+				done
 				output-items
 				exit 0
 				;;
@@ -1287,7 +1290,7 @@ function config-list () {
 	for configuration in "${CONFIGS_ALL[@]}"; do
 		# i do not need to check for validity of $configuration here
 		# for $configuration is fetched directly from $CONFIG_VALUES
-		add-item "	$configuration	-> 	${CONFIG_VALUES[$configuration]} "
+		config-get "$configuration"
 	done
 }
 
