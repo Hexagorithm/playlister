@@ -933,6 +933,7 @@ function show-mp3 () {
 	assert-file-readable 		"$DIR_PLAY"
 	assert-directory-not-empty 	"$DIR_PLAY"		
 
+	local file
 	for file in "${DIR_PLAY}"*; do
 		local filename="$(basename "$file" )"
 		assert-file-readable "$file"
@@ -1051,6 +1052,7 @@ function show-authors () {
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
 		authors="$(divide-authors "$authors")" 				# divide from SEP_POLI_AUTHOR_AUTHOR to SEP_MONO
 		IFS="${SEP_MONO}" read -ra authors <<< "$authors"		# split with SEP_MONO 
+		local author
 		for author in "${authors[@]}"; do
 			add-item "$author"
 		done
@@ -1081,6 +1083,7 @@ function show-authors-of-mp3 () {
 			local authors="$(get-from-filename "$filename" "authors")"
 			authors="$(divide-authors "$authors")"
 			IFS="${SEP_MONO}" read -ra authors <<< "$authors"
+			local author
 			for author in "${authors[@]}"; do
 				add-item "$author"
 			done
@@ -1114,8 +1117,8 @@ function show-mp3s () {
 	assert-file-exists 		"$DIR_MP3S"
 	assert-file-readable 		"$DIR_MP3S"
 	assert-directory-not-empty 	"$DIR_MP3S"
-	local file
 
+	local file
 	for file in "${DIR_PLAY}"*; do		# playlist check for is-mp3-used
 		assert-file-readable "$file"
 	done
@@ -1184,6 +1187,7 @@ function show-playlists () {
 	assert-file-readable 		"$DIR_PLAY"
 	assert-directory-not-empty 	"$DIR_PLAY"
 
+	local file
 	for file in "${DIR_PLAY}"* ; do
 		local filename="$(basename "$file")"
 		add-item "$filename"
