@@ -362,7 +362,6 @@ function playlist() {
 			copy)
 				shift
 				playlist-copy "$@"
-				output-items
 				exit 0
 				;;
 			*)
@@ -692,6 +691,10 @@ function playlist-add() {
 		output-info "\"$entryname\" already in \"$playlistname\""
 	else
 		echo "$entryname" >> "$playlist"
+		if ! [[ $? -eq 0 ]]; then
+			output-failure "Failed to append \"$entry\" to \"$playlistname\""
+			exit 1
+		fi
 		add-item "$entryname"
 	fi
 }
@@ -758,6 +761,10 @@ function playlist-create() {
 		output-failure "\"$playlistname\" invalid playlist name"
 	else
 		touch "$playlist"
+		if ! [[ $? -eq 0 ]]; then
+			output-failure "Failed to create \"$playlistname\""
+			exit 1
+		fi
 		add-item "$playlistname"
 	fi
 }
@@ -821,7 +828,13 @@ function playlist-copy() {
 		output-failure "\"$newplaylistname\" exists"
 		exit 1
 	fi
+
 	cp "$existplaylist" "$newplaylist"
+	if ! [[ $? -eq 0 ]]; then
+		output-failure "Failed to copy \"$existplaylistname\" to \"$newplaylistname\""
+		exit 1
+	fi
+	output-success "Copied \"$existplaylistname\" to \"$newplaylistname\""
 }
 
 function show () {
