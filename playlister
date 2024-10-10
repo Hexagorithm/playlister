@@ -877,8 +877,14 @@ function show () {
 				;;
 			author)
 				shift
-				show-author "$@"
-				output-items
+				while ! [[ $# -eq 0 ]]; do
+					local author="$1"
+					shift
+					show-author "$author"
+					output-info "Mp3 files of \"$author\""
+					output-items
+					items=()
+				done
 				exit 0
 				;;
 			playlist)
@@ -1015,6 +1021,7 @@ function show-author () {
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
 		authors="$(divide-authors "$authors")" 				# divide from SEP_POLI_AUTHOR_AUTHOR to SEP_MONO
 		IFS="${SEP_MONO}" read -ra authors <<< "$authors"				# split with SEP_MONO
+		local author
 		for author in "${authors[@]}"; do
 			if [[ "$author" == "$target_author" ]]; then
 				add-item "$mp3name"
