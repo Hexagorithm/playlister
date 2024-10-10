@@ -381,8 +381,14 @@ function check() {
 				;;
 			playlist)
 				shift
-				check-playlist "$@"
-				output-items
+				while [[ $# -gt 0 ]]; do
+					local playlistname="$1"
+					shift
+					check-playlist "$playlistname"
+					output-info "Invalid entries"
+					output-items
+					items=()
+				done
 				exit 0
 				;;
 			*)
