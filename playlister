@@ -889,8 +889,14 @@ function show () {
 				;;
 			playlist)
 				shift
-				show-playlist "$@"
-				output-items
+				while ! [[ $# -eq 0 ]]; do
+					local playlistname="$1"
+					shift
+					show-playlist "$playlistname"
+					output-info "Entries in \"$playlistname\""
+					output-items
+					items=()
+				done
 				exit 0
 				;;
 			mp3)
