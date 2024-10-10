@@ -316,6 +316,7 @@ function playlist() {
 					shift
 					playlist-add "$playlistname" "$mp3file"
 				done
+				output-info "Entries added to \"$playlistname\""
 				output-items
 				exit 0	
 				;;
