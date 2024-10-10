@@ -901,8 +901,14 @@ function show () {
 				;;
 			mp3)
 				shift
-				show-mp3 "$@"
-				output-items
+				while ! [[ $# -eq 0 ]]; do
+					local mp3name="$1"
+					shift
+					show-mp3 "$mp3name"
+					output-info "Playlists containing \"$mp3name\""
+					output-items
+					items=()
+				done
 				exit 0
 				;;
 			*)
