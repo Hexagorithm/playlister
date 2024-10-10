@@ -333,6 +333,7 @@ function playlist() {
 					shift
 					playlist-del "$playlistname" "$mp3file"
 				done
+				output-info "Entries deleted from \"$playlistname\""
 				output-items
 				exit 0	
 				;;
