@@ -323,7 +323,6 @@ function playlist() {
 			play)
 				shift
 				playlist-play "$@"
-				output-items
 				exit 0
 				;;
 			del)
@@ -603,9 +602,6 @@ function playlist-play () {
 	local keyword="$2"
 
 	local valid_keywords=( "random" "original" )
-
-
-
 	if ! is-element-in-array "$keyword" "valid_keywords" ;then 
 		output-failure "\"$keyword\" is not a valid playlist-play keyword"
 		exit 1
@@ -643,9 +639,13 @@ function playlist-play () {
 	local currnumber=1
 
 	while read entry; do
+		output-info "	Playing(${currnumber}/${lastnumber}): $entry \n \
+				To skip song, press : 	CTRL + C\n\
+				To end playing, hold: 	CTRL + C\n\
+				\n"
+
 		local mp3="${DIR_MP3S}${entry}"
-		output-info "Playing(${currnumber}/${lastnumber}): $entry"
-		mpg123 "$mp3" 2> /dev/null 
+		mpg123 "$mp3" 2> /dev/null
 		if ! [[ $? -eq 0 ]]; then
 			output-failure "mpg123 failed to play \"$entry\""
 			exit 1
