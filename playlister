@@ -309,8 +309,13 @@ function playlist() {
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in 
 			add)
-				shift 
-				playlist-add "$@"
+				local playlistname="$2"
+				shift 2
+				while [[ $# -gt 0 ]]; do
+					local mp3file="$1"
+					shift
+					playlist-add "$playlistname" "$mp3file"
+				done
 				output-items
 				exit 0	
 				;;
@@ -628,7 +633,7 @@ function playlist-play () {
 }
 
 function playlist-add() {
-	# to playlist, add every mp3 file that is valid and not an entry, also add them to items
+	# to playlist, add mp3 file that is valid and not an entry, also add it to items
 	# exit 1 on failure
 		# failures:
 			# wrong arg count
@@ -637,10 +642,11 @@ function playlist-add() {
 			# mp3 directory does nto exist, not readable, or empty
 	# 2 arguments;
 		# 1) 	basenamed playlist filename
-		# 2..)  basenamed mp3files to add
-	assert-arg-count "playlist-add" ">" 1 "$@"
+		# 2)  	basenamed mp3file to add
+	assert-arg-count "playlist-add" "==" 2 "$@"
 	local playlistname="$1"
-	shift
+	local entryname="$2"
+	shift 2
 
 	assert-file-exists 		"$DIR_PLAY"
 	assert-file-readable 		"$DIR_PLAY"
@@ -656,20 +662,15 @@ function playlist-add() {
 	assert-file-readable 		"$DIR_MP3S"
 	assert-directory-not-empty	"$DIR_MP3S"
 
+	local entry="${DIR_MP3S}${entryname}"
 
-	while ! [[ $# -eq 0 ]]; do
-		local entry="$1"
-		shift
-		assert-file-exists "${DIR_MP3S}${entry}"
-
-		if is-line-in-file "$entry" "$playlist"; then
-			output-failure "\"$entry\" already in \"$playlistname\""
-			continue
-		fi
-		echo "$entry" >> "$playlist"
-
-		add-item "$entry"
-	done
+	assert-file-exists "$entry"
+	if is-line-in-file "$entryname" "$playlist"; then
+		output-info "\"$entryname\" already in \"$playlistname\""
+	else
+		echo "$entryname" >> "$playlist"
+		add-item "$entryname"
+	fi
 }
 
 function playlist-del() {
