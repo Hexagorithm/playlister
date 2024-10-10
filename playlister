@@ -349,7 +349,12 @@ function playlist() {
 				;;
 			destroy)
 				shift
-				playlist-destroy "$@"
+				while [[ $# -gt 0 ]]; do
+					local playlistname="$1"
+					shift
+					playlist-destroy "$playlistname"
+				done
+				output-info "Deleted playlists"
 				output-items
 				exit 0
 				;;
@@ -777,8 +782,10 @@ function playlist-destroy() {
 	if ! is-file-exists "$playlist"; then
 		output-failure "\"$playlistname\" does not exist"
 		exit 1
+	else
+		rm "$playlist"
+		add-item "$playlistname"
 	fi
-	rm "$playlist"
 }
 
 function playlist-copy() {
