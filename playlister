@@ -728,9 +728,9 @@ function playlist-del() {
 	assert-file-readable 		"$DIR_MP3S"
 	assert-directory-not-empty	"$DIR_MP3S"
 
-
 	if is-line-in-file "$entry" "$playlist"; then
-		sed -i "/^${entry}/d" "$playlist"
+		local linecount="$(get-line-file-index "$entry" "$playlist")"
+		sed -i "${linecount}d" "$playlist"
 		add-item "$entry"
 	else
 		output-info "\"$entry\" not in \"$playlistname\""
@@ -1720,6 +1720,32 @@ function is-line-in-file() {
 		fi
 	done <"$file"
 	return 1
+}
+
+function get-line-file-index() {
+	# get the line number of line which is string inside file
+	# assumption: 
+		# file exists and is readable
+	# return 0 if yes, 1 if not, exit 1 on failure, the is echoed out to catch into a variable
+		# failure:
+			# wrong arg count
+	# 2 arguments
+		# 1) line
+		# 2) full path to file
+	# line numbering is done with the first line being 1
+	assert-arg-count "get-line-index-in-file" "==" 2 "$@"
+	local target_line="$1"
+	local file="$2"
+	local line
+	local index=1
+	while read line; do
+		if [[ "$line" == "$target_line" ]]; then
+			echo "$index"
+			return 0
+		fi
+		index=$((index+1))
+	done <"$playlist"
+	echo "-1"
 }
 
 function output-success () {
