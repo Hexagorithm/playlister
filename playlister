@@ -1514,12 +1514,6 @@ function read-config () {
 	done < "$FILE_CONFIG"
 }
 
-function get-config () {
-	assert-arg-count "get-config" "==" 1 "$@"
-	local configuration="$1"
-    	output-info "	$configuration-> 	${CONFIG_VALUES[$configuration]} "
-}
-
 function assert-directory-not-empty () {
 	# check if directory is empty
 	# assumption: directory exists and is readable
