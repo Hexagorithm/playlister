@@ -1309,6 +1309,18 @@ function config-configure () {
 	directory-config "$DIR_MP3S"
 
 	directory-config "$DIR_PLAY"
+
+	if ! command -v mpg123 2>&1 >/dev/null; then
+		output-failure "\"mpg123\" not found, please install \"mp123\" if not installed already"
+		exit 1
+	fi
+	output-info "\"mpg123\" found"
+
+	if ! command -v sed 2>&1 >/dev/null; then
+		output-failure "\"sed\" not found, please install \"sed\" if not installed already"
+		exit 1
+	fi
+	output-info "\"sed\" found"
 }
 
 function config-list () {
