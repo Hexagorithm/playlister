@@ -19,6 +19,9 @@ USER_INPUT=":"
 DIR_PLAY="${DIR_MAIN}playlists/"
 DIR_MP3S="${DIR_MAIN}mp3s/"
 
+declare -A items_values=()
+declare -a items_ordered=()
+
 declare -A CONFIG_VALUES=(
 	["DIR_MAIN"]="$DIR_MAIN" 	\
 	["DIR_BKUP"]="$DIR_BKUP"	\
@@ -103,7 +106,6 @@ function main () {
 
 function restore() {
 	assert-arg-count "restore" ">" 0 "$@"
-	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			mp3s | playlists)
@@ -119,10 +121,12 @@ function restore() {
 			all)
 				restore-file "configs"
 				output-items
-				items=()
+				items-clear
+
 				restore-directory "playlists"
 				output-items
-				items=()
+				items-clear
+
 				restore-directory "mp3s"
 				output-items
 				exit 0
@@ -139,7 +143,7 @@ function restore() {
 
 function restore-file() {
 	# assumption: keyword is in array ("configs")
-	assert-arg-count "restore-items" "==" 1 "$@"
+	assert-arg-count "restore-file" "==" 1 "$@"
 	local keyword="$1"
 
 	if [[ "$keyword" == "configs" ]]; then
@@ -205,7 +209,6 @@ function restore-directory() {
 
 function backup() {
 	assert-arg-count "backup" ">" 0 "$@"
-	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			playlists | mp3s)
@@ -305,7 +308,6 @@ function archive-directory-to-backup() {
 function playlist() {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "playlist" ">" 0 "$@"
-	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in 
 			add)
@@ -376,7 +378,6 @@ function playlist() {
 function check() {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "check" ">" 0 "$@"
-	declare -A items=()
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			mp3s | playlists )
@@ -392,7 +393,7 @@ function check() {
 					check-playlist "$playlistname"
 					output-info "Invalid entries"
 					output-items
-					items=()
+					items-clear
 				done
 				exit 0
 				;;
@@ -841,7 +842,6 @@ function show () {
 	# extension of the program's main function for show options.
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "show" ">" 0 "$@"
-	declare -A items=()
 	
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
@@ -858,7 +858,7 @@ function show () {
 						show-authors-of-mp3 "$mp3name"
 						output-info "Authors of \"$mp3name\""
 						output-items
-						items=()
+						items-clear
 					done
 				fi
 				exit 0
@@ -883,7 +883,7 @@ function show () {
 					show-author "$author"
 					output-info "Mp3 files of \"$author\""
 					output-items
-					items=()
+					items-clear
 				done
 				exit 0
 				;;
@@ -895,7 +895,7 @@ function show () {
 					show-playlist "$playlistname"
 					output-info "Entries in \"$playlistname\""
 					output-items
-					items=()
+					items-clear
 				done
 				exit 0
 				;;
@@ -907,7 +907,7 @@ function show () {
 					show-mp3 "$mp3name"
 					output-info "Playlists containing \"$mp3name\""
 					output-items
-					items=()
+					items-clear
 				done
 				exit 0
 				;;
@@ -1244,7 +1244,6 @@ function config () {
 	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
 	assert-arg-count "config" ">" 0 "$@"
 
-	declare -A items=()
 
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
@@ -1671,11 +1670,11 @@ function add-item () {
 		# string item to be added 
 	assert-arg-count "add-item" "==" 1 "$@"
 	local new_item="$1"
-	local items_array=("${!items[@]}")
-	if is-element-in-array "$new_item" "items_array"; then
-		items["$new_item"]=$(( ${items["$new_item"]} + 1 ))
+	if is-element-in-array "$new_item" "items_ordered"; then
+		items_values["$new_item"]=$(( ${items_values["$new_item"]} + 1 ))
 	else
-		items["$new_item"]=$(( 1 ))
+		items_ordered+=("$new_item") 
+		items_values["$new_item"]=$(( 1 ))
 	fi
 }
 
@@ -1792,6 +1791,13 @@ function output-question () {
 	>&2 echo -ne "${white}(${blue}?${white}) ${output}? "
 }
 
+function items-clear () {
+	assert-arg-count "items-clear" "==" 0 "$@"
+	items_values=()
+	items_ordered=()
+}
+
+
 function output-items () {
 	# output every item in the global items associative array
 	# return to execution flow on success, exit on failure
@@ -1800,11 +1806,11 @@ function output-items () {
 	# this function should be found after show functions in the show man function.
 	assert-arg-count "output-items" "==" 0 "$@"
 	local item 
-	for item in "${!items[@]}"; do
-		if [[ ${items["$item"]} -eq 1 ]] ; then
+	for item in "${items_ordered[@]}"; do
+		if [[ ${items_values["$item"]} -eq 1 ]] ; then
 			echo -e "\t$item"
 		else
-			echo -e "\t$item \t[${items[$item]}]"
+			echo -e "[${items_values["$item"]}]\t$item "
 		fi
 	done
 }
