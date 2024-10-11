@@ -866,6 +866,7 @@ function show () {
 			playlists)
 				shift
 				show-playlists "$@"
+				output-info "Playlists:"
 				output-items
 				exit 0
 				;;
@@ -1808,7 +1809,7 @@ function output-list () {
 	local output="$1"
 	local white="\e[1;37m"
 	local purple="\e[1;35m"
-	>&2 echo -e "${white}(${purple}~${white}) ${output}? "
+	>&2 echo -e "${white}(${purple}~${white}) ${output} "
 
 }
 
