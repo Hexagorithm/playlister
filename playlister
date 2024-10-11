@@ -1791,12 +1791,20 @@ function output-question () {
 	>&2 echo -ne "${white}(${blue}?${white}) ${output}? "
 }
 
+function output-list () {
+	assert-arg-count "output-list" "==" 1 "$@"
+	local output="$1"
+	local white="\e[1;37m"
+	local purple="\e[1;35m"
+	>&2 echo -e "${white}(${purple}~${white}) ${output}? "
+
+}
+
 function items-clear () {
 	assert-arg-count "items-clear" "==" 0 "$@"
 	items_values=()
 	items_ordered=()
 }
-
 
 function output-items () {
 	# output every item in the global items associative array
@@ -1808,9 +1816,9 @@ function output-items () {
 	local item 
 	for item in "${items_ordered[@]}"; do
 		if [[ ${items_values["$item"]} -eq 1 ]] ; then
-			echo -e "\t$item"
+			output-list "\t$item"
 		else
-			echo -e "[${items_values["$item"]}]\t$item "
+			output-list "[${items_values["$item"]}]\t$item "
 		fi
 	done
 }
