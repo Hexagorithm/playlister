@@ -164,7 +164,7 @@ function restore-file() {
 		output-failure "Failed to copy \"$src\" to \"$dst\"!"
 		exit 1
 	fi
-	output-success "Copied \"$src\" to \"$dst\""
+	output-success "Copied \"$src\" to \"$dst\"."
 
 	local contents="$(cat "$dst")"
 	while IFS= read -r content; do
@@ -198,7 +198,7 @@ function restore-directory() {
 		output-failure "Failed to restore $keyword from \"$src\" to \"$dst\"!"
 		exit 1
 	fi
-	output-success "Restored $keyword"
+	output-success "Restored ${keyword}."
 
 	entries="$(tar -tf "$src")"
 	while IFS= read -r entry;do
@@ -259,7 +259,7 @@ function archive-file() {
 		exit 1
 	fi
 
-	output-success 	"Copied \"$file\" to \"$DIR_BKUP\""
+	output-success 	"Copied \"$file\" to \"$DIR_BKUP\"."
 }
 
 
@@ -302,7 +302,7 @@ function archive-directory-to-backup() {
 		exit 1
 	fi
 
-	output-success 	"Archived \"$directory\" into \"${DIR_BKUP}${file}\""
+	output-success 	"Archived \"$directory\" into \"${DIR_BKUP}${file}\"."
 }
 
 function playlist() {
@@ -427,7 +427,7 @@ function check-playlist() {
 	while read -u 69 entry; do
 		local mp3file="${DIR_MP3S}${entry}"
 		if is-file-exists "$mp3file"; then
-			output-success "\"$entry\" reffers to existing file"
+			output-success "\"$entry\" reffers to existing file."
 			continue
 		fi
 
@@ -456,7 +456,7 @@ function check-playlist() {
 				fi
 				linecount=$((linecount + 1))
 			done 68< "$playlist"
-			output-success "\"$entry\" changed to \"$user\""
+			output-success "\"$entry\" changed to \"$user\"."
 		elif is-confirmed "Delete \"$entry\""; then
 			assert-file-writable 	"$playlist"
 			local linecount=1
@@ -467,7 +467,7 @@ function check-playlist() {
 				fi
 				linecount=$((linecount + 1))
 			done 68< "$playlist"
-			output-success "\"$entry\" deleted"
+			output-success "\"$entry\" deleted."
 		else
 			add-item "$entry"
 		fi
@@ -508,7 +508,7 @@ function check-files() {
 		fi
 
 		if [[ $isvalid -eq 0 ]]; then
-			output-success "\"$filename\" valid ${keyword%s}"	# delete s from keyword
+			output-success "\"$filename\" valid ${keyword%s}."	# delete s from keyword
 			continue
 		fi
 		output-failure "\"$filename\" invalid ${keyword%s}!"
@@ -544,7 +544,7 @@ function check-files() {
 			break
 		done
 		mv "$file" "${directory}${user}"
-		output-success "Renamed \"$filename\" to \"$user\""
+		output-success "Renamed \"$filename\" to \"$user\"."
 	done
 }
 
@@ -835,7 +835,7 @@ function playlist-copy() {
 		output-failure "Failed to copy \"$existplaylistname\" to \"$newplaylistname\"!"
 		exit 1
 	fi
-	output-success "Copied \"$existplaylistname\" to \"$newplaylistname\""
+	output-success "Copied \"$existplaylistname\" to \"$newplaylistname\"."
 }
 
 function show () {
@@ -1300,7 +1300,7 @@ function config-configure () {
 	file-configure "$FILE_CONFIG" "backup" "makenew"
 	
 	if read-config ; then
-		output-success "$(basename "$FILE_CONFIG") read"
+		output-success "$(basename "$FILE_CONFIG") read."
 	else
 		output-failure "$(basename "$FILE_CONFIG") failed to read!"
 		exit 1
@@ -1457,7 +1457,7 @@ function file-configure () {
 		if is-file-exists "$fileback"; then
 			cp "$fileback" "$file"
 			if [[ $? -eq 0 ]]; then
-				output-success "$filename created from backup"
+				output-success "$filename created from backup."
 				return
 			fi
 			output-info "$filename failed to create from backup"
@@ -1469,7 +1469,7 @@ function file-configure () {
 		if is-file-exists "$filename"; then
 			cp "$filename" "$file"
 			if [[ $? -eq 0 ]]; then
-				output-success "$filename created from current directory"
+				output-success "$filename created from current directory."
 				return
 			fi
 			output-info "$filename failed to create from current directory"
@@ -1480,7 +1480,7 @@ function file-configure () {
 	if [[ $makenew -eq 1 ]]; then
 		touch "$file"
 		if [[ $? -eq 0 ]]; then
-			output-success "$filename created blank"
+			output-success "$filename created blank."
 			return 0
 		fi
 		output-failure "$filename failed to create blank!"
@@ -1767,7 +1767,7 @@ function output-success () {
 	local output="$1"
 	local white="\e[1;37m"
 	local green="\e[1;32m"
-	>&2 echo -e "${white}(${green}+${white}) ${output}."
+	>&2 echo -e "${white}(${green}+${white}) ${output}"
 }
 
 function output-failure () {
