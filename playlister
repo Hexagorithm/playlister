@@ -109,25 +109,51 @@ function restore() {
 		case $1 in
 			mp3s | playlists)
 				restore-directory "$@"
-				output-items
+				if is-items-empty; then
+					output-info "No files restored."
+				else
+					output-info "Files restored:"
+					output-items
+				fi
 				exit 0
 				;;
 			configs)
 				restore-file "$@"
-				output-items
+				if is-items-empty ; then
+					output-info "No restored configurations to output."
+				else
+					output-info "Restored configurations:"
+					output-items
+				fi
 				exit 0
 				;;
 			all)
 				restore-file "configs"
-				output-items
-				items-clear
+				if is-items-empty ; then
+					output-info "No restored configurations to output."
+				else
+					output-info "Restored configurations:"
+					output-items
+					items-clear
+				fi
 
 				restore-directory "playlists"
-				output-items
-				items-clear
+				if is-items-empty; then
+					output-info "No files restored."
+				else
+					output-info "Files restored:"
+					output-items
+					items-clear
+				fi
 
 				restore-directory "mp3s"
-				output-items
+				if is-items-empty; then
+					output-info "No files restored."
+				else
+					output-info "Files restored:"
+					output-items
+					items-clear
+				fi
 				exit 0
 				;;
 			*)
@@ -197,7 +223,6 @@ function restore-directory() {
 		output-failure "Failed to restore $keyword from \"$src\" to \"$dst\"!"
 		exit 1
 	fi
-	output-success "Restored ${keyword}."
 
 	entries="$(tar -tf "$src")"
 	while IFS= read -r entry;do
@@ -317,8 +342,12 @@ function playlist() {
 					shift
 					playlist-add "$playlistname" "$mp3file"
 				done
-				output-info "Entries added to \"$playlistname\":"
-				output-items
+				if is-items-empty ; then
+					output-info "No entries were added."
+				else
+					output-info "Entries added to \"$playlistname\":"
+					output-items
+				fi
 				exit 0	
 				;;
 			play)
@@ -335,8 +364,12 @@ function playlist() {
 					shift
 					playlist-del "$playlistname" "$mp3file"
 				done
-				output-info "Entries deleted from \"$playlistname\":"
-				output-items
+				if is-items-empty; then
+					output-info "No entries were deleted."
+				else
+					output-info "Entries deleted from \"$playlistname\":"
+					output-items
+				fi
 				exit 0	
 				;;
 			create)
@@ -347,8 +380,12 @@ function playlist() {
 					shift
 					playlist-create "$playlist"
 				done
-				output-info "Created playlists:"
-				output-items
+				if is-items-empty; then
+					output-info "No playlists created."
+				else
+					output-info "Created playlists:"
+					output-items
+				fi
 				exit 0	
 				;;
 			destroy)
@@ -359,8 +396,12 @@ function playlist() {
 					shift
 					playlist-destroy "$playlistname"
 				done
-				output-info "Deleted playlists:"
-				output-items
+				if is-items-empty; then
+					output-info "No playlists destroyed."
+				else
+					output-info "Destroyed playlists:"
+					output-items
+				fi
 				exit 0
 				;;
 			copy)
@@ -383,19 +424,28 @@ function check() {
 		case $1 in
 			mp3s | playlists )
 				check-files "$@"
-				output-items
+				if is-items-empty; then
+					output-info "All files are valid."
+				else
+					output-info "Invalid files:"
+					output-items
+				fi
 				exit 0
 				;;
 			playlist)
 				shift
-				assert-arg-count "no playlists given!" ">" 0 "$@"
+				assert-arg-count "No playlists given!" ">" 0 "$@"
 				while [[ $# -gt 0 ]]; do
 					local playlistname="$1"
 					shift
 					check-playlist "$playlistname"
-					output-info "Invalid entries:"
-					output-items
-					items-clear
+					if is-items-empty; then
+						output-info "No invalid entries found."
+					else
+						output-info "Invalid \"$playlistname\" entries:"
+						output-items
+						items-clear
+					fi
 				done
 				exit 0
 				;;
@@ -606,6 +656,7 @@ function playlist-play () {
 
 	local valid_keywords=( "random" "original" )
 	if ! is-element-in-array "$keyword" "valid_keywords" ;then 
+		#
 		output-failure "\"$keyword\" is not a valid playlist-play keyword!"
 		exit 1
 	fi
@@ -848,15 +899,23 @@ function show () {
 				shift
 				if 	[[ $# -eq 0 ]]; then
 					show-authors
-					output-info "Authors:"
-					output-items
+					if is-items-empty; then
+						output-info "No authors to output."
+					else
+						output-info "Authors:"
+						output-items
+					fi
 				else
 					while ! [[ $# -eq 0 ]]; do
 						local mp3name="$1"
 						shift
 						show-authors-of-mp3 "$mp3name"
-						output-info "Authors of \"$mp3name\":"
-						output-items
+						if is-items-empty; then
+							output-info "\"$mp3name\" not found."
+						else
+							output-info "Authors of \"$mp3name\":"
+							output-items
+						fi
 						items-clear
 					done
 				fi
@@ -865,38 +924,57 @@ function show () {
 			playlists)
 				shift
 				show-playlists "$@"
-				output-info "Playlists:"
-				output-items
+				if is-items-empty; then
+					output-info "No playlists to output."
+				else
+					output-info "Playlists:"
+					output-items
+				fi
 				exit 0
 				;;
 			mp3s)
 				shift
 				show-mp3s "$@"
+				if is-items-empty; then
+					output-info "No mp3s to output."
+				else
+					output-info "Mp3s:"
+					output-items
+				fi
 				output-items
 				exit 0
 				;;
 			author)
 				shift
-				assert-arg-count "no authors given!" ">" 0 "$@"
+				assert-arg-count "No authors given!" ">" 0 "$@"
 				while ! [[ $# -eq 0 ]]; do
 					local author="$1"
 					shift
 					show-author "$author"
-					output-info "Mp3 files of \"$author\":"
-					output-items
+
+					if is-items-empty; then
+						output-info "No mp3 files of \"$author\" to output."
+					else
+						output-info "Mp3 files of \"$author\":"
+						output-items
+					fi
 					items-clear
 				done
 				exit 0
 				;;
 			playlist)
 				shift
-				assert-arg-count "no playlists given!" ">" 0 "$@"
+				assert-arg-count "No playlists given!" ">" 0 "$@"
 				while ! [[ $# -eq 0 ]]; do
 					local playlistname="$1"
 					shift
 					show-playlist "$playlistname"
-					output-info "Entries in \"$playlistname\":"
-					output-items
+					if is-items-empty; then
+						output-info "\"$playlistname\" is empty."
+					else
+						output-info "Entries in \"$playlistname\":"
+						output-items
+					fi
 					items-clear
 				done
 				exit 0
@@ -908,8 +986,12 @@ function show () {
 					local mp3name="$1"
 					shift
 					show-mp3 "$mp3name"
-					output-info "Playlists containing \"$mp3name\":"
-					output-items
+					if is-items-empty; then
+						output-info "No playlist contains \"$mp3name\""
+					else
+						output-info "Playlists containing \"$mp3name\":"
+						output-items
+					fi
 					items-clear
 				done
 				exit 0
@@ -1253,12 +1335,18 @@ function config () {
 				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				config-list "$@"
-				output-items
+				if is-items-empty; then
+					output-failure "Wait, no configs? Thats impossible..."
+					exit 1
+				else
+					output-info "Current configurations:"
+					output-items
+				fi
 				exit 0
 				;;
 			get)
 				shift
-				assert-arg-count "no configurations given!" ">" 0 "$@"
+				assert-arg-count "No configurations given!" ">" 0 "$@"
 				assert-file-exists 	"$FILE_CONFIG"
 				assert-file-readable 	"$FILE_CONFIG"
 				read-config
@@ -1266,7 +1354,12 @@ function config () {
 					config-get "$1"
 					shift
 				done
-				output-items
+				if is-items-empty; then
+					output-info "No configurations to output."
+				else
+					output-info "Configurations:"
+					output-items
+				fi
 				exit 0
 				;;
 			set)	
@@ -1275,7 +1368,15 @@ function config () {
 				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				config-set "$@"
-				output-items
+				config-get "$1"
+				if is-items-empty; then
+					output-failure "Wait, no configs? Thats impossible..."
+					exit 1
+
+				else
+					output-info "Configurations:"
+					output-items
+				fi
 				exit 0
 				;;
 			*)
@@ -1809,6 +1910,16 @@ function items-clear () {
 	items_values=()
 	items_ordered=()
 }
+
+function is-items-empty () {
+	assert-arg-count "[SCRIPT-FAILURE] is-items-empty" "==" 0 "$@"
+	if [[ "${items_ordered[@]}" == "" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 
 function output-items () {
 	# output every item in the global items associative array
