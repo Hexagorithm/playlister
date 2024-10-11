@@ -46,8 +46,7 @@ declare -a CONFIGS_MUTABLE=(
 )
 
 function main () {
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "main" ">" 0 "$@"
+	assert-arg-count "No options given!" ">" 0 "$@"
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in 
 			config)
@@ -105,7 +104,7 @@ function main () {
 }
 
 function restore() {
-	assert-arg-count "restore" ">" 0 "$@"
+	assert-arg-count "No restore options given!" ">" 0 "$@"
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			mp3s | playlists)
@@ -143,7 +142,7 @@ function restore() {
 
 function restore-file() {
 	# assumption: keyword is in array ("configs")
-	assert-arg-count "restore-file" "==" 1 "$@"
+	assert-arg-count "restore file takes 1 option: configs !" "==" 1 "$@"
 	local keyword="$1"
 
 	if [[ "$keyword" == "configs" ]]; then
@@ -174,7 +173,7 @@ function restore-file() {
 
 function restore-directory() {
 	# assumption: keyword is in ("mp3s" "playlists"), so if keyword not mp3, keyword == "playlists" assumed
-	assert-arg-count "restore-directory" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] restore-directory" "==" 1 "$@"
 	local keyword="$1"
 
 	local src=""
@@ -208,7 +207,7 @@ function restore-directory() {
 
 
 function backup() {
-	assert-arg-count "backup" ">" 0 "$@"
+	assert-arg-count "No backup options given!" ">" 0 "$@"
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			playlists | mp3s)
@@ -235,7 +234,7 @@ function backup() {
 }
 
 function archive-file() {
-	assert-arg-count "archive-file" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] archive-file" "==" 1 "$@"
 
 	local file="$1"
 
@@ -265,7 +264,7 @@ function archive-file() {
 
 function archive-directory-to-backup() {
 	# assumption: keyword is inside ( "mp3s" "playlists")
-	assert-arg-count "archive-directory-to-backup" "==" 1 "$@"
+	assert-arg-count "backup [mp3s | playlists | all] takes no options!" "==" 1 "$@"
 	local keyword="$1"
 
 	local directory
@@ -306,8 +305,7 @@ function archive-directory-to-backup() {
 }
 
 function playlist() {
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "playlist" ">" 0 "$@"
+	assert-arg-count "No playlist options given!" ">" 0 "$@"
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in 
 			add)
@@ -376,8 +374,7 @@ function playlist() {
 }
 
 function check() {
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "check" ">" 0 "$@"
+	assert-arg-count "No check options given!" ">" 0 "$@"
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			mp3s | playlists )
@@ -408,7 +405,7 @@ function check() {
 
 function check-playlist() {
 	# checks if every entry in playlist is an existing mp3 file
-	assert-arg-count "check-playlist" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] check-playlist" "==" 1 "$@"
 	local playlistname="$1"
 
 	assert-file-exists 		"$DIR_MP3S"
@@ -480,7 +477,7 @@ function check-files() {
 	# Asumption: keyword given is a valid keyword "playlists" or "mp3s"
 	# 1 keyword argument -> "playlists" or "mp3s"
 
-	assert-arg-count "check-files" "==" 1 "$@"
+	assert-arg-count "check [ mp3s | playlists ] takes no options!" "==" 1 "$@"
 	local keyword="$1"
 
 	local directory
@@ -598,7 +595,7 @@ function playlist-play () {
 	# 1 argument
 		# the basenamed name of the playlist
 		# keyword for the order in which mp3 files should be outputted
-	assert-arg-count "playlist-play" "==" 2 "$@"
+	assert-arg-count "playlist play takes 2 options: <playlist> [ random | original ] !" "==" 2 "$@"
 	local playlistname="$1"
 	local keyword="$2"
 
@@ -666,7 +663,7 @@ function playlist-add() {
 	# 2 arguments;
 		# 1) 	basenamed playlist filename
 		# 2)  	basenamed mp3file to add
-	assert-arg-count "playlist-add" "==" 2 "$@"
+	assert-arg-count "[SCRIPT-FAILURE]" "==" 2 "$@"
 	local playlistname="$1"
 	local entryname="$2"
 	shift 2
@@ -710,7 +707,7 @@ function playlist-del() {
 	# arguments:
 		# 1) basenamed playlist name
 		# 2) entry
-	assert-arg-count "playlist-del" "==" 2 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] playlist-del" "==" 2 "$@"
 	local playlistname="$1"
 	local entry="$2"
 	shift 2
@@ -778,7 +775,7 @@ function playlist-destroy() {
 				# playlist of the given name does not exist
 	# 1 argument:
 		# the basenamed name of the playlist
-	assert-arg-count "playlist-destroy" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] playlist-destroy" "==" 1 "$@"
 	local playlistname="$1"
 
 	# DiR_PLAY should not fail to playlist even if playlist is empty
@@ -807,7 +804,7 @@ function playlist-copy() {
 	# 2 arguments
 		# 1) existing playlist
 		# 2) new playlist
-	assert-arg-count "playlist-copy" "==" 2 "$@"
+	assert-arg-count "playlist copy takes 2 arguments: <existing-file> <new-file>" "==" 2 "$@"
 	local existplaylistname="$1"
 	local newplaylistname="$2"
 
@@ -839,10 +836,7 @@ function playlist-copy() {
 }
 
 function show () {
-	# extension of the program's main function for show options.
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "show" ">" 0 "$@"
-	
+	assert-arg-count "No show options given!" ">" 0 "$@"
 	while ! [[ $# -eq 0 ]]; do
 		case $1 in
 			authors)
@@ -931,7 +925,7 @@ function show-mp3 () {
 			# a playlist file is unreadable
 	# 1 argument:
 		# basenamed filename of the mp3 file
-	assert-arg-count "show-mp3" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] show-mp3" "==" 1 "$@"
 	local mp3name="$1"
 
 	assert-file-exists 		"$DIR_MP3S"
@@ -966,8 +960,7 @@ function show-playlist () {
 			# playlist directory does not exist, unreadable, or empty
 	# 1 argument: 
 		# playlist filename(basename'd)
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "show-playlist" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] show-playlist" "==" 1 "$@"
 	local playlistname="$1"
 
 	assert-file-exists 		"$DIR_PLAY"
@@ -1020,8 +1013,7 @@ function show-author () {
 			# DIR_MP3S does not exist, is unreadable or empty
 	# 1 argument: 
 		# the name of the author
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "show-author" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] show-author" "==" 1 "$@"
 	local target_author="$1"
 	
 	assert-file-exists 		"$DIR_MP3S"
@@ -1052,8 +1044,7 @@ function show-authors () {
 			# failed to add/increment author in items
 	# no arguments
 
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "show-authors" "==" 0 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] show-authors" "==" 0 "$@"
 
 	assert-file-exists 		"$DIR_MP3S"
 	assert-file-readable 		"$DIR_MP3S"
@@ -1081,7 +1072,7 @@ function show-authors-of-mp3 () {
 			# mp3 directory does not exist, is unreadable or empty
 	# 1 argument:
 		# the target mp3 file name (without authors, with mp3 extension)
-	assert-arg-count "show-authors-of-mp3" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] show-authors-of-mp3" "==" 1 "$@"
 	local target_mp3name="$1"
 
 
@@ -1118,8 +1109,7 @@ function show-mp3s () {
 	# 1 argument: type of mp3: ["all", "used", "unused"]
 	# implementation of playlister show mp3 <type>
 
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "show-mp3s" "==" 1 "$@"
+	assert-arg-count "show mp3s takes 1 option: [ all | used | unused ] !" "==" 1 "$@"
 	local keyword="$1"
 	local valid_keywords=( "all" "used" "unused")
 	if ! is-element-in-array "$keyword" "valid_keywords"; then
@@ -1193,8 +1183,7 @@ function show-playlists () {
 			# playlist does not exits, unreadable or empty
 	# no arguments
 
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "show-playlists" "==" 0 "$@"
+	assert-arg-count "show playlist does not take any options!" "==" 0 "$@"
 
 	assert-file-exists 		"$DIR_PLAY"
 	assert-file-readable 		"$DIR_PLAY"
@@ -1242,10 +1231,7 @@ function divide-authors (){
 }
 
 function config () {
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "config" ">" 0 "$@"
-
-
+	assert-arg-count "No config options given!" ">" 0 "$@"
 	while [[ "$#" -gt 0 ]]; do
 		case $1 in
 			configure)
@@ -1291,14 +1277,18 @@ function config () {
 	done
 }
 function config-configure () {
+	assert-arg-count "config configure does not take any options!" "==" 0 "$@"
 	
 	directory-config "$DIR_MAIN"
 
 	directory-config "$DIR_BKUP"
 	
-	file-configure "$FILE_HELP" "currentdir"
+	file-configure 	"$FILE_HELP" "currentdir"
 	
-	file-configure "$FILE_CONFIG" "backup" "makenew"
+	file-configure 	"$FILE_CONFIG" "backup" "makenew"
+
+	assert-file-exists 	"$FILE_CONFIG"		# just to be sure there ain't any mask weird stuff
+	assert-file-readable 	"$FILE_CONFIG"
 	
 	if read-config ; then
 		output-success "$(basename "$FILE_CONFIG") read."
@@ -1325,8 +1315,7 @@ function config-configure () {
 }
 
 function config-list () {
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "config-list" "==" 0 "$@"
+	assert-arg-count "config list does not take any options!" "==" 0 "$@"
 
 	local configuration
 	for configuration in "${CONFIGS_ALL[@]}"; do
@@ -1337,8 +1326,7 @@ function config-list () {
 }
 
 function config-get () {
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "config-get" "==" 1 "$@"
+	assert-arg-count "config get takes 1 argument: <config-name> !" "==" 1 "$@"
 	local configuration="$1"
 	if ! is-element-in-array "$configuration" "CONFIGS_ALL"; then
 		output-failure "\"$configuration\" invalid configuration!"
@@ -1348,8 +1336,7 @@ function config-get () {
 }
 
 function config-set () {
-	# PLACEHOLDER FOR A USER-FRIENDLY ERROR
-	assert-arg-count "config-set" "==" 2 "$@"
+	assert-arg-count "config set takes 2 arguments: <config-name> <value> !" "==" 2 "$@"
 
 	local configuration="$1"
 	local newvalue="$2"
@@ -1362,12 +1349,12 @@ function config-set () {
 		exit 1
 	fi
 
-	assert-file-exists 	"$FILE_CONFIG"
+	assert-file-exists	"$FILE_CONFIG"
 	update-config-file "$configuration" "$newvalue"
 }
 
 function update-config-file () {
-	assert-arg-count "update-config-file" "==" 2 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] update-config-file" "==" 2 "$@"
 	local configuration="$1"
 	local newvalue="$2"
 
@@ -1387,7 +1374,7 @@ function directory-config () {
 			# directory is not readable
 	# arguments:
 		# full path of the directory
-	assert-arg-count "directory-config" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] directory-config" "==" 1 "$@"
 	local dir="$1"
 	local dirname="$(basename "$dir" )"
 	if ! is-file-directory-exists "$dir"; then
@@ -1419,7 +1406,7 @@ function directory-config () {
 
 
 function file-configure () {
-	assert-arg-count "file-configure" ">" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] file-configure" ">" 1 "$@"
 	local file="$1"
 	local filename="$( basename "$file" )"
 	local backup=0
@@ -1492,7 +1479,8 @@ function file-configure () {
 }
 
 function read-config () {
-	assert-file-readable "$FILE_CONFIG"
+	# assumption: FILE_CONFIG exists and is readable
+	assert-arg-count "[SCRIPT-FAILURE] read-config" "==" 0 "$@"
 	while read line ; do
 		local argument="$(echo "$line" | cut -d "=" -f 1)"
 		case "$argument" in
@@ -1507,7 +1495,7 @@ function read-config () {
 				CONFIG_VALUES["DIR_PLAY"]="$value"
 				;;
 			*)
-				output-failure "not valid user config: \"$argument\"!"
+				output-failure "\"$argument\" invalid configuration found in \"$FILE_CONFIG\"!"
 				return 1
 				;;
 		esac
@@ -1568,7 +1556,7 @@ function assert-file-exists (){
 	# return execution flow if file exists, exit 1 otherwise
 	# 1 argument:
 		# the full path to the file
-	assert-arg-count "assert-file-exists" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] assert-file-exists" "==" 1 "$@"
 	local file="$1"
 	if ! [[ -e "$file" ]]; then
 		output-failure "\"$file\" does not exist!"
@@ -1625,7 +1613,7 @@ function assert-arg-count () {
 			# invalid operator given
 			# assertion failed
 	# Arguments:
-		# func 				-> name of function (needed for failure output)
+		# prompt 			-> failure output
 		# operator 			-> keyword together with argcount specifying the argument count
 		# argcount 			-> a point of refrence for arguments expected
 		# optional arguments... 	-> arguments given originally to func
@@ -1634,7 +1622,7 @@ function assert-arg-count () {
 		output-failure "assert-arg-count: invalid argument count(must be >= 3, but {$#} were given)!"
 		exit 1
 	fi
-	local func="$1"
+	local failure_output="$1"
 
 
 	local operator="$2"
@@ -1664,7 +1652,7 @@ function assert-arg-count () {
 	    ( [[ "$operator" == "==" ]] &&  ! [[ $# -eq $argcount ]] ) || \
 	    ( [[ "$operator" == "<"  ]] &&  ! [[ $# -lt $argcount ]] ) ; then
 
-		output-failure "${func}: invalid argument count($# !${operator} $argcount)!"
+		output-failure "$failure_output"
 		exit 1
 	fi
 }
