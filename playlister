@@ -657,7 +657,7 @@ function playlist-play () {
 	local valid_keywords=( "random" "original" )
 	if ! is-element-in-array "$keyword" "valid_keywords" ;then 
 		#
-		output-failure "\"$keyword\" is not a valid playlist-play keyword!"
+		output-failure "\"$keyword\" invalid keyword!"
 		exit 1
 	fi
 
@@ -1203,7 +1203,7 @@ function show-mp3s () {
 	local keyword="$1"
 	local valid_keywords=( "all" "used" "unused")
 	if ! is-element-in-array "$keyword" "valid_keywords"; then
-		output-failure "\"$keyword\" is not inside \"${valid_keywords[*]}\"!"
+		output-failure "\"$keyword\" invalid keyword!"
 		exit 1
 	fi
 	
@@ -1233,7 +1233,7 @@ function show-mp3s () {
 				fi
 				;;
 			*)
-				output-failure "how did \"$keyword\" slip through the argument check?!"
+				output-failure "How did \"$keyword\" slip through the argument check?!"
 		esac
 	done
 }
@@ -1296,7 +1296,7 @@ function get-from-filename () {
 	local valid_keywords=( "mp3" "authors" )
 
 	if ! is-element-in-array "$keyword" "valid_keywords"; then
-		output-failure "\"$keyword\" not in: \"${valid_keywords[*]}\"!"
+		output-failure "\"$keyword\" invalid keyword!"
 		exit 1
 	fi
 
