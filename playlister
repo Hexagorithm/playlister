@@ -311,6 +311,7 @@ function playlist() {
 			add)
 				local playlistname="$2"
 				shift 2
+				assert-arg-count "No mp3s given!" ">" 0 "$@"
 				while [[ $# -gt 0 ]]; do
 					local mp3file="$1"
 					shift
@@ -328,6 +329,7 @@ function playlist() {
 			del)
 				local playlistname="$2"
 				shift 2
+				assert-arg-count "No mp3s given!" ">" 0 "$@"
 				while [[ $# -gt 0 ]]; do
 					local mp3file="$1"
 					shift
@@ -339,6 +341,7 @@ function playlist() {
 				;;
 			create)
 				shift
+				assert-arg-count "No playlist names given!" ">" 0 "$@"
 				while [[ $# -gt 0 ]]; do
 					local playlist="$1"
 					shift
@@ -350,6 +353,7 @@ function playlist() {
 				;;
 			destroy)
 				shift
+				assert-arg-count "No playlist names given!" ">" 0 "$@"
 				while [[ $# -gt 0 ]]; do
 					local playlistname="$1"
 					shift
@@ -384,6 +388,7 @@ function check() {
 				;;
 			playlist)
 				shift
+				assert-arg-count "no playlists given!" ">" 0 "$@"
 				while [[ $# -gt 0 ]]; do
 					local playlistname="$1"
 					shift
@@ -804,7 +809,7 @@ function playlist-copy() {
 	# 2 arguments
 		# 1) existing playlist
 		# 2) new playlist
-	assert-arg-count "playlist copy takes 2 arguments: <existing-file> <new-file>" "==" 2 "$@"
+	assert-arg-count "playlist copy takes 2 arguments: <existing-file> <new-file> !" "==" 2 "$@"
 	local existplaylistname="$1"
 	local newplaylistname="$2"
 
@@ -872,6 +877,7 @@ function show () {
 				;;
 			author)
 				shift
+				assert-arg-count "no authors given!" ">" 0 "$@"
 				while ! [[ $# -eq 0 ]]; do
 					local author="$1"
 					shift
@@ -884,6 +890,7 @@ function show () {
 				;;
 			playlist)
 				shift
+				assert-arg-count "no playlists given!" ">" 0 "$@"
 				while ! [[ $# -eq 0 ]]; do
 					local playlistname="$1"
 					shift
@@ -896,6 +903,7 @@ function show () {
 				;;
 			mp3)
 				shift
+				assert-arg-count "no mp3s given!" ">" 0 "$@"
 				while ! [[ $# -eq 0 ]]; do
 					local mp3name="$1"
 					shift
