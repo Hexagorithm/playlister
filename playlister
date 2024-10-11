@@ -1241,8 +1241,8 @@ function config () {
 				;;
 			list)
 				shift
-				assert-file-exists "$FILE_CONFIG"
-				assert-file-readable "$FILE_CONFIG"
+				assert-file-exists 	"$FILE_CONFIG"
+				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				config-list "$@"
 				output-items
@@ -1250,8 +1250,9 @@ function config () {
 				;;
 			get)
 				shift
-				assert-file-exists "$FILE_CONFIG"
-				assert-file-readable "$FILE_CONFIG"
+				assert-arg-count "no configurations given!" ">" 0 "$@"
+				assert-file-exists 	"$FILE_CONFIG"
+				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				while ! [[ $# -eq 0 ]]; do  
 					config-get "$1"
@@ -1262,8 +1263,8 @@ function config () {
 				;;
 			set)	
 				shift
-				assert-file-exists "$FILE_CONFIG"
-				assert-file-readable "$FILE_CONFIG"
+				assert-file-exists 	"$FILE_CONFIG"
+				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				config-set "$@"
 				output-items
@@ -1330,9 +1331,9 @@ function config-get () {
 	local configuration="$1"
 	if ! is-element-in-array "$configuration" "CONFIGS_ALL"; then
 		output-failure "\"$configuration\" invalid configuration!"
-		exit 1
+	else
+		add-item "	$configuration	-> 	${CONFIG_VALUES[$configuration]} "
 	fi
-	add-item "	$configuration	-> 	${CONFIG_VALUES[$configuration]} "
 }
 
 function config-set () {
