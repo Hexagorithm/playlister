@@ -602,7 +602,7 @@ function check-files() {
 
 function is-string-valid-playlist() {
 	# does not validate user string propelly(slashes), oh well!
-	assert-arg-count "is-string-valid-playlist" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] is-string-valid-playlist" "==" 1 "$@"
 	local playlistname="$1"
 	if !	[[ "$playlistname" == *"${EXT_PLAY}" ]]; then
 		return 1
@@ -613,7 +613,7 @@ function is-string-valid-playlist() {
 
 function is-string-valid-mp3name () {
 	# does not validate user string propelly(slashes), oh well!
-	assert-arg-count "is-string-valid-mp3name" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] is-string-valid-mp3name" "==" 1 "$@"
 	local mp3name="$1"
 	local authors="$(get-from-filename "$mp3name" "authors")"
 	if [[ "$authors" == "" ]]; then
@@ -631,7 +631,7 @@ function is-string-valid-mp3name () {
 }
 
 function get-user-input() {
-	assert-arg-count "get-user-input" "==" 0 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] get-user-input" "==" 0 "$@"
 	local user
 	read -p "${USER_INPUT}" user
 	echo "$user"
@@ -799,7 +799,7 @@ function playlist-create() {
 				# playlist of the given name already exists
 	# 1 argument:
 		# the basenamed name of the playlist
-	assert-arg-count "playlist-create" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] playlist-create" "==" 1 "$@"
 	local playlistname="$1"
 
 	# DiR_PLAY should not fail to create playlist even if playlist is empty
@@ -1619,7 +1619,7 @@ function assert-directory-not-empty () {
 		# success -> directory is not empty 
 		# failure -> directory is empty
 	# 1 argument: the directory
-	assert-arg-count "assert-directory-not-empty" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] assert-directory-not-empty" "==" 1 "$@"
 	local directory="$1"
 
 	if ! find "$directory" -mindepth 1 -maxdepth 1 | read; then
@@ -1634,7 +1634,7 @@ function assert-file-writable () {
 	# Assumption: file exists
 	# 1 argument: 
 		# full path to the file
-	assert-arg-count "assert-file-writable" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] assert-file-writable" "==" 1 "$@"
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	if ! [[ -w "$file" ]]; then
@@ -1651,7 +1651,7 @@ function assert-file-readable () {
 		# success -> file is readable
 		# failure -> file is not readable
 	# 1 argument: the file
-	assert-arg-count "assert-file-readable" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] assert-file-readable" "==" 1 "$@"
 	local file="$1"
 	file="${file%/}"	# trim slash if file given for when the file given is a directory.
 	local filename="$(basename "$file")"
@@ -1679,7 +1679,7 @@ function is-file-exists () {
 	# return 0 if file exists, return 1 if file does not exist
 	# 1 argument:
 		# the full path to the file
-	assert-arg-count "is-file-exists" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] is-file-exists" "==" 1 "$@"
 	local file="$1"
 	if [[ -e "$file" ]]; then
 		return 0
@@ -1692,7 +1692,7 @@ function is-file-directory-exists () {
 	# return 0 if file exists and is a directory, return 0 otherwise
 	# 1 argument:
 		# the full path to the file
-	assert-arg-count "is-file-directory-exists" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] is-file-directory-exists" "==" 1 "$@"
 	local file="$1"
 	if [[ -d "$file" ]]; then
 		return 0
@@ -1705,7 +1705,7 @@ function assert-file-directory () {
 	# return execution flow on success, exit 1 on failure
 	# 1 argument:
 		# the full path to the file
-	assert-arg-count "assert-file-directory" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] assert-file-directory" "==" 1 "$@"
 	local file="$1"
 	local filename="$(basename "$file")"
 	if ! [[ -d "$file" ]]; then
@@ -1773,7 +1773,7 @@ function add-item () {
 		# failure -> invalid argument count
 	# 1 argument: 
 		# string item to be added 
-	assert-arg-count "add-item" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] add-item" "==" 1 "$@"
 	local new_item="$1"
 	if is-element-in-array "$new_item" "items_ordered"; then
 		items_values["$new_item"]=$(( ${items_values["$new_item"]} + 1 ))
@@ -1791,7 +1791,7 @@ function is-element-in-array() {
 	# 2 arguments
 		# 1) element to be checked
 		# 2) name of array
-	assert-arg-count "is-element-in-array" "==" 2 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] is-element-in-array" "==" 2 "$@"
 	local element="$1"
 	local arraynameargs="$2[@]"
 	local array=("${!arraynameargs}")		# "(" ")" to treat as array
@@ -1814,7 +1814,7 @@ function is-line-in-file() {
 	# 2 arguments
 		# 1) line
 		# 2) full path to file
-	assert-arg-count "is-line-in-file" "==" 2 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] is-line-in-file" "==" 2 "$@"
 	local target_line="$1"
 	local file="$2"
 	local line
@@ -1837,7 +1837,7 @@ function get-line-file-index() {
 		# 1) line
 		# 2) full path to file
 	# line numbering is done with the first line being 1
-	assert-arg-count "get-line-index-in-file" "==" 2 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] get-line-index-in-file" "==" 2 "$@"
 	local target_line="$1"
 	local file="$2"
 	local line
@@ -1856,7 +1856,7 @@ function output-success () {
 	# unifying user success output
 	# 1 argument: 
 		# the string to output
-	assert-arg-count "output-success" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] output-success" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local green="\e[1;32m"
@@ -1867,7 +1867,7 @@ function output-failure () {
 	# unifying user failure output
 	# 1 argument: 
 		# the string to output
-	assert-arg-count "output-failure" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] output-failure" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local red="\e[1;31m"
@@ -1878,7 +1878,7 @@ function output-info () {
 	# unfying user informative output
 	# 1 argument: 
 		# the string to output
-	assert-arg-count "output-info" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] output-info" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local yellow="\e[1;33m"
@@ -1889,7 +1889,7 @@ function output-question () {
 	# unifying user prompt output (used in is-confirmed)
 	# 1 argument: 
 		# the string to output
-	assert-arg-count "output-question" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] output-question" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local blue="\e[1;34m"
@@ -1897,7 +1897,7 @@ function output-question () {
 }
 
 function output-list () {
-	assert-arg-count "output-list" "==" 1 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] output-list" "==" 1 "$@"
 	local output="$1"
 	local white="\e[1;37m"
 	local purple="\e[1;35m"
@@ -1906,7 +1906,7 @@ function output-list () {
 }
 
 function items-clear () {
-	assert-arg-count "items-clear" "==" 0 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] items-clear" "==" 0 "$@"
 	items_values=()
 	items_ordered=()
 }
@@ -1927,7 +1927,7 @@ function output-items () {
 		# failure -> wrong func arg count
 	# no arguments
 	# this function should be found after show functions in the show man function.
-	assert-arg-count "output-items" "==" 0 "$@"
+	assert-arg-count "[SCRIPT-FAILURE] output-items" "==" 0 "$@"
 	local item 
 	for item in "${items_ordered[@]}"; do
 		if [[ ${items_values["$item"]} -eq 1 ]] ; then
