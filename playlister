@@ -633,13 +633,11 @@ function is-string-valid-mp3name () {
 	assert-opt-count "[SCRIPT-FAILURE] is-string-valid-mp3name" "==" 1 "$@"
 	local mp3name="$1"
 	local authors="$(get-from-filename "$mp3name" "authors")"
-	echo "authors is \"$authors\""
 	if [[ "$authors" == "" ]]; then
 		return 1
 	fi
 
 	local mp3name="$(get-from-filename "$mp3name" "mp3")"
-	echo "mp3name is \"$mp3name\""
 	if 	[[ "$mp3name" == "" ]]; then
 		return 1
 	elif	! [[ "$mp3name" == *"${EXT_MP3}" ]]; then
