@@ -11,9 +11,9 @@ FILE_HELP="${DIR_MAIN}playlister.help"
 EXT_PLAY=".plst"
 EXT_MP3=".mp3"
 EXT_BKUP=".bak"
-SEP_POLI_AUTHOR_AUTHOR=", "			# this points to separator dividing the authors from eachother
-SEP_POLI_AUTHORS_MP3=" - "			# this points to separator dividing the authors and the mp3 name
-SEP_MONO="|"					# SEP_POLI separators are mutated to this for easier processing
+SEP_AUAU=", "			# separates authors from other autors
+SEP_AUMP=" - " 			# separates authors from the mp3 name
+SEP_MONO="|"			# translating mutli char separators -> single char, for easier processing
 USER_INPUT=":"
 	# Mutable
 DIR_PLAY="${DIR_MAIN}playlists/"
@@ -627,11 +627,13 @@ function is-string-valid-mp3name () {
 	assert-opt-count "[SCRIPT-FAILURE] is-string-valid-mp3name" "==" 1 "$@"
 	local mp3name="$1"
 	local authors="$(get-from-filename "$mp3name" "authors")"
+	echo "authors is \"$authors\""
 	if [[ "$authors" == "" ]]; then
 		return 1
 	fi
 
 	local mp3name="$(get-from-filename "$mp3name" "mp3")"
+	echo "mp3name is \"$mp3name\""
 	if 	[[ "$mp3name" == "" ]]; then
 		return 1
 	elif	! [[ "$mp3name" == *"${EXT_MP3}" ]]; then
@@ -1126,7 +1128,7 @@ function show-author () {
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
-		authors="$(divide-authors "$authors")" 				# divide from SEP_POLI_AUTHOR_AUTHOR to SEP_MONO
+		authors="$(divide-authors "$authors")" 				# divide from SEP_AUAU to SEP_MONO
 		IFS="${SEP_MONO}" read -ra authors <<< "$authors"				# split with SEP_MONO
 		local author
 		for author in "${authors[@]}"; do
@@ -1155,7 +1157,7 @@ function show-authors () {
 		local filename="$(basename "$file")"
 		local mp3name="$(get-from-filename "$filename" "mp3")"
 		local authors="$(get-from-filename "$filename" "authors")" 	# split from full filename
-		authors="$(divide-authors "$authors")" 				# divide from SEP_POLI_AUTHOR_AUTHOR to SEP_MONO
+		authors="$(divide-authors "$authors")" 				# divide from SEP_AUAU to SEP_MONO
 		IFS="${SEP_MONO}" read -ra authors <<< "$authors"		# split with SEP_MONO 
 		local author
 		for author in "${authors[@]}"; do
@@ -1221,6 +1223,8 @@ function show-mp3s () {
 	assert-file-exists 		"$DIR_MP3S"
 	assert-file-readable 		"$DIR_MP3S"
 	assert-directory-not-empty 	"$DIR_MP3S"
+
+
 
 	for file in "${DIR_MP3S}"*; do
 		local filename="$(basename "$file" )"
@@ -1322,7 +1326,7 @@ function get-from-filename () {
 		exit 1
 	fi
 
-	local tmp=${filename//"${SEP_POLI_AUTHORS_MP3}"/${SEP_MONO}}
+	local tmp=${filename//"${SEP_AUMP}"/${SEP_MONO}}
 	local authors
 	local mp3
 	IFS="${SEP_MONO}" read authors mp3 <<< "$tmp"
@@ -1337,7 +1341,7 @@ function get-from-filename () {
 function divide-authors (){
 	assert-opt-count "divide-authors" "==" 1 "$@"
 	local authors_string="$1"
-	local authors=${authors_string//"${SEP_POLI_AUTHOR_AUTHOR}"/"${SEP_MONO}"}
+	local authors=${authors_string//"${SEP_AUAU}"/"${SEP_MONO}"}
 	echo "$authors"
 	
 }
