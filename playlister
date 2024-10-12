@@ -1938,4 +1938,8 @@ function output-items () {
 	done
 }
 
+if ! [[ "${BASH_VERSINFO}" -ge 4 ]]; then
+	output-failure "Current bash version ($BASH_VERSINFO) is not supported, please use bash version 4+ !"
+	exit 1
+fi
 main "$@"
