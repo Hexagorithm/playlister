@@ -94,6 +94,17 @@ function main () {
 				restore "$@"
 				exit 0
 				;;
+			help)
+				shift
+				assert-file-exists 	"$FILE_HELP"
+				assert-file-readable 	"$FILE_HELP"
+				cat "$FILE_HELP"
+				if ! [[ $? -eq 0 ]]; then
+					output-failure "Failed to read \"$FILE_HELP\""
+					exit 1
+				fi
+				exit 0
+				;;
 			*)
 				output-failure "\"$1\" unrecognised option!"
 				shift
