@@ -1413,6 +1413,26 @@ function config () {
 				fi
 				exit 0
 				;;
+			"unset")
+				shift
+				assert-opt-count "No configurations given!" ">" 0 "$@"
+				assert-file-exists 	"$FILE_CONFIG"
+				assert-file-readable 	"$FILE_CONFIG"
+				read-config
+				while ! [[ $# -eq 0 ]]; do
+					local configuration="$1"
+					shift
+					config-unset "$configuration"
+				done
+				if is-items-empty ; then
+					output-info "No configs unset."
+				else
+					output-info "Configs unset:"
+					output-items
+				fi
+
+				exit 0
+				;;
 			*)
 				output-failure "\"$1\" unrecognised config option!"
 				exit 1
@@ -1487,14 +1507,29 @@ function config-set () {
 	if ! is-element-in-array "$configuration" "CONFIGS_ALL"; then
 		output-failure "\"$configuration\" invalid configuration!"
 		exit 1
-	fi
-	if ! is-element-in-array "$configuration" "CONFIGS_MUTABLE"; then
+	elif ! is-element-in-array "$configuration" "CONFIGS_MUTABLE"; then
 		output-failure "\"$configuration\" configuration not mutable!"
 		exit 1
 	fi
 
-	assert-file-exists	"$FILE_CONFIG"
 	update-config-file "$configuration" "$newvalue"
+}
+
+function config-unset () {
+	assert-opt-count "[SCRIPT-FAILURE] config-unset" "==" 1 "$@"
+	local configuration="$1"
+	if ! is-element-in-array "$configuration" "CONFIGS_ALL"; then
+		output-failure "\"$configuration\" invalid configuration!"
+		return
+	elif ! is-element-in-array "$configuration" "CONFIGS_MUTABLE"; then
+		output-failure "\"$configuration\" configuration not mutable!"
+		exit
+	fi
+
+	assert-file-exists 	"$FILE_CONFIG"
+	assert-file-writable	"$FILE_CONFIG"
+	sed -i "/^${configuration}=/d" "$FILE_CONFIG"
+	add-item "$configuration"
 }
 
 function update-config-file () {
