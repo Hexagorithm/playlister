@@ -1222,11 +1222,6 @@ function show-mp3s () {
 	assert-file-readable 		"$DIR_MP3S"
 	assert-directory-not-empty 	"$DIR_MP3S"
 
-	local file
-	for file in "${DIR_PLAY}"*; do		# playlist check for is-mp3-used
-		assert-file-readable "$file"
-	done
-
 	for file in "${DIR_MP3S}"*; do
 		local filename="$(basename "$file" )"
 		case "$keyword" in
@@ -1234,11 +1229,27 @@ function show-mp3s () {
 				add-item "$filename"
 				;;
 			"used")
+				assert-file-exists 		"$DIR_PLAY"
+				assert-file-readable		"$DIR_PLAY"
+				assert-directory-not-empty	"$DIR_PLAY"
+				local file
+				for file in "${DIR_PLAY}"*; do		# playlist check for is-mp3-used
+					assert-file-readable "$file"
+				done
+
 				if is-mp3-used "$filename"; then
 					add-item "$filename"
 				fi
 				;;
 			"unused")
+				assert-file-exists 		"$DIR_PLAY"
+				assert-file-readable		"$DIR_PLAY"
+				assert-directory-not-empty	"$DIR_PLAY"
+				local file
+				for file in "${DIR_PLAY}"*; do		# playlist check for is-mp3-used
+					assert-file-readable "$file"
+				done
+
 				if ! is-mp3-used "$filename"; then
 					add-item "$filename"
 				fi
