@@ -715,6 +715,8 @@ function playlist-play () {
 		output-info "	Playing(${currnumber}/${lastnumber}): $entry \n \
 				To skip song, press : 	CTRL + C\n\
 				To end playing, hold: 	CTRL + C\n\
+				To pause, press	    : 	CTRL + Z\n\
+				(unpause by typing \'fg\' in your terminal)\
 				\n"
 
 		local mp3="${DIR_MP3S}${entry}"
