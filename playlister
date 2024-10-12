@@ -191,10 +191,10 @@ function restore-file() {
 	fi
 	output-success "Copied \"$src\" to \"$dst\"."
 
-	local contents="$(cat "$dst")"
-	while IFS= read -r content; do
-		add-item "$content"
-	done <<< "$contents"
+	local line
+	while read line; do
+		add-item "$line"
+	done < "$dst"
 }
 
 function restore-directory() {
