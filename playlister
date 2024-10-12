@@ -484,18 +484,18 @@ function check-playlist() {
 		fi
 
 		output-failure "\"$entry\" does not reffer to existing file!"
-		if is-confirmed "Rename \"$entry\""; then
+		if is-confirmed "Rename \"$entry\"? "; then
 			assert-file-writable 	"$DIR_MP3S"
 			assert-file-writable 	"$playlist"
 			local user
 			while : ; do
-				output-info "Give new file name of \"$entry\"."
+				output-info "Give new file name of \"$entry\"..."
 				user="$(get-user-input)"
 				if 	! is-string-valid-mp3name "$user"; then
 					output-failure "\"$user\" invalid mp3 file name!"
 					continue
 				elif 	! is-file-exists "${DIR_MP3S}${user}"; then
-					output-failure "\"$user\" does reffer to existing mp3 file!"
+					output-failure "\"$user\" does not reffer to existing mp3 file!"
 					continue
 				fi
 				break
@@ -509,7 +509,7 @@ function check-playlist() {
 				linecount=$((linecount + 1))
 			done 68< "$playlist"
 			output-success "\"$entry\" changed to \"$user\"."
-		elif is-confirmed "Delete \"$entry\""; then
+		elif is-confirmed "Delete \"$entry\"? "; then
 			assert-file-writable 	"$playlist"
 			local linecount=1
 			while read -u 68 line; do
@@ -565,7 +565,7 @@ function check-files() {
 		fi
 		output-failure "\"$filename\" invalid ${keyword%s}!"
 
-		if ! is-confirmed "Rename \"$filename\""; then
+		if ! is-confirmed "Rename \"$filename\"? "; then
 			add-item "$filename"
 			continue
 		fi
@@ -574,7 +574,7 @@ function check-files() {
 
 		local user
 		while : ; do
-			output-info "Give new name of \"$filename\"."
+			output-info "Give new name of \"$filename\"..."
 			user="$(get-user-input)"
 			local isvalid
 			if [[ "$keyword" == "playlists" ]]; then
@@ -1893,7 +1893,7 @@ function output-question () {
 	local output="$1"
 	local white="\e[1;37m"
 	local blue="\e[1;34m"
-	>&2 echo -ne "${white}(${blue}?${white}) ${output}? "
+	>&2 echo -ne "${white}(${blue}?${white}) ${output}"
 }
 
 function output-list () {
