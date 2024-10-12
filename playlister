@@ -1399,6 +1399,7 @@ function config () {
 				assert-file-readable 	"$FILE_CONFIG"
 				read-config
 				config-set "$@"
+				read-config
 				config-get "$1"
 				if is-items-empty; then
 					output-failure "Wait, no configs? Thats impossible..."
