@@ -1,1 +1,39 @@
-hello there
+playlister help							-> output this help
+
+playlister playlist add 	<playlist> <mp3...>		-> add each <mp3> to <playlist>
+playlister playlist del 	<playlist> <mp3...>		-> delete each <mp3> from <playlist>
+playlister playlist create 	<playlist...>			-> create each <playlist> (blank)
+playlister playlist destroy 	<playlist...>			-> delete each <playlist>
+playlister playlist copy 	<playlist> <new-playlist>	-> create <new-playlist> copy of <playlist> 
+
+
+playlister playlist play 	<playlist> original	-> play mp3 entries of <playlist> in original order
+playlister playlist play 	<playlist> random	-> play mp3 entries of <playlist> in random order
+
+playlister check mp3s					-> check mp3 directory files for correct format
+playlister check playlists				-> check if every playlist file is correct name
+playlister check playlist 	<playlist...>		-> check if every entry is existing mp3 file
+
+playlister backup mp3s 					-> archive mp3s
+playlister backup playlists 				-> archive playlists
+playlister backup configs				-> archive the config file
+playlister backup all					-> archive mp3s, playlists and the config file
+
+playlister restore mp3s					-> restore mp3 files from backup
+playlister restore playlists				-> restore playlists from backup
+playlister restore configs				-> restore configs from backup
+playlister restore all					-> restore configs, playlists and  mp3s from backup(in that order)
+
+playlister config configure				-> configure system for running app
+playlister config get 		<config-name...>	-> output value of each <config-name> config
+playlister config list					-> output all configurations
+playlister config set 		<config-name> <value>	-> change <config-name> config value to <value>
+playlister config unset		<config-name...>	-> delete each user inputted <config-name>
+
+playlister show authors 	<mp3name...>		-> output every author of each <mp3name>
+playlister show authors					-> output every author
+playlister show playlists				-> output every playlist
+playlister show mp3s 		[ all | used | unused ]	-> output every mp3 file of the specified type
+playlister show author 		<author...>		-> output every mp3 file that is of each <author>
+playlister show playlist 	<playlist...>		-> output every entry of each <playlist> 
+playlister show mp3 		<mp3...>		-> output every playlist that has each <mp3> inside
