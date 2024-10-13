@@ -1488,7 +1488,7 @@ function config-list () {
 }
 
 function config-get () {
-	assert-opt-count "config get takes 1 argument: <config-name> !" "==" 1 "$@"
+	assert-opt-count "[SCRIPT-FAILURE] config-get" "==" 1 "$@"
 	local configuration="$1"
 	if ! is-element-in-array "$configuration" "CONFIGS_ALL"; then
 		output-failure "\"$configuration\" invalid configuration!"
