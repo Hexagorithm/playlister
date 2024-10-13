@@ -85,5 +85,5 @@ rm -r [users-home-directory]/.playlister/
 sudo rm /usr/local/bin/playlister		# removing files from /usr/local/bin requres root
 ```
 
-**_Remember, live off the grid!_**
-https://www.theverge.com/24257157/youtube-sesac-music-licensing-streaming
+**_[Remember, live off the grid!(https://www.theverge.com/24257157/youtube-sesac-music-licensing-streaming)]_**
+
