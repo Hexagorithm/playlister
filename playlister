@@ -895,9 +895,10 @@ function playlist-copy() {
 	if ! is-file-exists "$existplaylist"; then
 		output-failure "\"$existplaylistname\" does not exist!"
 		exit 1
-	fi
-
-	if is-file-exists "$newplaylist"; then
+	elif ! is-string-valid-playlist "$newplaylist"; then
+		output-failure "\"$newplaylistname\" invalid playlist name!"
+		exit 1
+	elif is-file-exists "$newplaylist"; then
 		output-failure "\"$newplaylistname\" exists!"
 		exit 1
 	fi

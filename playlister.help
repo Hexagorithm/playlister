@@ -5,8 +5,6 @@ playlister playlist del 	<playlist> <mp3...>		-> delete each <mp3> from <playlis
 playlister playlist create 	<playlist...>			-> create each <playlist> (blank)
 playlister playlist destroy 	<playlist...>			-> delete each <playlist>
 playlister playlist copy 	<playlist> <new-playlist>	-> create <new-playlist> copy of <playlist> 
-
-
 playlister playlist play 	<playlist> original	-> play mp3 entries of <playlist> in original order
 playlister playlist play 	<playlist> random	-> play mp3 entries of <playlist> in random order
 
