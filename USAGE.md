@@ -355,7 +355,7 @@ List every configuration with its current value.
 playlister config set <config-name> <new-value>
 ```
 
-Change `<config-name>` to have new value `<new-value>`. This is done by appending a configuration assigning entry to `FILE_CONFIG`. This will fail if `<config-name>` reffers to an invalid or unmutable config. See [MUTABLE CONFIGURATIONS](#MUTABLE_CONFIGURATOINS)
+Change `<config-name>` to have new value `<new-value>`. This is done by appending a configuration assigning entry to `FILE_CONFIG`. This will fail if `<config-name>` reffers to an invalid or unmutable config. See [MUTABLE CONFIGURATIONS](#MUTABLE-CONFIGURATIONS)
 
 #### unset
 
