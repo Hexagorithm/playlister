@@ -4,12 +4,12 @@
 	# Immutable
 DIR_MAIN="$HOME/.playlister/"
 DIR_BKUP="${DIR_MAIN}backups/"
-TAR_MP3S="${DIR_BKUP}mp3s.tar"
-TAR_PLAY="${DIR_BKUP}playlists.tar"
 FILE_CONFIG="${DIR_MAIN}playlister.conf"
 FILE_HELP="${DIR_MAIN}playlister.help"
+TAR_MP3S="${DIR_BKUP}mp3s.tar"
+TAR_PLAY="${DIR_BKUP}playlists.tar"
 EXT_PLAY=".plst"
-EXT_MP3=".mp3"
+EXT_MP3S=".mp3"
 EXT_BKUP=".bak"
 SEP_MONO="|"			# translating mutli char separators -> single char, for easier processing
 USER_INPUT=":"
@@ -25,23 +25,37 @@ declare -a items_ordered=()
 declare -A CONFIG_VALUES=(
 	["DIR_MAIN"]="$DIR_MAIN" 	\
 	["DIR_BKUP"]="$DIR_BKUP"	\
-	["FILE_CONFIG"]="$FILE_CONFIG" 	\
-	["FILE_HELP"]="$FILE_HELP" 	\
 	["DIR_PLAY"]="$DIR_PLAY" 	\
 	["DIR_MP3S"]="$DIR_MP3S"	\
+	["FILE_CONFIG"]="$FILE_CONFIG" 	\
+	["FILE_HELP"]="$FILE_HELP" 	\
+	["TAR_MP3S"]="$TAR_MP3S"	\
+	["TAR_PLAY"]="$TAR_PLAY"	\
+	["EXT_MP3S"]="$EXT_MP3S"		\
+	["EXT_PLAY"]="$EXT_PLAY"	\
+	["EXT_BKUP"]="$EXT_BKUP"	\
 	["SEP_AUAU"]="$SEP_AUAU"	\
-	["SEP_AUMP"]="$SEP_AUMP"
+	["SEP_AUMP"]="$SEP_AUMP"	\
+	["SEP_MONO"]="$SEP_MONO"	\
+	["USER_INPUT"]="$USER_INPUT"	
 )
 
 declare -a CONFIGS_ALL=(
 	"DIR_MAIN" 	\
 	"DIR_BKUP"	\
-	"FILE_CONFIG" 	\
-	"FILE_HELP" 	\
 	"DIR_PLAY"	\
 	"DIR_MP3S"	\
+	"FILE_CONFIG" 	\
+	"FILE_HELP" 	\
+	"TAR_MP3S"	\
+	"TAR_PLAY"	\
+	"EXT_MP3S"	\
+	"EXT_PLAY"	\
+	"EXT_BKUP"	\
 	"SEP_AUAU"	\
-	"SEP_AUMP"
+	"SEP_AUMP"	\
+	"SEP_MONO"	\
+	"USER_INPUT"
 )
 
 declare -a CONFIGS_MUTABLE=(
@@ -640,7 +654,7 @@ function is-string-valid-mp3name () {
 	local mp3name="$(get-from-filename "$mp3name" "mp3")"
 	if 	[[ "$mp3name" == "" ]]; then
 		return 1
-	elif	! [[ "$mp3name" == *"${EXT_MP3}" ]]; then
+	elif	! [[ "$mp3name" == *"${EXT_MP3S}" ]]; then
 		return 1
 	fi
 	return 0
