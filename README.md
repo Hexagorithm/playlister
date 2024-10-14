@@ -73,7 +73,7 @@ playlister config list
 
 Look for `DIR_MP3S` and `DIR_PLAY`. If the values point to directories that are not children of the `MAIN_DIR` directory, the user has to delete them manually (if he so chooses).
 
-2. Recursively remove the main `.PLAYLISTER` directory:
+2. Recursively remove the main `.playlister` directory:
 
 ```bash
 rm -r [users-home-directory]/.playlister/
