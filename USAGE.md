@@ -67,6 +67,7 @@ Note about separators: apparently bash hates when something ends with white char
 
 ## EXTERNAL SOFTWARE
 `playlister` requires external software to function, that being `mpg123` and `sed` (is sed external software?).
+
 On Debian:
 
 ```bash
