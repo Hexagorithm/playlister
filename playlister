@@ -867,7 +867,6 @@ function playlist-destroy() {
 	assert-opt-count "[SCRIPT-FAILURE] playlist-destroy" "==" 1 "$@"
 	local playlistname="$1"
 
-	# DiR_PLAY should not fail to playlist even if playlist is empty
 	assert-file-exists 		"$DIR_PLAY"
 	assert-file-readable		"$DIR_PLAY"
 	assert-directory-not-empty	"$DIR_PLAY"
@@ -877,7 +876,6 @@ function playlist-destroy() {
 
 	if ! is-file-exists "$playlist"; then
 		output-failure "\"$playlistname\" does not exist!"
-		exit 1
 	else
 		rm "$playlist"
 		add-item "$playlistname"
