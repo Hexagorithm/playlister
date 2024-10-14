@@ -4,8 +4,8 @@
 	# Immutable
 DIR_MAIN="$HOME/.playlister/"
 DIR_BKUP="${DIR_MAIN}backups/"
-TAR_MP3S="mp3s.tar"
-TAR_PLAY="playlists.tar"
+TAR_MP3S="${DIR_BKUP}mp3s.tar"
+TAR_PLAY="${DIR_BKUP}playlists.tar"
 FILE_CONFIG="${DIR_MAIN}playlister.conf"
 FILE_HELP="${DIR_MAIN}playlister.help"
 EXT_PLAY=".plst"
@@ -222,10 +222,10 @@ function restore-directory() {
 	local src=""
 	local dst=""
 	if [[ "$keyword" == "mp3s" ]]; then
-		src="${DIR_BKUP}${TAR_MP3S}"
+		src="${TAR_MP3S}"
 		dst="${DIR_MP3S}"
 	else
-		src="${DIR_BKUP}${TAR_PLAY}"
+		src="${TAR_PLAY}"
 		dst="${DIR_PLAY}"
 	fi
 
@@ -324,8 +324,8 @@ function archive-directory-to-backup() {
 	assert-file-writable		"$DIR_BKUP"
 
 
-	if is-file-exists "${DIR_BKUP}${TAR_MP3S}"; then
-		assert-file-writable 	"${DIR_BKUP}${TAR_MP3S}"
+	if is-file-exists "${file}"; then
+		assert-file-writable 	"${file}"
 	fi
 
 
@@ -334,16 +334,16 @@ function archive-directory-to-backup() {
 	assert-directory-not-empty	"$directory"
 
 
-	output-info 	"Archiving \"$directory\" into \"${DIR_BKUP}${file}\"..."
+	output-info 	"Archiving \"$directory\" into \"${file}\"..."
 
 	cd "$directory"
-	tar --create -f "${DIR_BKUP}${file}" *
+	tar --create -f "${file}" *
 	if ! [[ $? -eq 0 ]]; then
-		output-failure "Failed to archive \"$directory\" into \"${DIR_BKUP}${file}\"!"
+		output-failure "Failed to archive \"$directory\" into \"${file}\"!"
 		exit 1
 	fi
 
-	output-success 	"Archived \"$directory\" into \"${DIR_BKUP}${file}\"."
+	output-success 	"Archived \"$directory\" into \"${file}\"."
 }
 
 function playlist() {
