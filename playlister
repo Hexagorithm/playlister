@@ -275,9 +275,9 @@ function backup() {
 				exit 0
 				;;
 			all)
+				archive-file "$FILE_CONFIG"
 				archive-directory-to-backup "playlists"
 				archive-directory-to-backup "mp3s"
-				archive-file "$FILE_CONFIG"
 				exit 0
 				;;
 			*)
